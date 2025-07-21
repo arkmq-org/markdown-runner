@@ -73,32 +73,29 @@ run_test() {
     fi
 }
 
-# Test 1: Happy Path
-run_test "Happy path should succeed" \
-    "./markdown-runner -m cases -f happy.md" || ((FAILED_TESTS++))
-
-# Test 2: Schema Error
-# We expect this to fail, so we invert the result with !
-run_test "Schema error should cause a failure" \
-    "! ./markdown-runner -m cases -f schema_error.md" || ((FAILED_TESTS++))
-
-# Test 3: Teardown
-# The command should fail, but the teardown output should be present.
-run_test "Failing command with a valid teardown" \
-    "./markdown-runner -m cases -f teardown.md 2>&1 | grep 'SUCCESS.*echo teardown should execute'" || ((FAILED_TESTS++))
-
-# Test 4: Parallelism
-run_test "Parallel execution should result in interleaved output" \
-    "./markdown-runner -m cases -f parallel.md" || ((FAILED_TESTS++))
-
-# Test 5: File Writer
-run_test "Writer runtime should create a file with the correct content" \
-    "./markdown-runner -m cases -f writer.md" || ((FAILED_TESTS++))
-
-# Test 6: Dry Run
-run_test "Dry run should display DRY-RUN message and not execute" \
-    "./markdown-runner -d -m cases -f happy.md 2>&1 | grep -E 'DRY-RUN.*|.*echo happy path'" || ((FAILED_TESTS++))
-
+# --- Automatically Find and Run Tests ---
+# Find all markdown files in the cases directory and run them as tests.
+for test_file in cases/*.md; do
+    test_name=$(basename "${test_file}" .md)
+    # We expect schema_error.md to fail, so we invert the result with !
+    if [ "${test_name}" == "schema_error" ]; then
+        run_test "Schema error test (${test_name}) should fail as expected" \
+            "! ./markdown-runner -m cases -f ${test_file}" || ((FAILED_TESTS++))
+    # The teardown test has a specific success condition
+    elif [ "${test_name}" == "teardown" ]; then
+        run_test "Teardown test (${test_name}) should execute teardown" \
+            "./markdown-runner -m cases -f ${test_file} 2>&1 | grep 'SUCCESS.*echo teardown should execute'" || ((FAILED_TESTS++))
+    # The dry-run test has a specific success condition
+    elif [ "${test_name}" == "happy" ]; then
+        run_test "Dry run test for (${test_name}) should show DRY-RUN" \
+            "./markdown-runner -d -m cases -f ${test_file} 2>&1 | grep -E 'DRY-RUN.*|.*echo happy path'" || ((FAILED_TESTS++))
+        run_test "Happy path test (${test_name}) should succeed" \
+            "./markdown-runner -m cases -f ${test_file}" || ((FAILED_TESTS++))
+    else
+        run_test "Test case ${test_name}" \
+            "./markdown-runner -m cases -f ${test_file}" || ((FAILED_TESTS++))
+    fi
+done
 
 # --- Test Summary ---
 print_msg "33" "\n--- Test Summary ---"

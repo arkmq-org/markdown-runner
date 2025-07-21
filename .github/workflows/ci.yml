@@ -12,5 +12,9 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.23'
+      - name: Unit test
+        run: go test -v ./...
+      - name: Integration test
+        run: bash test/run.sh
       - name: Run the markdown runner
-        run: go run main.go --markdown-dir docs
+        run: go run main.go -m .
