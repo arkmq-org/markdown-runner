@@ -23,7 +23,6 @@ go run main.go --markdown-dir docs
 
 List of the available options:
 
-```bash
 ````bash {"stage":"help"}
 markdown-runner --help
 ````
@@ -75,7 +74,7 @@ To execute this documentation, you can run the following command:
 go run main.go -m . # add -u to update the documentation
 ```
 
-> ![NOTE]
+> [!NOTE]
 > To avoid infinite loops, the above chunk is not executable.
 
 ## Development setup
@@ -139,61 +138,90 @@ group them with an environment of execution, chunks can be executed in parallel
 of each other within the same stage. And finally, there are the stages, which
 are a collection of chunks. Stages gets executed one after the other.
 
-If you run the tool without arguments, it will now display the help message.
+```mermaid
+graph TD
+    subgraph "Execution Flow"
+        direction LR
+        Stage1["Stage 1"] --> Stage2["Stage 2"] --> StageN["..."]
+    end
+
+    subgraph "Inside a Stage"
+        direction TB
+        subgraph ParallelGroup [Parallel Chunks]
+            direction LR
+            ChunkA["Chunk A<br/>(parallel: true)"]
+            ChunkB["Chunk B<br/>(parallel: true)"]
+        end
+        ChunkC["Chunk C"]
+
+        ParallelGroup --> ChunkC
+    end
+
+    subgraph "Inside a Chunk"
+        direction TB
+        Command1["Command 1"] --> Command2["Command 2"]
+    end
+
+    classDef stage fill:#e1d5e7,stroke:#9673a6,stroke-width:2px;
+    classDef chunk fill:#d5e8d4,stroke:#82b366,stroke-width:2px;
+    classDef command fill:#f8cecc,stroke:#b85450,stroke-width:2px;
+
+    class Stage1,Stage2,StageN stage;
+    class ChunkA,ChunkB,ChunkC chunk;
+    class Command1,Command2 command;
+```
 
 #### Code chunks
 
 In an executable markdown file chunk, every line gets executed. In order to be
-executed a chunks must provide a valid json object with at least a stage name
-configured in it.
+What makes a chunk executable is a pice of json metadata that is attached to the
+code fence of the chunk.
 
-The code fence to create an executable chunk needs to have at least 3 back quotes
-and some json metadata on the same line.
+The code fence to create an executable chunk needs to have at least 3 back
+quotes and a corresponding closing fence later on in the document.
+
+For example:
 
 ````
 ``` something {"stage":"init"}
 ```
 ````
 
-The only mandatory field an executable chunk must have is the stage name.
-
-> [!WARNING]
-> An executable chunk must contain at least one command to be considered
-> successful. An empty chunk will be treated as having failed, which will
-> prevent dependent chunks from running. If you need a placeholder or a no-op
-> (no-operation) chunk, you should use a harmless command like `true`.
-
-The other possible fields are:
+The only mandatory field being the stage name. The other possible fields are:
 
 ##### `"runtime":"bash"`
 
-Specify that the chunk is written in bash. The chunk will get turned into a
-script prior to its execution. The script will have a uuid name and a `.sh`
-extension and will be executed in a temporary directory.
+Specifies that the content of the chunk represents a bash script. By default the
+script will be executed in a newly created temporary directory. (See
+`"rootdir"` below), and we recommend leaving it this way unless you don't mind
+leaving temporary files on your disk.
 
-The script will be executed with the `bash` command. The script will be executed
-with the environment variables of the parent process that started the markdown
-runner.
+The script will be executed with the environment variables of the parent process
+that started the markdown runner like any other commands of the pipeline.
 
-The script itself will be:
+Some changes are made to the script before it gets executed, it'll get:
 
 * prefixed with `set -euo pipefail`, meaning that it will
   error at the first failing commands
 * suffixed with `printenv` to extract all the environment variables the
   user added in.
 
+We recommend leaving these options in place.
+
 ##### `"runtime":"writer"`
 
-Set that to write on disk. The metadata needs to contain
-`"destination":"some_place"` to write the file.
+Writes the content of the chunk to disk. The metadata needs to contain
+`"destination":"some_place"` to know where to write the content.
 
 ##### `"label":"some label"`
 
-You can give a pretty printable name to a chunk. It's good for bash runtimes, as
+Gives a pretty printable name to a chunk. It's good for bash runtimes, as
 the command to execute is always `./script.sh` so if you want to have a
 differentiable name in the logs, use this field.
 
-##### `"rootdir":"$initial_dir"`
+##### `"rootdir"
+
+###### `"rootdir":"$initial_dir"`
 
 The commands in the chunk will the executed from directory where the markdown
 runner was started.
@@ -203,16 +231,76 @@ created at runtime. The temporary directory is created under `/tmp`, and is
 named with `$tmpdir.$uuid`. The temporary directory is deleted after the chunk
 is executed.
 
-##### `"rootdir":"$tmpdir.x"`
+###### `"rootdir":"$tmpdir.x"`
 
 Create a new temporary directory to execute the chunk. If another chunk reuses
 the same suffix (`.x` in the example) it'll share the same directory. Different
 suffixes will result in different directories. Useful when you need to chain
 chunks or to reuse some cached files between chunks
 
-##### `"parallel":"true"`
+The following diagram shows how `rootdir` affects the execution environment:
+
+```mermaid
+graph TD
+    subgraph "Chunk Execution Environments"
+        direction TB
+
+        subgraph "Default Behavior (Unique Directories)"
+            direction LR
+            Chunk1["Chunk 1<br/>(rootdir: not set)"] --> Dir1["/tmp/xyz123"]
+        end
+
+        subgraph "Shared Directory Behavior"
+            direction LR
+            Chunk2["Chunk 2<br/>(rootdir: $tmpdir.shared)"] --> SharedDir["/tmp/abc456"]
+            Chunk3["Chunk 3<br/>(rootdir: $tmpdir.shared)"] --> SharedDir
+        end
+
+        subgraph "Initial Directory"
+             direction LR
+             Chunk4["Chunk 4<br/>(rootdir: $initial_dir)"] --> InitialDir["/path/to/project"]
+        end
+    end
+```
+
+##### `"parallel":true`
 
 Makes the chunk executed in parallel of the other chunks within the same stage.
+
+```mermaid
+graph TD
+    subgraph "Stage Execution Flow"
+        direction TB
+
+        subgraph "Parallel Execution"
+            direction TB
+            StartP[Start Stage]
+
+            subgraph " "
+                direction LR
+
+                subgraph "Chunk A (parallel: true)"
+                    A1["Cmd 1"] --> A2["Cmd 2"]
+                end
+
+                subgraph "Chunk B (parallel: true)"
+                    B1["Cmd 1"]
+                end
+            end
+
+            StartP --> A1
+            StartP --> B1
+            A2 --> EndP[End Stage]
+            B1 --> EndP[End Stage]
+        end
+
+        subgraph "Sequential Execution (Default)"
+            direction TB
+            StartS[Start Stage] --> C["Chunk A"] --> D["Chunk B"] --> EndS[End Stage]
+        end
+    end
+```
+
 This works best if:
 
 * there's only a single command in the chunk (or if the chunk is a bash chunk)
@@ -222,21 +310,55 @@ This works best if:
 > For non bash runtime:
 > The parallel behavior has a simplistic implementation. Only the last
 > command of the chunk is really started asynchronously. The other ones are
-> sequentially executed before that.
+> sequentially executed before that. If you need more complex parallel behavior,
+> consider using a bash runtime to program it the way you'd like it to be.
 
 ##### `"breakpoint":"true"`
 
 Enters interactive mode when the chunk is started. Useful for debugging
 purposes. Better to use alongside `--verbose`
 
+##### `"id":"someID"`
+
+Give an ID to a chunk so that it can get referenced later on
+
 ##### `"requires":"stageName/id"`
 
 Makes the execution of the given stage dependant of the correct execution of the
 pointed stage. To be used in teardown chunks.
 
-##### `"id":"someID"`
+This is particularly useful for running cleanup tasks only when their corresponding setup tasks have completed, as shown below:
 
-Give an ID to a chunk so that it can get referenced later on
+```mermaid
+graph TD
+    subgraph "Stage: main"
+      direction LR
+      ChunkSuccess("Chunk 'setup' (succeeds)")
+      ChunkFail("Chunk 'main-work' (fails)")
+    end
+
+    subgraph "Stage: teardown"
+      direction LR
+      TeardownSuccess("Teardown for 'setup'<br/>requires: main/setup")
+      TeardownFail("Teardown for 'main-work'<br/>requires: main/main-work")
+    end
+
+    ChunkSuccess -- "dependency met" --> TeardownSuccess
+    TeardownSuccess --> TeardownSuccessRun["Result: Executed"]
+
+    ChunkFail -- "dependency NOT met" --> TeardownFail
+    TeardownFail --> TeardownFailSkip["Result: Skipped"]
+```
+
+### Updating the markdown file with the output of the chunks
+
+When running the markdown runner tool, you can use the `--update-files` option to
+make the tool insert the output of every chunk (if any) inside the source
+markdown
+
+The results of the execution will get stored in a new code fence right after
+the chunk that was executed, `shell markdown_runner` set indicating to the
+tool that this a disposable code fence that can be overridden in the future.
 
 ### Execution Environment of the chunks
 
@@ -244,6 +366,33 @@ Every chunk is started with the environment of the parent process that started
 it. If as chunk whom runtime is bash is executed, all the variables it adds to
 its own env via `export` will get added to the environment of subsequent
 chunks.
+
+The following diagram illustrates this flow:
+
+```mermaid
+sequenceDiagram
+    participant Runner as "Markdown Runner Process"
+    participant BashChunk as "Bash Chunk"
+    participant NextChunk as "Subsequent Chunk"
+
+    autonumber
+
+    Note over Runner: Initial Env: [VAR1, VAR2]
+
+    Runner->>+BashChunk: Executes with current environment
+    Note over BashChunk: Inherits [VAR1, VAR2]
+
+    BashChunk->>BashChunk: Runs 'export NEW_VAR=value'
+    Note over BashChunk: Internal env is now<br/>[VAR1, VAR2, NEW_VAR]
+
+    BashChunk-->>-Runner: Finishes execution
+    Note over Runner: Runner updates its environment<br/>New Env: [VAR1, VAR2, NEW_VAR]
+
+    Runner->>+NextChunk: Executes with updated environment
+    Note over NextChunk: Inherits [VAR1, VAR2, NEW_VAR]<br/>Can now access NEW_VAR
+
+    NextChunk-->>-Runner: Finishes execution
+```
 
 The runner also injects a `WORKING_DIR` variable, which contains the path to the
 directory where the `markdown-runner` was started.
@@ -323,7 +472,7 @@ export TEST="some value"
 The chunk below is able to perform some comparisons with value of
 `SOME_VARIABLE`
 
-````
+````markdown
 ```bash {"stage":"test2", "runtime":"bash"}
 if [ "$SOME_VARIABLE" == "This is some content" ]; then
   echo "same string"
