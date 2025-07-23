@@ -23,7 +23,7 @@ go run main.go --markdown-dir docs
 
 List of the available options:
 
-````bash {"stage":"help"}
+````bash {"stage":"help", "label": "display help"}
 markdown-runner --help
 ````
 ````shell markdown_runner
@@ -87,30 +87,30 @@ go run main.go -m . # add -u to update the documentation
 
 Unit tests can be run with:
 
-```bash {"stage":"test", "rootdir":"$initial_dir"}
+```bash {"stage":"test", "rootdir":"$initial_dir", "label": "Run unit tests"}
 go test ./...
 ```
 ```shell markdown_runner
-?   	github.com/markdown-runner	[no test files]
-ok  	github.com/markdown-runner/chunk	(cached)
-ok  	github.com/markdown-runner/config	(cached)
-ok  	github.com/markdown-runner/parser	(cached)
-ok  	github.com/markdown-runner/runner	(cached)
+?   	github.com/arkmq-org/markdown-runner	[no test files]
+ok  	github.com/arkmq-org/markdown-runner/chunk	(cached)
+ok  	github.com/arkmq-org/markdown-runner/config	(cached)
+ok  	github.com/arkmq-org/markdown-runner/parser	(cached)
+ok  	github.com/arkmq-org/markdown-runner/runner	(cached)
 ```
 
 Integration tests can be run with:
 
-```bash {"stage":"integration-test", "rootdir":"$initial_dir"}
+```bash {"stage":"integration-test", "rootdir":"$initial_dir", "label": "Run integration tests"}
 ./test/run.sh
 ```
 ```shell markdown_runner
 [33m--- Building markdown-runner binary ---[0m
-[36mRunning test #1: Happy path should succeed...[0m[32m ✅[0m
-[36mRunning test #2: Schema error should cause a failure...[0m[32m ✅[0m
-[36mRunning test #3: Failing command with a valid teardown...[0m[32m ✅[0m
-[36mRunning test #4: Parallel execution should result in interleaved output...[0m[32m ✅[0m
-[36mRunning test #5: Writer runtime should create a file with the correct content...[0m[32m ✅[0m
-[36mRunning test #6: Dry run should display DRY-RUN message and not execute...[0m[32m ✅[0m
+[36mRunning test #1: Dry run test for (happy) should show DRY-RUN...[0m[32m ✅[0m
+[36mRunning test #2: Happy path test (happy) should succeed...[0m[32m ✅[0m
+[36mRunning test #3: Test case parallel...[0m[32m ✅[0m
+[36mRunning test #4: Schema error test (schema_error) should fail as expected...[0m[32m ✅[0m
+[36mRunning test #5: Teardown test (teardown) should execute teardown...[0m[32m ✅[0m
+[36mRunning test #6: Test case writer...[0m[32m ✅[0m
 [33m\n--- Test Summary ---[0m
 [32mAll 6 tests passed![0m
 [33m--- Cleaning up ---[0m
@@ -420,13 +420,13 @@ line containing the actual output of the executed chunk.
 We will need to pass the folder containing this markdown file to the markdown
 runner.
 
-```bash {"stage":"test1", "rootdir":"$tmpdir.1", "runtime":"bash"}
+```bash {"stage":"test1", "rootdir":"$tmpdir.1", "runtime":"bash", "label": "Set MARKDOWN_DIR env var"}
 export MARKDOWN_DIR=$(pwd)
 ```
 
 Now run the script.
 
-```bash {"stage":"test1", "runtime":"bash"}
+```bash {"stage":"test1", "runtime":"bash", "label": "Run markdown-runner on tutorial"}
 cd ${WORKING_DIR}
 go run main.go \
    --update-files \
@@ -438,7 +438,7 @@ As we've executed the markdown runner tool with the `--update-files` option.
 It'll make the tool insert the output of every chunks (if any) inside the
 source markdown file. Let's have a look at the updated markdown file:
 
-````bash {"stage":"test1", "rootdir":"$tmpdir.1"}
+````bash {"stage":"test1", "rootdir":"$tmpdir.1", "label": "Display updated tutorial file"}
 cat simple_tutorial.md
 ````
 ````shell markdown_runner
@@ -463,7 +463,7 @@ Any export in a bash environment makes the content available for subsequent
 chunks.
 
 ````markdown
-```bash {"stage":"test2", "runtime":"bash"}
+```bash {"stage":"test2", "runtime":"bash", "label": "Export environment variables"}
 export SOME_VARIABLE=$(sleep .1s && echo "This is some content")
 export TEST="some value"
 ```
@@ -473,7 +473,7 @@ The chunk below is able to perform some comparisons with value of
 `SOME_VARIABLE`
 
 ````markdown
-```bash {"stage":"test2", "runtime":"bash"}
+```bash {"stage":"test2", "runtime":"bash", "label": "Verify environment variable"}
 if [ "$SOME_VARIABLE" == "This is some content" ]; then
   echo "same string"
 fi
@@ -500,7 +500,7 @@ the content of the file to be written in a single block, without interleaving.
 ##### The first pair is writing to `output` in parallel
 
 ````markdown
-```bash {"stage":"test3", "runtime":"bash", "parallel":true, "rootdir":"$tmpdir.2"}
+```bash {"stage":"test3", "runtime":"bash", "parallel":true, "rootdir":"$tmpdir.2", "label": "Parallel write: first writer"}
 for i in $(seq 1 10);
 do
     echo FIRST$i >> output
@@ -510,7 +510,7 @@ done
 ````
 
 ````markdown
-```bash {"stage":"test3", "runtime":"bash", "parallel":true, "rootdir":"$tmpdir.2"}
+```bash {"stage":"test3", "runtime":"bash", "parallel":true, "rootdir":"$tmpdir.2", "label": "Parallel write: second writer"}
 for i in $(seq 1 10);
 do
     sleep .1
@@ -522,7 +522,7 @@ done
 ##### The second pair is writing to `output2` sequentially this time
 
 ````markdown
-```bash {"stage":"test4", "runtime":"bash", "rootdir":"$tmpdir.2"}
+```bash {"stage":"test4", "runtime":"bash", "rootdir":"$tmpdir.2", "label": "Sequential write: first writer"}
 for i in $(seq 1 10);
 do
     echo FIRST$i >> output2
@@ -531,7 +531,7 @@ done
 ````
 
 ````markdown
-```bash {"stage":"test4", "runtime":"bash", "rootdir":"$tmpdir.2"}
+```bash {"stage":"test4", "runtime":"bash", "rootdir":"$tmpdir.2", "label": "Sequential write: second writer"}
 for i in $(seq 1 10);
 do
     echo SECOND$i >> output2
@@ -542,7 +542,7 @@ done
 ##### Then let's compare the two files and asses that the two files are different
 
 ````markdown
-```{"stage":"test4", "rootdir":"$tmpdir.2", "runtime":"bash"}
+```{"stage":"test4", "rootdir":"$tmpdir.2", "runtime":"bash", "label": "Compare parallel and sequential outputs"}
 DIFF=$(diff output output2 || echo "")
 if [[ -z ${DIFF} ]]; then
     echo "the files are the same, that's a problem."
@@ -583,23 +583,23 @@ exit 1
 
 This one has an output, because it's dependency did run correctly
 
-```bash {"stage":"teardown", "requires":"inner_test1/someID"}
+```bash {"stage":"teardown", "requires":"inner_test1/someID", "label": "Successful teardown"}
 echo executed because inner_test1/someID got executed
 ```
 
 This one won't
 
-```bash {"stage":"teardown", "requires":"inner_test1/someID2"}
+```bash {"stage":"teardown", "requires":"inner_test1/someID2", "label": "Skipped teardown"}
 echo not executed because someID2 is missing in inner_test1
 ```
 ````
-```bash {"stage":"test5", "rootdir":"$tmpdir.3", "runtime":"bash"}
+```bash {"stage":"test5", "rootdir":"$tmpdir.3", "runtime":"bash", "label": "store the folder of the teardown test in the MD_DIR variable"}
 export MD_DIR=$(pwd)
 ```
 
 Let's run and see the result
 
-```bash {"stage":"test5", "runtime":"bash"}
+```bash {"stage":"test5", "runtime":"bash", "label": "Run teardown test"}
 cd ${WORKING_DIR}
 go run main.go \
    --no-styling \
@@ -607,18 +607,18 @@ go run main.go \
 ```
 ```shell markdown_runner
 
-working command
-SUCCESS: working commandfailing command
-failing command
-ERROR: stdout:
+                                                                                working command
+                                                                                SUCCESS: working command
+                                                                                failing command
+                                                                                ERROR: stdout:
 this has failed
 
 stderr:
 
-exit code:1echo executed because inner_test1/someID got executed
-echo executed because inner_test1/someID got executed
-echo executed because inner_test1/someID got executed
-SUCCESS: echo executed because inner_test1/someID got executedexit status 1
+exit code:1
+                                                                                Successful teardown
+                                                                                SUCCESS: Successful teardown
+exit status 1
 ```
 
 As we can see only the first teardown command did run.
