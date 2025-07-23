@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"os"
 	"path"
 	"path/filepath"
@@ -11,6 +10,7 @@ import (
 	"github.com/arkmq-org/markdown-runner/config"
 	"github.com/arkmq-org/markdown-runner/runner"
 	"github.com/pterm/pterm"
+	"github.com/spf13/pflag"
 )
 
 func findMarkdownFiles(dir string, recursive bool) ([]string, error) {
@@ -38,12 +38,11 @@ func findMarkdownFiles(dir string, recursive bool) ([]string, error) {
 // orchestrates the execution process by calling the runner.
 func main() {
 	config.ParseFlags()
-	validExtensions := []string{".md", ".MD", ".Markdown", ".markdown"}
-
-	if len(os.Args) < 2 {
-		flag.Usage()
-		return
+	if config.Help {
+		pflag.Usage()
+		os.Exit(0)
 	}
+	validExtensions := []string{".md", ".MD", ".Markdown", ".markdown"}
 
 	markdown_files, err := findMarkdownFiles(config.MarkdownDir, config.Recursive)
 	pterm.Fatal.PrintOnError(err)

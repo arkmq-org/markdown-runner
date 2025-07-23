@@ -28,47 +28,20 @@ markdown-runner --help
 ````
 ````shell markdown_runner
 Usage of markdown-runner:
-  -d	shorthand for -dry-run
-  -dry-run
-    	just list what would be executed without doing it
-  -f string
-    	shorthand for -filter
-  -filter string
-    	Run only the files matching the regex
-  -i	shorthand for -interactive
-  -ignore-breakpoints
-    	ignore the breakpoints
-  -interactive
-    	prompt to press enter between each chunk
-  -l	shorthand for -list
-  -list
-    	just list the files found
-  -m string
-    	shorthand for -markdown-dir (default "./docs")
-  -markdown-dir string
-    	where to find the markdown files to execute (default "./docs")
-  -no-styling
-    	disable spiners in cli
-  -q	shorthand for -quiet
-  -quiet
-    	disable output
-  -r	shorthand for -recursive
-  -recursive
-    	search for markdown files recursively
-  -s string
-    	shorthand for -start-from
-  -start-from string
-    	start from a specific stage name
-  -t int
-    	shorthand for -timeout (default 10)
-  -timeout int
-    	the timeout in minutes for every executed command (default 10)
-  -u	shorthand for -update-files
-  -update-files
-    	update the chunk output section in the markdown files
-  -v	shorthand for -verbose
-  -verbose
-    	print more logs
+  -d, --dry-run               just list what would be executed without doing it
+  -f, --filter string         Run only the files matching the regex
+  -h, --help                  show this help message
+      --ignore-breakpoints    ignore the breakpoints
+  -i, --interactive           prompt to press enter between each chunk
+  -l, --list                  just list the files found
+  -m, --markdown-dir string   where to find the markdown files to execute (default "./")
+      --no-styling            disable spiners in cli
+  -q, --quiet                 disable output
+  -r, --recursive             search for markdown files recursively
+  -s, --start-from string     start from a specific stage name
+  -t, --timeout int           the timeout in minutes for every executed command (default 10)
+  -u, --update-files          update the chunk output section in the markdown files
+  -v, --verbose               print more logs
 ````
 
 To execute this documentation, you can run the following command:
