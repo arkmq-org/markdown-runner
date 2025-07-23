@@ -32,9 +32,9 @@ echo "world"
 	stages, err := ExtractStages("test.md", tmpDir)
 	assert.NoError(t, err, "Failed to extract stages")
 	assert.Len(t, stages, 2, "Expected 2 stages")
-	assert.Equal(t, "test1", stages[0][0].Stage, "Stages were not extracted correctly")
-	assert.Equal(t, "test2", stages[1][0].Stage, "Stages were not extracted correctly")
-	assert.Equal(t, `echo "hello"`, stages[0][0].Content[0], "Unexpected content")
+	assert.Equal(t, "test1", stages[0].Name, "Stages were not extracted correctly")
+	assert.Equal(t, "test2", stages[1].Name, "Stages were not extracted correctly")
+	assert.Equal(t, `echo "hello"`, stages[0].Chunks[0].Content[0], "Unexpected content")
 }
 
 func TestExtractStages_FileNotFound(t *testing.T) {
@@ -91,7 +91,7 @@ echo "hello"
 
 	stages, err := ExtractStages("test.md", tmpDir)
 	assert.NoError(t, err, "Failed to extract stages")
-	stages[0][0].Commands = []*chunk.RunningCommand{
+	stages[0].Chunks[0].Commands = []*chunk.RunningCommand{
 		{Stdout: "hello\n"},
 	}
 
@@ -128,7 +128,7 @@ i-will-fail
 
 	stages, err := ExtractStages("test.md", tmpDir)
 	assert.NoError(t, err, "Failed to extract stages")
-	stages[0][0].Commands = []*chunk.RunningCommand{
+	stages[0].Chunks[0].Commands = []*chunk.RunningCommand{
 		{
 			Stdout: "this is stdout",
 			Stderr: "this is an error on stderr\n",
@@ -171,7 +171,7 @@ echo "no output either" > /dev/null
 
 	stages, err := ExtractStages("test.md", tmpDir)
 	assert.NoError(t, err, "Failed to extract stages")
-	stages[0][0].Commands = []*chunk.RunningCommand{
+	stages[0].Chunks[0].Commands = []*chunk.RunningCommand{
 		{Stdout: ""},
 		{Stdout: "output\n"},
 		{Stdout: ""},
@@ -214,7 +214,7 @@ echo "hello"
 	stages, err := ExtractStages("test.md", tmpDir)
 	assert.NoError(t, err, "Failed to extract stages")
 	assert.Len(t, stages, 1, "Expected 1 stage")
-	assert.Len(t, stages[0][0].Content, 2, "Should have two lines of content")
+	assert.Len(t, stages[0].Chunks[0].Content, 2, "Should have two lines of content")
 }
 
 func TestExtractStages_NoChunks(t *testing.T) {
@@ -265,8 +265,8 @@ func TestExtractStages_ChunkWithNoContent(t *testing.T) {
 	stages, err := ExtractStages("test.md", tmpDir)
 	assert.NoError(t, err, "Should not return an error for a chunk with no content")
 	assert.Len(t, stages, 1, "Expected 1 stage")
-	assert.Len(t, stages[0], 1, "Expected 1 chunk in the stage")
-	assert.Empty(t, stages[0][0].Content, "Expected the chunk content to be empty")
+	assert.Len(t, stages[0].Chunks, 1, "Expected 1 chunk in the stage")
+	assert.Empty(t, stages[0].Chunks[0].Content, "Expected the chunk content to be empty")
 }
 
 func TestExtractStages_InvalidChunkMetadata(t *testing.T) {

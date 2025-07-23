@@ -329,3 +329,116 @@ func (chunk *ExecutableChunk) AddCommandToExecute(trimedCommand string, tmpDirs 
 	chunk.Commands = append(chunk.Commands, &command)
 	return &command, nil
 }
+
+// Execute runs the commands within the chunk. If the chunk is marked as
+// parallel, it starts the last command asynchronously. Otherwise, it executes
+// all commands sequentially.
+func (chunk *ExecutableChunk) Execute() error {
+	// Execute or start the commands in the chunk depending on the parallelism
+	// status of the chunk.
+	for commandIndex, command := range chunk.Commands {
+		if chunk.IsParallel && commandIndex == len(chunk.Commands)-1 {
+			err := command.Start()
+			if err != nil {
+				return err
+			}
+		} else {
+			err := command.Execute()
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// Wait waits for the last command of a parallel chunk to complete. If
+// shouldKill is true, it terminates the command process instead of waiting for
+
+// it to finish gracefully. This is used to clean up parallel processes when an
+// error has occurred elsewhere in the stage.
+func (chunk *ExecutableChunk) Wait(shouldKill bool) error {
+	lastCommand := chunk.Commands[len(chunk.Commands)-1]
+	if shouldKill {
+		pterm.Warning.Printf("Killing %s\n", lastCommand.CmdPrettyName)
+		lastCommand.Cmd.Process.Kill()
+	} else {
+		err := lastCommand.Wait()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// applyWriter handles the execution for a chunk with the "writer" runtime. It
+// creates the destination file and writes the chunk's content to it, showing a
+// spinner in the CLI during the process.
+func (chunk *ExecutableChunk) applyWriter(tmpDirs map[string]string) error {
+	writerString := "writing " + chunk.Destination + " on disk"
+	if chunk.Label != "" {
+		writerString += " for " + chunk.Label
+	}
+	spiner, _ := pterm.DefaultSpinner.Start(writerString)
+	directory, err := chunk.GetOrCreateRuntimeDirectory(tmpDirs)
+	if err != nil {
+		spiner.Fail(err.Error())
+		return err
+	}
+	err = chunk.WriteFile(directory)
+	if err != nil {
+		spiner.Fail(err.Error())
+		return err
+	}
+	spiner.Success()
+	return nil
+}
+
+// prepareClassical prepares a standard chunk for execution by converting each
+// line of its content into a RunningCommand. This is the default behavior for
+// chunks without a specific runtime.
+func (chunk *ExecutableChunk) prepareClassical(tmpDirs map[string]string) error {
+	// In the case the chunk is a parallel classical chunk, make sure the user hasn't
+	// specified multiple commands, as the behavior would be hard to keep in check.
+	if chunk.IsParallel && len(chunk.Content) > 1 {
+		return errors.New("Multiple commands for non bash runtime is not supported when parallel is set, update the chunk to a bash runtime")
+	}
+	for _, command := range chunk.Content {
+		_, err := chunk.AddCommandToExecute(command, tmpDirs)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// prepareBashChunkForExecution prepares a "bash" runtime chunk for execution.
+// It writes the chunk's content to a temporary script file and creates a
+// RunningCommand to execute that script.
+func (chunk *ExecutableChunk) prepareBashChunkForExecution(tmpDirs map[string]string) error {
+	uuid := uuid.New()
+	cmd := "./" + uuid.String() + ".sh"
+	command, err := chunk.AddCommandToExecute(cmd, tmpDirs)
+	if err != nil {
+		return err
+	}
+	err = chunk.WriteBashScript(command.Cmd.Dir, cmd)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// PrepareForExecution sets up the chunk for execution based on its runtime.
+// It dispatches to the appropriate helper function (e.g., for "writer" or
+// "bash" runtimes) to create the necessary commands and files.
+func (chunk *ExecutableChunk) PrepareForExecution(tmpDirs map[string]string) error {
+	switch chunk.Runtime {
+	case "writer":
+		return chunk.applyWriter(tmpDirs)
+	case "bash":
+		return chunk.prepareBashChunkForExecution(tmpDirs)
+	default:
+		return chunk.prepareClassical(tmpDirs)
+	}
+}

@@ -130,6 +130,67 @@ func TestAddCommandToExecute(t *testing.T) {
 	assert.Equal(t, "hello world", cmd.Cmd.Args[1])
 }
 
+func TestPrepareForExecution(t *testing.T) {
+	t.Run("it should return an error if a parallel non-bash chunk has more than one command", func(t *testing.T) {
+		c := &chunk.ExecutableChunk{
+			IsParallel: true,
+			Content:    []string{"echo 1", "echo 2"},
+		}
+		err := c.PrepareForExecution(make(map[string]string))
+		assert.Error(t, err)
+	})
+
+	t.Run("it should not return an error if a parallel bash chunk has more than one command", func(t *testing.T) {
+		c := &chunk.ExecutableChunk{
+			IsParallel: true,
+			Runtime:    "bash",
+			Content:    []string{"echo 1", "echo 2"},
+		}
+		err := c.PrepareForExecution(make(map[string]string))
+		assert.NoError(t, err)
+	})
+}
+
+func TestExecute(t *testing.T) {
+	t.Run("it should execute a command", func(t *testing.T) {
+		c := &chunk.ExecutableChunk{
+			Content: []string{"echo 1"},
+		}
+		err := c.PrepareForExecution(make(map[string]string))
+		assert.NoError(t, err)
+		err = c.Execute()
+		assert.NoError(t, err)
+	})
+}
+
+func TestWait(t *testing.T) {
+	t.Run("it should wait for a command", func(t *testing.T) {
+		c := &chunk.ExecutableChunk{
+			IsParallel: true,
+			Content:    []string{"sleep 0.1"},
+		}
+		err := c.PrepareForExecution(make(map[string]string))
+		assert.NoError(t, err)
+		err = c.Execute()
+		assert.NoError(t, err)
+		err = c.Wait(false)
+		assert.NoError(t, err)
+	})
+
+	t.Run("it should kill a command", func(t *testing.T) {
+		c := &chunk.ExecutableChunk{
+			IsParallel: true,
+			Content:    []string{"sleep 1"},
+		}
+		err := c.PrepareForExecution(make(map[string]string))
+		assert.NoError(t, err)
+		err = c.Execute()
+		assert.NoError(t, err)
+		err = c.Wait(true)
+		assert.NoError(t, err)
+	})
+}
+
 func TestBashScriptExecution(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "test")
 	assert.NoError(t, err, "Failed to create temp dir")

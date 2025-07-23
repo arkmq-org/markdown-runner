@@ -120,6 +120,77 @@ Integration tests can be run with:
 You can also run the integration tests with `-v` to show the details of every
 tests
 
+### Architecture
+
+```mermaid
+classDiagram
+    direction BT
+
+    class Runner {
+        <<Package>>
+        +RunMD(file string) error
+    }
+
+    class Parser {
+        <<Package>>
+        +ExtractStages(file string) []*stage.Stage
+        +UpdateChunkOutput(file string, stages []*stage.Stage) error
+    }
+
+    class Config {
+        <<Package>>
+        +Rootdir string
+        +Verbose bool
+        +UpdateFile bool
+        +DryRun bool
+    }
+
+    class Stage {
+        +Name string
+        +Chunks []*chunk.ExecutableChunk
+        +Execute(stages []*Stage, tmpDirs map) error
+        -isParallelismConsistent() bool
+    }
+
+    class ExecutableChunk {
+        +Stage string
+        +Id string
+        +Runtime string
+        +IsParallel bool
+        +Content []string
+        +Commands []*RunningCommand
+        +PrepareForExecution(tmpDirs map) error
+        +Execute() error
+        +Wait(shouldKill bool) error
+    }
+
+    class RunningCommand {
+        +Cmd *exec.Cmd
+        +Stdout string
+        +Stderr string
+        +CancelFunc context.CancelFunc
+        +Execute() error
+        +Start() error
+        +Wait() error
+    }
+
+    Runner ..> Parser : Uses
+    Runner ..> Stage : Executes
+    Runner ..> Config : Reads
+
+    Parser ..> Stage : Creates
+    Parser ..> ExecutableChunk : Creates
+
+    Stage "1" *-- "1..*" ExecutableChunk : Contains
+    ExecutableChunk "1" *-- "0..*" RunningCommand : Contains
+
+    Stage ..> ExecutableChunk : Manages
+    ExecutableChunk ..> RunningCommand : Manages
+
+    Stage ..> Config : Reads
+    ExecutableChunk ..> Config : Reads
+```
+
 ### Contributing
 
 When contributing to this project, please make sure to update the documentation
@@ -307,11 +378,20 @@ This works best if:
 * if all the commands in the stage are made to run in parallel.
 
 > [!NOTE]
+> All chunks within the same stage must have the same parallelism setting.
+> Mixing parallel and sequential chunks in a single stage is not allowed and
+> will result in an error. This ensures a consistent and predictable execution
+> flow.
+
+> [!NOTE]
 > For non bash runtime:
 > The parallel behavior has a simplistic implementation. Only the last
 > command of the chunk is really started asynchronously. The other ones are
 > sequentially executed before that. If you need more complex parallel behavior,
 > consider using a bash runtime to program it the way you'd like it to be.
+>
+> Using multiple commands in a parallel, non-bash chunk is not supported and
+> will result in an error. Please use the "bash" runtime for such cases.
 
 ##### `"breakpoint":"true"`
 
@@ -607,17 +687,29 @@ go run main.go \
 ```
 ```shell markdown_runner
 
-                                                                                working command
-                                                                                SUCCESS: working command
-                                                                                failing command
-                                                                                ERROR: stdout:
+
+                                                                                
+working command
+
+                                                                                
+SUCCESS: working command
+
+                                                                                
+failing command
+
+                                                                                
+ERROR: stdout:
 this has failed
 
 stderr:
 
 exit code:1
-                                                                                Successful teardown
-                                                                                SUCCESS: Successful teardown
+
+                                                                                
+Successful teardown
+
+                                                                                
+SUCCESS: Successful teardown
 exit status 1
 ```
 

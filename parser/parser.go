@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	"github.com/arkmq-org/markdown-runner/chunk"
+	"github.com/arkmq-org/markdown-runner/stage"
 	"github.com/santhosh-tekuri/jsonschema/v5"
 )
 
@@ -69,11 +70,10 @@ func initChunk(params string) (*chunk.ExecutableChunk, error) {
 //
 // file is the name of the markdown file to parse.
 // markdownDir is the directory containing the markdown file.
-// It returns a 2D slice of ExecutableChunks, where the outer slice represents
-// stages and the inner slice represents the chunks within each stage, and an
-// error if parsing fails.
-func ExtractStages(file string, markdownDir string) ([][]*chunk.ExecutableChunk, error) {
-	var stages [][]*chunk.ExecutableChunk
+// It returns a slice of Stages, where each Stage represents the chunks to be
+// executed, and an error if parsing fails.
+func ExtractStages(file string, markdownDir string) ([]*stage.Stage, error) {
+	var chunkStages [][]*chunk.ExecutableChunk
 	var fileHandle *os.File
 	filepath := path.Join(markdownDir, file)
 	fileHandle, err := os.Open(filepath)
@@ -92,7 +92,7 @@ func ExtractStages(file string, markdownDir string) ([][]*chunk.ExecutableChunk,
 	var outputChunkStopFend *regexp.Regexp // a regex to match when the chunk is ending
 	var outputChunkBackQuotesCount int = 0 // with its number of back quotes
 
-	var currentStage string = ""
+	var currentStageName string = ""
 	var currentChunk *chunk.ExecutableChunk
 
 	lineCounter := 0
@@ -138,11 +138,11 @@ func ExtractStages(file string, markdownDir string) ([][]*chunk.ExecutableChunk,
 			if err != nil {
 				return nil, fmt.Errorf("chunk initialization error in %s at line %d: %w in %s", file, lineCounter, err, params)
 			}
-			if currentStage != currentChunk.Stage {
-				stages = append(stages, []*chunk.ExecutableChunk{})
-				currentStage = currentChunk.Stage
+			if currentStageName != currentChunk.Stage {
+				chunkStages = append(chunkStages, []*chunk.ExecutableChunk{})
+				currentStageName = currentChunk.Stage
 			}
-			stages[len(stages)-1] = append(stages[len(stages)-1], currentChunk)
+			chunkStages[len(chunkStages)-1] = append(chunkStages[len(chunkStages)-1], currentChunk)
 			continue
 		}
 		// when the end is detected, it's time to write the new output
@@ -154,6 +154,12 @@ func ExtractStages(file string, markdownDir string) ([][]*chunk.ExecutableChunk,
 			}
 		}
 	}
+	var stages []*stage.Stage
+	for _, chunks := range chunkStages {
+		if s := stage.NewStage(chunks); s != nil {
+			stages = append(stages, s)
+		}
+	}
 	return stages, nil
 }
 
@@ -163,9 +169,9 @@ func ExtractStages(file string, markdownDir string) ([][]*chunk.ExecutableChunk,
 //
 // file is the name of the markdown file to update.
 // markdownDir is the directory where the file is located.
-// stages is the 2D slice of executed chunks containing the output to be written.
+// stages contains the executed chunks with the output to be written.
 // It returns an error if any file operations fail.
-func UpdateChunkOutput(file string, markdownDir string, stages [][]*chunk.ExecutableChunk) error {
+func UpdateChunkOutput(file string, markdownDir string, stages []*stage.Stage) error {
 	// get the path for the input file
 	inFPath := path.Join(markdownDir, file)
 	inFile, err := os.Open(inFPath)
@@ -197,8 +203,8 @@ func UpdateChunkOutput(file string, markdownDir string, stages [][]*chunk.Execut
 
 	var writeNewOutput bool = false // when set to true, the stdout is written in a new output chunk
 
-	var currentStage int = 0
-	var currentChunk int = 0
+	var currentStageIndex int = 0
+	var currentChunkIndex int = 0
 
 	for scanner.Scan() {
 		// when we encounter the previous output chunk, we ignore everything until the corresponding fence closing
@@ -238,16 +244,16 @@ func UpdateChunkOutput(file string, markdownDir string, stages [][]*chunk.Execut
 		if writeNewOutput {
 			writeNewOutput = false
 			// get the current chunk to write
-			stage := stages[currentStage]
-			chunk := stage[currentChunk]
+			stage := stages[currentStageIndex]
+			chunk := stage.Chunks[currentChunkIndex]
 			if chunk.HasOutput() {
 				chunk.WriteOutputTo(chunkBackQuotesCount, writer)
 			}
 			// Compute the next chunk and stage
-			currentChunk += 1
-			if currentChunk == len(stages[currentStage]) {
-				currentChunk = 0
-				currentStage += 1
+			currentChunkIndex += 1
+			if currentChunkIndex == len(stages[currentStageIndex].Chunks) {
+				currentChunkIndex = 0
+				currentStageIndex += 1
 			}
 		}
 	}
