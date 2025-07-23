@@ -14,7 +14,7 @@ func TestParseFlags(t *testing.T) {
 	defer func() { os.Args = oldArgs }()
 
 	// Test case
-	os.Args = []string{"cmd", "-dry-run", "-interactive=true", "-verbose", "-timeout=5", "-start-from=stage2", "-markdown-dir=/tmp", "-file=test.md", "-ignore-breakpoints", "-update-files", "-list", "-no-styling", "-quiet"}
+	os.Args = []string{"cmd", "-dry-run", "-interactive=true", "-verbose", "-timeout=5", "-start-from=stage2", "-markdown-dir=/tmp", "-filter=test.md", "-ignore-breakpoints", "-update-files", "-list", "-no-styling", "-quiet"}
 
 	// Reset flags to default values before parsing
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
@@ -26,7 +26,7 @@ func TestParseFlags(t *testing.T) {
 	assert.Equal(t, 5, MinutesToTimeout, "Expected MinutesToTimeout to be 5")
 	assert.Equal(t, "stage2", StartFrom, "Expected StartFrom to be 'stage2'")
 	assert.Equal(t, "/tmp", MarkdownDir, "Expected MarkdownDir to be '/tmp'")
-	assert.Equal(t, "test.md", File, "Expected File to be 'test.md'")
+	assert.Equal(t, "test.md", Filter, "Expected File to be 'test.md'")
 	assert.True(t, IngoreBreakpoints, "Expected IngoreBreakpoints to be true, but got false")
 	assert.True(t, UpdateFile, "Expected UpdateFile to be true, but got false")
 	assert.True(t, JustList, "Expected JustList to be true, but got false")
@@ -52,7 +52,7 @@ func TestParseFlags_Shorthand(t *testing.T) {
 	assert.Equal(t, 5, MinutesToTimeout, "Expected MinutesToTimeout to be 5")
 	assert.Equal(t, "stage2", StartFrom, "Expected StartFrom to be 'stage2'")
 	assert.Equal(t, "/tmp", MarkdownDir, "Expected MarkdownDir to be '/tmp'")
-	assert.Equal(t, "test.md", File, "Expected File to be 'test.md'")
+	assert.Equal(t, "test.md", Filter, "Expected filter to be 'test.md'")
 	assert.True(t, UpdateFile, "Expected UpdateFile to be true, but got false")
 	assert.True(t, JustList, "Expected JustList to be true, but got false")
 	assert.True(t, Quiet, "Expected Quiet to be true, but got false")
@@ -73,7 +73,7 @@ func TestParseFlags_Defaults(t *testing.T) {
 	assert.Equal(t, 10, MinutesToTimeout, "Expected MinutesToTimeout to be 10 by default")
 	assert.Equal(t, "", StartFrom, "Expected StartFrom to be empty by default")
 	assert.Equal(t, "./docs", MarkdownDir, "Expected MarkdownDir to be './docs' by default")
-	assert.Equal(t, "", File, "Expected File to be empty by default")
+	assert.Equal(t, "", Filter, "Expected filter to be empty by default")
 	assert.False(t, IngoreBreakpoints, "Expected IngoreBreakpoints to be false by default")
 	assert.False(t, UpdateFile, "Expected UpdateFile to be false by default")
 	assert.False(t, JustList, "Expected JustList to be false by default")

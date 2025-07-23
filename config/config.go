@@ -4,20 +4,23 @@ package config
 
 import "flag"
 
-var DryRun bool = false
-var Interactive bool = false
-var Verbose bool = false
-var MinutesToTimeout int = 10
-var StartFrom string = ""
-var Rootdir = "./"
-var IngoreBreakpoints bool = false
-var UpdateFile bool = false
-var JustList bool = false
-var NoStyling bool = false
-var Quiet bool = false
-var MarkdownDir string = ""
-var File string = ""
-var Env []string
+var (
+	DryRun            bool   = false
+	Interactive       bool   = false
+	Verbose           bool   = false
+	MinutesToTimeout  int    = 10
+	StartFrom         string = ""
+	Rootdir                  = "./"
+	IngoreBreakpoints bool   = false
+	UpdateFile        bool   = false
+	JustList          bool   = false
+	NoStyling         bool   = false
+	Quiet             bool   = false
+	Recursive         bool   = false
+	MarkdownDir       string = ""
+	Filter            string = ""
+	Env               []string
+)
 
 // ParseFlags initializes and parses the command-line flags from os.Args.
 // It populates the global variables in this package with the values
@@ -40,8 +43,10 @@ func ParseFlags() {
 	flag.StringVar(&StartFrom, "start-from", "", "start from a specific stage name")
 	flag.StringVar(&MarkdownDir, "m", "./docs", "shorthand for -markdown-dir")
 	flag.StringVar(&MarkdownDir, "markdown-dir", "./docs", "where to find the markdown files to execute")
-	flag.StringVar(&File, "f", "", "shorthand for -file")
-	flag.StringVar(&File, "file", "", "Run only a specific markdown file")
+	flag.StringVar(&Filter, "f", "", "shorthand for -filter")
+	flag.StringVar(&Filter, "filter", "", "Run only the files matching the regex")
+	flag.BoolVar(&Recursive, "r", false, "shorthand for -recursive")
+	flag.BoolVar(&Recursive, "recursive", false, "search for markdown files recursively")
 	flag.BoolVar(&IngoreBreakpoints, "ignore-breakpoints", false, "ignore the breakpoints")
 	flag.BoolVar(&UpdateFile, "u", false, "shorthand for -update-files")
 	flag.BoolVar(&UpdateFile, "update-files", false, "update the chunk output section in the markdown files")

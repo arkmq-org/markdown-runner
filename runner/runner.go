@@ -23,8 +23,10 @@ import (
 func RunMD(file string) error {
 	var tmpDirs map[string]string = make(map[string]string)
 	var terminatingError error
+	markdownDir := path.Dir(file)
+	fileName := path.Base(file)
 
-	stages, err := parser.ExtractStages(file, config.MarkdownDir)
+	stages, err := parser.ExtractStages(fileName, markdownDir)
 	if err != nil {
 		return err
 	}
@@ -54,9 +56,9 @@ func RunMD(file string) error {
 	}
 
 	if config.UpdateFile && terminatingError == nil {
-		terminatingError = parser.UpdateChunkOutput(file, config.MarkdownDir, stages)
+		terminatingError = parser.UpdateChunkOutput(fileName, markdownDir, stages)
 		if terminatingError == nil {
-			os.Rename(path.Join(config.MarkdownDir, file+".out"), path.Join(config.MarkdownDir, file))
+			os.Rename(path.Join(markdownDir, fileName+".out"), path.Join(markdownDir, fileName))
 		}
 	}
 

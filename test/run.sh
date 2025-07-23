@@ -18,7 +18,7 @@ print_msg() {
 # --- Test Setup ---
 print_msg "33" "--- Building markdown-runner binary ---"
 cd "$(dirname "$0")" # Run from the script's directory
-go build -o markdown-runner ../main.go
+(cd .. && go build -o test/markdown-runner)
 
 # --- Test Cases ---
 TEST_COUNTER=0
@@ -80,22 +80,28 @@ for test_file in cases/*.md; do
     # We expect schema_error.md to fail, so we invert the result with !
     if [ "${test_name}" == "schema_error" ]; then
         run_test "Schema error test (${test_name}) should fail as expected" \
-            "! ./markdown-runner -m cases -f ${test_file}" || ((FAILED_TESTS++))
+            "! ./markdown-runner -m cases -f '.*'${test_file}" || ((FAILED_TESTS++))
     # The teardown test has a specific success condition
     elif [ "${test_name}" == "teardown" ]; then
         run_test "Teardown test (${test_name}) should execute teardown" \
-            "./markdown-runner -m cases -f ${test_file} 2>&1 | grep 'SUCCESS.*echo teardown should execute'" || ((FAILED_TESTS++))
+            "./markdown-runner -m cases -f '.*'${test_file} 2>&1 | grep 'SUCCESS.*echo teardown should execute'" || ((FAILED_TESTS++))
     # The dry-run test has a specific success condition
     elif [ "${test_name}" == "happy" ]; then
         run_test "Dry run test for (${test_name}) should show DRY-RUN" \
-            "./markdown-runner -d -m cases -f ${test_file} 2>&1 | grep -E 'DRY-RUN.*|.*echo happy path'" || ((FAILED_TESTS++))
+            "./markdown-runner -d -m cases -f '.*'${test_file} 2>&1 | grep -E 'DRY-RUN.*|.*echo happy path'" || ((FAILED_TESTS++))
         run_test "Happy path test (${test_name}) should succeed" \
-            "./markdown-runner -m cases -f ${test_file}" || ((FAILED_TESTS++))
+            "./markdown-runner -m cases -f '.*'${test_file}" || ((FAILED_TESTS++))
     else
         run_test "Test case ${test_name}" \
-            "./markdown-runner -m cases -f ${test_file}" || ((FAILED_TESTS++))
+            "./markdown-runner -m cases -f '.*'${test_file}" || ((FAILED_TESTS++))
     fi
 done
+
+run_test "Recursive test" \
+    "./markdown-runner -r -m cases/recursive 2>&1 | grep -c -E 'echo.*nested' | grep -q 2" || ((FAILED_TESTS++))
+
+run_test "Recursive test with file filter" \
+    "./markdown-runner -r -m cases/recursive -f '.*other.md' 2>&1 | grep -c 'nested script' | grep -q 1" || ((FAILED_TESTS++))
 
 # --- Test Summary ---
 print_msg "33" "\n--- Test Summary ---"

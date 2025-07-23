@@ -32,9 +32,9 @@ Usage of markdown-runner:
   -dry-run
     	just list what would be executed without doing it
   -f string
-    	shorthand for -file
-  -file string
-    	Run only a specific markdown file
+    	shorthand for -filter
+  -filter string
+    	Run only the files matching the regex
   -i	shorthand for -interactive
   -ignore-breakpoints
     	ignore the breakpoints
@@ -52,6 +52,9 @@ Usage of markdown-runner:
   -q	shorthand for -quiet
   -quiet
     	disable output
+  -r	shorthand for -recursive
+  -recursive
+    	search for markdown files recursively
   -s string
     	shorthand for -start-from
   -start-from string
@@ -96,6 +99,7 @@ ok  	github.com/arkmq-org/markdown-runner/chunk	(cached)
 ok  	github.com/arkmq-org/markdown-runner/config	(cached)
 ok  	github.com/arkmq-org/markdown-runner/parser	(cached)
 ok  	github.com/arkmq-org/markdown-runner/runner	(cached)
+ok  	github.com/arkmq-org/markdown-runner/stage	(cached)
 ```
 
 Integration tests can be run with:
@@ -111,8 +115,10 @@ Integration tests can be run with:
 [36mRunning test #4: Schema error test (schema_error) should fail as expected...[0m[32m ✅[0m
 [36mRunning test #5: Teardown test (teardown) should execute teardown...[0m[32m ✅[0m
 [36mRunning test #6: Test case writer...[0m[32m ✅[0m
+[36mRunning test #7: Recursive test...[0m[32m ✅[0m
+[36mRunning test #8: Recursive test with file filter...[0m[32m ✅[0m
 [33m\n--- Test Summary ---[0m
-[32mAll 6 tests passed![0m
+[32mAll 8 tests passed![0m
 [33m--- Cleaning up ---[0m
 [32mCleanup complete.[0m
 ```
@@ -255,6 +261,10 @@ For example:
 
 ````
 ``` something {"stage":"init"}
+echo "Hello, World!"
+```
+```shell markdown_runner
+Hello, World!
 ```
 ````
 
@@ -687,29 +697,17 @@ go run main.go \
 ```
 ```shell markdown_runner
 
-
-                                                                                
-working command
-
-                                                                                
-SUCCESS: working command
-
-                                                                                
-failing command
-
-                                                                                
-ERROR: stdout:
+                                                                                working command
+                                                                                SUCCESS: working command
+                                                                                failing command
+                                                                                ERROR: stdout:
 this has failed
 
 stderr:
 
 exit code:1
-
-                                                                                
-Successful teardown
-
-                                                                                
-SUCCESS: Successful teardown
+                                                                                Successful teardown
+                                                                                SUCCESS: Successful teardown
 exit status 1
 ```
 

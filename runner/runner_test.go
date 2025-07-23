@@ -32,7 +32,7 @@ echo "hello"
 	err = os.WriteFile(mdFile, []byte(mdContent), 0o644)
 	assert.NoError(t, err, "Failed to write to temp file")
 
-	err = RunMD("test.md")
+	err = RunMD(mdFile)
 	assert.NoError(t, err, "Unexpected error")
 }
 
@@ -55,7 +55,7 @@ echo "teardown"
 	err = os.WriteFile(mdFile, []byte(mdContent), 0o644)
 	assert.NoError(t, err, "Failed to write to temp file")
 
-	err = RunMD("test.md")
+	err = RunMD(mdFile)
 	assert.Error(t, err, "Expected an error, but got none")
 	// Note: Testing that the teardown chunk was actually skipped is complex.
 	// This test primarily ensures that the runner returns an error when a chunk fails.
@@ -78,7 +78,7 @@ echo "hello"
 	err = os.WriteFile(mdFile, []byte(mdContent), 0o644)
 	assert.NoError(t, err, "Failed to write to temp file")
 
-	err = RunMD("test.md")
+	err = RunMD(mdFile)
 	assert.NoError(t, err, "Unexpected error")
 
 	updatedContent, err := os.ReadFile(mdFile)
@@ -112,7 +112,7 @@ echo "parallel 2"
 	err = os.WriteFile(mdFile, []byte(mdContent), 0o644)
 	assert.NoError(t, err, "Failed to write to temp file")
 
-	err = RunMD("test.md")
+	err = RunMD(mdFile)
 	assert.NoError(t, err, "Unexpected error in parallel execution")
 }
 
@@ -136,7 +136,7 @@ echo "teardown executed" > ` + outputFile + `
 	err = os.WriteFile(mdFile, []byte(mdContent), 0o644)
 	assert.NoError(t, err, "Failed to write to temp file")
 
-	err = RunMD("test.md")
+	err = RunMD(mdFile)
 	assert.NoError(t, err, "Expected no error")
 
 	_, err = os.Stat(outputFile)
