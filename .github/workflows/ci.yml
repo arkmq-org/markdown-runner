@@ -1,20 +1,32 @@
 name: Run the markdown runner
 on:
   pull_request:
-    branches: [ main ]
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+
       - name: Check out repository code
         uses: actions/checkout@v4
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.23'
+
       - name: Unit test
         run: go test -v ./...
+
       - name: Integration test
         run: bash test/run.sh
-      - name: Run the markdown runner
-        run: go run main.go -m .
+
+      - name: Try updating the README.md with the built tool
+        run: go install && markdown-runner -u README.md
+
+      - name: check there is no manual changes
+        run: git diff && [ -z "$(git status --porcelain=v1 2>/dev/null)" ] && echo "✓ No manual changes." || echo "✗ Codegen manually changed, please refer to the api.md for the procedure to follow for programmatically generated endpoints." && [ -z "$(git status --porcelain=v1 2>/dev/null)" ]
