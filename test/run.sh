@@ -81,6 +81,9 @@ for test_file in cases/*.md; do
     if [ "${test_name}" == "schema_error" ]; then
         run_test "Schema error test (${test_name}) should fail as expected" \
             "! ./markdown-runner cases -f '.*'${test_file}" || ((FAILED_TESTS++))
+    elif [ "${test_name}" == "parallel_with_kills" ]; then
+        run_test "Parallel with kills test (${test_name}) should fail and kill tasks" \
+            "output=\$(./markdown-runner cases -f '.*'${test_file} 2>&1); runner_ec=\$?; [ \$runner_ec -ne 0 ] && [ \$(echo \"\$output\" | grep -cE 'Killed Parallel task C|Killed Parallel task D') -eq 2 ]" || ((FAILED_TESTS++))
     # The teardown test has a specific success condition
     elif [ "${test_name}" == "teardown" ]; then
         run_test "Teardown test (${test_name}) should execute teardown" \

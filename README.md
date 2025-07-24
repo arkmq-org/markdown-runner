@@ -3,7 +3,7 @@
 Markdown Runner is a simple Go application designed to execute Markdown files as
 pipelines.
 
-One of the main use cases of the Markdown runner tool is to turn have your
+One of the main use cases of the Markdown runner tool is to have your
 documentation testable in a CI environment. This way, you can always detect if
 your documentation is drifting away from the reality of your codebase.
 
@@ -97,13 +97,14 @@ Integration tests can be run with:
 [36mRunning test #1: Dry run test for (happy) should show DRY-RUN...[0m[32m ✅[0m
 [36mRunning test #2: Happy path test (happy) should succeed...[0m[32m ✅[0m
 [36mRunning test #3: Test case parallel...[0m[32m ✅[0m
-[36mRunning test #4: Schema error test (schema_error) should fail as expected...[0m[32m ✅[0m
-[36mRunning test #5: Teardown test (teardown) should execute teardown...[0m[32m ✅[0m
-[36mRunning test #6: Test case writer...[0m[32m ✅[0m
-[36mRunning test #7: Recursive test...[0m[32m ✅[0m
-[36mRunning test #8: Recursive test with file filter...[0m[32m ✅[0m
+[36mRunning test #4: Parallel with kills test (parallel_with_kills) should fail and kill tasks...[0m[32m ✅[0m
+[36mRunning test #5: Schema error test (schema_error) should fail as expected...[0m[32m ✅[0m
+[36mRunning test #6: Teardown test (teardown) should execute teardown...[0m[32m ✅[0m
+[36mRunning test #7: Test case writer...[0m[32m ✅[0m
+[36mRunning test #8: Recursive test...[0m[32m ✅[0m
+[36mRunning test #9: Recursive test with file filter...[0m[32m ✅[0m
 [33m\n--- Test Summary ---[0m
-[32mAll 8 tests passed![0m
+[32mAll 9 tests passed![0m
 [33m--- Cleaning up ---[0m
 [32mCleanup complete.[0m
 ```
