@@ -72,7 +72,7 @@ func TestIsParallelismConsistent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			stage := Stage{Chunks: tt.chunks}
-			if got := stage.isParallelismConsistent(); got != tt.expected {
+			if got := stage.IsParallelismConsistent(); got != tt.expected {
 				t.Errorf("isParallelismConsistent() = %v, want %v", got, tt.expected)
 			}
 		})

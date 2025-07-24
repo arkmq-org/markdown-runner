@@ -189,10 +189,10 @@ func (chunk *ExecutableChunk) GetOrCreateRuntimeDirectory(tmpDirs map[string]str
 func (chunk *ExecutableChunk) WriteFile(basedir string) error {
 	scriptPath := path.Join(basedir, chunk.Destination)
 	f, err := os.Create(scriptPath)
-	defer f.Close()
 	if err != nil {
 		return err
 	}
+	defer f.Close()
 	writer := bufio.NewWriter(f)
 	// the actual content the user wants in the file
 	for _, line := range chunk.Content {
@@ -217,10 +217,10 @@ func (chunk *ExecutableChunk) WriteFile(basedir string) error {
 func (chunk *ExecutableChunk) WriteBashScript(basedir string, script_name string) error {
 	scriptPath := path.Join(basedir, script_name)
 	f, err := os.Create(scriptPath)
-	defer f.Close()
 	if err != nil {
 		return err
 	}
+	defer f.Close()
 	writer := bufio.NewWriter(f)
 	_, err = writer.WriteString("#!/bin/bash\n")
 	if err != nil {
@@ -330,26 +330,44 @@ func (chunk *ExecutableChunk) AddCommandToExecute(trimedCommand string, tmpDirs 
 	return &command, nil
 }
 
-// Execute runs the commands within the chunk. If the chunk is marked as
-// parallel, it starts the last command asynchronously. Otherwise, it executes
-// all commands sequentially.
+// Execute runs the commands in a sequential chunk. It's a convenience method
+// that initializes a spinner for each command and then executes it. This method
+// should only be used for chunks where IsParallel is false.
 func (chunk *ExecutableChunk) Execute() error {
-	// Execute or start the commands in the chunk depending on the parallelism
-	// status of the chunk.
-	for commandIndex, command := range chunk.Commands {
-		if chunk.IsParallel && commandIndex == len(chunk.Commands)-1 {
-			err := command.Start()
-			if err != nil {
-				return err
-			}
-		} else {
-			err := command.Execute()
-			if err != nil {
-				return err
-			}
+	if chunk.IsParallel {
+		return errors.New("Cannot execute a parallel chunk with Execute, use Start instead")
+	}
+	for _, command := range chunk.Commands {
+		err := command.InitializeSpiner()
+		if err != nil {
+			return err
+		}
+		err = command.Execute()
+		if err != nil {
+			return err
 		}
 	}
 	return nil
+}
+
+// Ignite prepares a parallel chunk for execution by initializing its spinner
+// within a multi-printer. This allows multiple spinners to be displayed
+// concurrently. It should only be used for chunks where IsParallel is true.
+func (chunk *ExecutableChunk) Ignite(multiPrinter *pterm.MultiPrinter) error {
+	if !chunk.IsParallel {
+		return errors.New("Cannot initialize a non-parallel chunk with Ignite, use Execute instead")
+	}
+	return chunk.Commands[0].InitializeParallelSpiner(multiPrinter)
+}
+
+// Start begins the execution of a parallel chunk's command without waiting for
+// it to complete. This method should only be used for chunks where IsParallel
+// is true.
+func (chunk *ExecutableChunk) Start() error {
+	if !chunk.IsParallel {
+		return errors.New("Cannot start a non-parallel chunk with Start, use Execute instead")
+	}
+	return chunk.Commands[0].Start()
 }
 
 // Wait waits for the last command of a parallel chunk to complete. If
@@ -358,17 +376,14 @@ func (chunk *ExecutableChunk) Execute() error {
 // it to finish gracefully. This is used to clean up parallel processes when an
 // error has occurred elsewhere in the stage.
 func (chunk *ExecutableChunk) Wait(shouldKill bool) error {
-	lastCommand := chunk.Commands[len(chunk.Commands)-1]
-	if shouldKill {
-		pterm.Warning.Printf("Killing %s\n", lastCommand.CmdPrettyName)
-		lastCommand.Cmd.Process.Kill()
-	} else {
-		err := lastCommand.Wait()
-		if err != nil {
-			return err
-		}
+	if !chunk.IsParallel {
+		return errors.New("Cannot wait for a non-parallel chunk with Wait, use Execute instead")
 	}
-	return nil
+	command := chunk.Commands[0]
+	if shouldKill {
+		return command.Kill()
+	}
+	return command.Wait()
 }
 
 // applyWriter handles the execution for a chunk with the "writer" runtime. It

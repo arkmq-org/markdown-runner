@@ -334,7 +334,7 @@ graph TD
                 direction LR
 
                 subgraph "Chunk A (parallel: true)"
-                    A1["Cmd 1"] --> A2["Cmd 2"]
+                    A1["Cmd 1"]
                 end
 
                 subgraph "Chunk B (parallel: true)"
@@ -344,7 +344,7 @@ graph TD
 
             StartP --> A1
             StartP --> B1
-            A2 --> EndP[End Stage]
+            A1 --> EndP[End Stage]
             B1 --> EndP[End Stage]
         end
 
@@ -355,26 +355,16 @@ graph TD
     end
 ```
 
-This works best if:
+This works only if:
 
 * there's only a single command in the chunk (or if the chunk is a bash chunk)
 * if all the commands in the stage are made to run in parallel.
 
-> [!NOTE]
+> [!CAUTION]
 > All chunks within the same stage must have the same parallelism setting.
 > Mixing parallel and sequential chunks in a single stage is not allowed and
 > will result in an error. This ensures a consistent and predictable execution
 > flow.
-
-> [!NOTE]
-> For non bash runtime:
-> The parallel behavior has a simplistic implementation. Only the last
-> command of the chunk is really started asynchronously. The other ones are
-> sequentially executed before that. If you need more complex parallel behavior,
-> consider using a bash runtime to program it the way you'd like it to be.
->
-> Using multiple commands in a parallel, non-bash chunk is not supported and
-> will result in an error. Please use the "bash" runtime for such cases.
 
 ##### `"breakpoint":"true"`
 

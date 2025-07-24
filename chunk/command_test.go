@@ -2,10 +2,12 @@ package chunk
 
 import (
 	"os/exec"
+	"slices"
 	"strings"
 	"testing"
 
 	"github.com/arkmq-org/markdown-runner/config"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRunningCommand_InitCommandLabel(t *testing.T) {
@@ -30,35 +32,31 @@ func TestRunningCommand_Execute(t *testing.T) {
 	chunk := ExecutableChunk{}
 	cmdStr := "echo 'hello world'"
 	command, err := chunk.AddCommandToExecute(cmdStr, tmpDirs)
+	err = command.InitializeSpiner()
+	assert.NoError(t, err, "Expected no error when initializing spinner")
 	err = command.Execute()
-	if err != nil {
-		t.Errorf("Expected no error, but got %v", err)
-	}
-	if !strings.Contains(command.Stdout, "hello world") {
-		t.Errorf("Expected stdout to contain 'hello world', but got '%s'", command.Stdout)
-	}
+	assert.NoError(t, err, "Expected no error when executing command")
+	assert.NotEmpty(t, command.Stdout, "Expected command to produce output")
+	assert.Equal(t, "hello world\n", command.Stdout, "Expected command output to be 'hello world'")
+	assert.Equal(t, 0, command.ReturnCode, "Expected command to return exit code 0")
 
 	// Failure path
 	chunk = ExecutableChunk{}
 	cmdStr = "nonexistent-command"
 	command, err = chunk.AddCommandToExecute(cmdStr, tmpDirs)
+	err = command.InitializeSpiner()
+	assert.NoError(t, err, "Expected no error when initializing spinner")
 	err = command.Start()
-	if err == nil {
-		t.Error("Expected an error, but got none")
-	}
+	assert.Error(t, err, "Expected an error when starting a nonexistent command")
 	err = command.Wait()
-	if err == nil {
-		t.Error("Expected an error, but got none")
-	}
+	assert.Error(t, err, "Expected an error when waiting for a nonexistent command")
 }
 
-func TestRunningCommand_Execute_Error(t *testing.T) {
+func TestRunningCommand_Execute_Error_Missing_Spinner(t *testing.T) {
 	cmd := exec.Command("nonexistent-command")
 	command := RunningCommand{Cmd: cmd}
 	err := command.Execute()
-	if err == nil {
-		t.Error("Expected an error when executing a nonexistent command, but got none")
-	}
+	assert.Error(t, err, "Expected an error when executing a command without a spinner initialized")
 }
 
 func TestRunningCommand_BashEnvExtraction(t *testing.T) {
@@ -68,22 +66,14 @@ func TestRunningCommand_BashEnvExtraction(t *testing.T) {
 	}
 	cmdStr := "bash -c 'echo \"### ENV ###\" && echo \"TEST_ENV_VAR=test_value\"'"
 	command, err := chunk.AddCommandToExecute(cmdStr, tmpDirs)
-	if err != nil {
-		t.Fatalf("Expected no error, but got %v", err)
-	}
+	assert.NoError(t, err, "Expected no error when adding command to execute")
 	command.IsBash = true
+	err = command.InitializeSpiner()
+	assert.NoError(t, err, "Expected no error when initializing spinner")
 	err = command.Execute()
-	if err != nil {
-		t.Fatalf("Expected no error, but got %v", err)
-	}
-	found := false
-	for _, envVar := range config.Env {
-		if envVar == "TEST_ENV_VAR=test_value" {
-			found = true
-			break
-		}
-	}
-	if !found {
-		t.Error("Expected to find TEST_ENV_VAR in the environment, but it was not there")
-	}
+	assert.NoError(t, err, "Expected no error when executing bash command")
+	found := slices.ContainsFunc(config.Env, func(env string) bool {
+		return env == "TEST_ENV_VAR=test_value"
+	})
+	assert.True(t, found, "Expected to find TEST_ENV_VAR in the environment variables")
 }

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"os"
 	"os/exec"
+	"slices"
 	"strings"
 	"testing"
 
@@ -171,7 +172,9 @@ func TestWait(t *testing.T) {
 		}
 		err := c.PrepareForExecution(make(map[string]string))
 		assert.NoError(t, err)
-		err = c.Execute()
+		err = c.Ignite(&pterm.DefaultMultiPrinter)
+		assert.NoError(t, err)
+		err = c.Start()
 		assert.NoError(t, err)
 		err = c.Wait(false)
 		assert.NoError(t, err)
@@ -184,7 +187,9 @@ func TestWait(t *testing.T) {
 		}
 		err := c.PrepareForExecution(make(map[string]string))
 		assert.NoError(t, err)
-		err = c.Execute()
+		err = c.Ignite(&pterm.DefaultMultiPrinter)
+		assert.NoError(t, err)
+		err = c.Start()
 		assert.NoError(t, err)
 		err = c.Wait(true)
 		assert.NoError(t, err)
@@ -200,24 +205,17 @@ func TestBashScriptExecution(t *testing.T) {
 		Runtime: "bash",
 		Content: []string{"export GREETING='hello from bash'", "echo $GREETING"},
 	}
-	cmd, err := testChunk.AddCommandToExecute("./test.sh", map[string]string{"$tmpdir.1": tmpDir})
-	assert.NoError(t, err, "Failed to add command")
-	cmd.Cmd.Dir = tmpDir
-	err = testChunk.WriteBashScript(tmpDir, "test.sh")
-	assert.NoError(t, err, "Failed to write bash script")
+	err = testChunk.PrepareForExecution(make(map[string]string))
+	assert.NoError(t, err, "Failed to write the bash script to disk or prepare for execution")
 
-	err = cmd.Execute()
+	err = testChunk.Execute()
 	assert.NoError(t, err, "Bash script execution failed")
 
-	assert.Contains(t, cmd.Stdout, "hello from bash")
+	assert.Contains(t, testChunk.Commands[0].Stdout, "hello from bash")
 
-	found := false
-	for _, envVar := range config.Env {
-		if envVar == "GREETING=hello from bash" {
-			found = true
-			break
-		}
-	}
+	found := slices.ContainsFunc(config.Env, func(env string) bool {
+		return env == "GREETING=hello from bash"
+	})
 	assert.True(t, found, "Expected GREETING to be in the environment variables")
 }
 

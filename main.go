@@ -13,6 +13,8 @@ import (
 	"github.com/spf13/pflag"
 )
 
+// findMarkdownFiles recursively finds all files in a given directory. If
+// recursive is true, it will traverse into subdirectories.
 func findMarkdownFiles(dir string, recursive bool) ([]string, error) {
 	var files []string
 	dirEntries, err := os.ReadDir(dir)

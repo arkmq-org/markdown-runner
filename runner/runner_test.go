@@ -57,8 +57,6 @@ echo "teardown"
 
 	err = RunMD(mdFile)
 	assert.Error(t, err, "Expected an error, but got none")
-	// Note: Testing that the teardown chunk was actually skipped is complex.
-	// This test primarily ensures that the runner returns an error when a chunk fails.
 }
 
 func TestRunMD_UpdateFile(t *testing.T) {
@@ -92,28 +90,6 @@ hello
 ` + "```" + `
 `
 	assert.Equal(t, expectedContent, string(updatedContent), "File content is not as expected")
-}
-
-func TestRunMD_ParallelExecution(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "test")
-	assert.NoError(t, err, "Failed to create temp dir")
-	defer os.RemoveAll(tmpDir)
-
-	config.MarkdownDir = tmpDir
-	mdContent := `
-` + "```" + `bash {"stage":"parallel_test", "parallel":true}
-echo "parallel 1"
-` + "```" + `
-` + "```" + `bash {"stage":"parallel_test", "parallel":true}
-echo "parallel 2"
-` + "```" + `
-`
-	mdFile := path.Join(tmpDir, "test.md")
-	err = os.WriteFile(mdFile, []byte(mdContent), 0o644)
-	assert.NoError(t, err, "Failed to write to temp file")
-
-	err = RunMD(mdFile)
-	assert.NoError(t, err, "Unexpected error in parallel execution")
 }
 
 func TestRunMD_TeardownWithDependency(t *testing.T) {

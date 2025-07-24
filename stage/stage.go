@@ -2,7 +2,6 @@
 package stage
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/arkmq-org/markdown-runner/chunk"
@@ -13,8 +12,9 @@ import (
 // Stage represents a single stage in the execution pipeline, containing a list
 // of chunks to be executed.
 type Stage struct {
-	Name   string
-	Chunks []*chunk.ExecutableChunk
+	Name       string
+	IsParallel bool // Indicates if the stage is parallel or sequential
+	Chunks     []*chunk.ExecutableChunk
 }
 
 // NewStage creates a new stage from a list of chunks. It assumes all chunks
@@ -23,16 +23,23 @@ func NewStage(chunks []*chunk.ExecutableChunk) *Stage {
 	if len(chunks) == 0 {
 		return nil
 	}
+	isParallel := false
+	for _, chunk := range chunks {
+		if chunk.IsParallel {
+			isParallel = true
+		}
+	}
 	return &Stage{
-		Name:   chunks[0].Stage,
-		Chunks: chunks,
+		Name:       chunks[0].Stage,
+		Chunks:     chunks,
+		IsParallel: isParallel,
 	}
 }
 
-// isParallelismConsistent checks that all chunks in a stage are either all
+// IsParallelismConsistent checks that all chunks in a stage are either all
 // parallel or all sequential. It ensures that there's no mix of execution
 // modes within a single stage.
-func (s *Stage) isParallelismConsistent() bool {
+func (s *Stage) IsParallelismConsistent() bool {
 	// atLeastOneParallel will be true if a chunk is set to run in parallel
 	atLeastOneParallel := false
 	// atLeastOneSequential will be true if a chunk is set to run sequentially
@@ -58,11 +65,11 @@ func (s *Stage) isParallelismConsistent() bool {
 func (s *Stage) Execute(stages []*Stage, tmpDirs map[string]string) error {
 	var towait []*chunk.ExecutableChunk
 	var terminatingError error
-	if !s.isParallelismConsistent() {
-		pterm.Error.Println("Inconsistent parallelism in stage, please refer to the documentation", s.Name)
-		return errors.New("inconsistent parallelism found in stage " + s.Name)
-	}
 
+	var multiPrinter pterm.MultiPrinter
+	if s.IsParallel {
+		multiPrinter = pterm.DefaultMultiPrinter
+	}
 	for _, chunk := range s.Chunks {
 		// Examine if the chunk can be executed based on previous errors
 		if terminatingError != nil && chunk.Stage != "teardown" {
@@ -85,22 +92,48 @@ func (s *Stage) Execute(stages []*Stage, tmpDirs map[string]string) error {
 		if terminatingError != nil {
 			continue
 		}
-		// Run the chunk
-		err := chunk.Execute()
-		if err != nil {
-			terminatingError = err
-		}
-		// Add it to the list of chunks to wait for if it's parallel
+		// All spinners spinning in parallel must be declared before the first update to their content
+		// meaning that we need to differentiate the parallel case from the sequential one.
+		// In the sequential case, we want to exercise the right to immediately stop executing more chunks in the stage
+		// as soon as one of them fails. In the parallel case, we have to start all of them at the same time, there's
+		// not really a dependency between a chunk and another. That's why the loop is broken in two pieces.
+		// Either we execute, block, and wait for a chunk's result to move on.
+		// Or we prepare the UI, and then execute all the chunks alongside each other.
 		if chunk.IsParallel {
-			towait = append(towait, chunk)
+			// initialize the spinners
+			err := chunk.Ignite(&multiPrinter)
+			if err != nil {
+				terminatingError = err
+			}
+		} else {
+			err := chunk.Execute()
+			if err != nil {
+				terminatingError = err
+			}
 		}
 	}
-	// wait or kill (in case an error occurred) all the chunks that were run in parallel
-	for _, chunk := range towait {
-		err := chunk.Wait(terminatingError != nil)
-		if err != nil {
-			terminatingError = err
+	// When In parallel, we start and wait for every chunks.
+	if s.IsParallel {
+		multiPrinter.Start()
+		pterm.Debug.Println("Running stage " + s.Name + " with " + pterm.Green(len(s.Chunks)) + " chunks in parallel")
+		for _, chunk := range s.Chunks {
+			// start the chunk
+			pterm.Debug.Println("Starting chunk " + pterm.Green(chunk.Id) + " in stage " + pterm.Green(s.Name))
+			err := chunk.Start()
+			if err != nil {
+				terminatingError = err
+			}
+			towait = append(towait, chunk)
 		}
+		// wait or kill (in case an error occurred)
+		for _, chunk := range towait {
+			pterm.Debug.Println("Waiting for chunk " + pterm.Green(chunk.Id) + " in stage " + pterm.Green(s.Name))
+			err := chunk.Wait(terminatingError != nil)
+			if err != nil {
+				terminatingError = err
+			}
+		}
+		multiPrinter.Stop()
 	}
 	return terminatingError
 }

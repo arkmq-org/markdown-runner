@@ -157,6 +157,9 @@ func ExtractStages(file string, markdownDir string) ([]*stage.Stage, error) {
 	var stages []*stage.Stage
 	for _, chunks := range chunkStages {
 		if s := stage.NewStage(chunks); s != nil {
+			if !s.IsParallelismConsistent() {
+				return nil, errors.New("inconsistent parallelism found in stage " + s.Name)
+			}
 			stages = append(stages, s)
 		}
 	}

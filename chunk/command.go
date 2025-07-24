@@ -41,6 +41,7 @@ type RunningCommand struct {
 	// IsBash indicates whether the command is a bash script, which requires
 	// special environment variable handling.
 	IsBash bool
+	spiner *pterm.SpinnerPrinter
 }
 
 // InitCommandLabel sets the human-readable name for the command, using the
@@ -64,6 +65,9 @@ func (command *RunningCommand) InitCommandLabel(chunk *ExecutableChunk) {
 // complete. It sets up the I/O pipes and starts the command process.
 // It returns an error if the command cannot be started.
 func (command *RunningCommand) Start() error {
+	if command.spiner == nil {
+		return errors.New("Spiner not initialized, call InitializeSpiner first")
+	}
 	if config.Interactive {
 		result, _ := pterm.DefaultInteractiveContinue.WithDefaultText(command.CmdPrettyName).Show()
 		if result == "all" {
@@ -90,39 +94,62 @@ func (command *RunningCommand) Start() error {
 	return err
 }
 
+// InitializeSpiner creates and configures the spinner for a regular command.
+// The spinner provides visual feedback during command execution.
+// It returns an error if the spinner cannot be initialized.
+func (command *RunningCommand) InitializeSpiner() error {
+	var err error
+	if config.Interactive {
+		command.spiner, err = pterm.DefaultSpinner.Start("executing")
+	} else {
+		command.spiner, err = pterm.DefaultSpinner.Start(command.CmdPrettyName)
+	}
+	return err
+}
+
+// InitializeParallelSpiner creates and configures the spinner for a parallel
+// command within a MultiPrinter. This allows multiple spinners to be displayed
+// simultaneously.
+//
+// multi is the pterm.MultiPrinter that will manage the spinner.
+// It returns an error if the spinner cannot be initialized.
+func (command *RunningCommand) InitializeParallelSpiner(multi *pterm.MultiPrinter) error {
+	var err error
+	if config.Interactive {
+		command.spiner, err = pterm.DefaultSpinner.WithWriter(multi.NewWriter()).Start("executing")
+	} else {
+		command.spiner, err = pterm.DefaultSpinner.WithWriter(multi.NewWriter()).Start(command.CmdPrettyName)
+	}
+	return err
+}
+
 // Wait blocks until the command has finished execution. It captures the exit
 // code, stdout, and stderr, and handles environment variable extraction for
 // bash scripts. It returns an error if the command fails.
 func (command *RunningCommand) Wait() error {
-	var spiner *pterm.SpinnerPrinter
-	if config.Interactive {
-		spiner, _ = pterm.DefaultSpinner.Start("executing")
-	} else {
-		spiner, _ = pterm.DefaultSpinner.Start(command.CmdPrettyName)
-	}
 	// don't wait if we're in dryRun mode
 	if config.DryRun {
-		spiner.InfoPrinter = &pterm.PrefixPrinter{
+		command.spiner.InfoPrinter = &pterm.PrefixPrinter{
 			MessageStyle: &pterm.Style{pterm.FgLightBlue},
 			Prefix: pterm.Prefix{
 				Style: &pterm.Style{pterm.FgBlack, pterm.BgLightBlue},
 				Text:  " DRY-RUN ",
 			},
 		}
-		spiner.Warning(command.CmdPrettyName)
+		command.spiner.Warning(command.CmdPrettyName)
 		return nil
 	}
 	defer command.CancelFunc()
 	// handle the interactive scenario where the command doesn't exist because the user skipped it
 	if command.Cmd == nil {
-		spiner.InfoPrinter = &pterm.PrefixPrinter{
+		command.spiner.InfoPrinter = &pterm.PrefixPrinter{
 			MessageStyle: &pterm.Style{pterm.FgLightBlue},
 			Prefix: pterm.Prefix{
 				Style: &pterm.Style{pterm.FgBlack, pterm.BgLightBlue},
 				Text:  " SKIPPED ",
 			},
 		}
-		spiner.Warning(command.CmdPrettyName)
+		command.spiner.Warning(command.CmdPrettyName)
 		return nil
 	}
 	// wait for the termination
@@ -132,10 +159,10 @@ func (command *RunningCommand) Wait() error {
 
 	// handle the output depending on the status of the command
 	if terminatingError != nil {
-		spiner.Fail("stdout:\n", command.Outb.String(), "\nstderr:\n", command.Errb.String(), "\nexit code:", command.Cmd.ProcessState.ExitCode())
+		command.spiner.Fail("stdout:\n", command.Outb.String(), "\nstderr:\n", command.Errb.String(), "\nexit code:", command.Cmd.ProcessState.ExitCode())
 		return terminatingError
 	}
-	spiner.Success(command.CmdPrettyName)
+	command.spiner.Success(command.CmdPrettyName)
 
 	// During a bash runtime the user might want to export new variables.
 	// Our job here is to recover them to build the new environment for the next chunk
@@ -180,6 +207,14 @@ func (command *RunningCommand) Wait() error {
 		}
 	}
 	return nil
+}
+
+// Kill forcefully terminates the command's process. It's used to clean up
+// running processes when a stage fails.
+// It returns an error if the process cannot be killed.
+func (command *RunningCommand) Kill() error {
+	command.spiner.Fail("Killed " + command.CmdPrettyName)
+	return command.Cmd.Process.Kill()
 }
 
 // Execute runs a command and waits for it to complete. It's a convenience
