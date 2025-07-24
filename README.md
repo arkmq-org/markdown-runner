@@ -27,21 +27,33 @@ List of the available options:
 markdown-runner --help
 ````
 ````shell markdown_runner
-Usage of markdown-runner:
-  -d, --dry-run               just list what would be executed without doing it
-  -f, --filter string         Run only the files matching the regex
-  -h, --help                  show this help message
-      --ignore-breakpoints    ignore the breakpoints
-  -i, --interactive           prompt to press enter between each chunk
-  -l, --list                  just list the files found
-  -m, --markdown-dir string   where to find the markdown files to execute (default "./")
-      --no-styling            disable spiners in cli
-  -q, --quiet                 disable output
-  -r, --recursive             search for markdown files recursively
-  -s, --start-from string     start from a specific stage name
-  -t, --timeout int           the timeout in minutes for every executed command (default 10)
-  -u, --update-files          update the chunk output section in the markdown files
-  -v, --verbose               print more logs
+Usage: markdown-runner [options] [path]
+
+Executes markdown files as scripts.
+The default path is the current directory.
+
+Modes:
+  -d, --dry-run              Just list what would be executed without doing it
+  -l, --list                 Just list the files found
+
+Execution Control:
+  -i, --interactive          Prompt to press enter between each chunk
+  -s, --start-from string    Start from a specific stage name
+  -t, --timeout int          The timeout in minutes for every executed command (default 10)
+  -u, --update-files         Update the chunk output section in the markdown files
+      --ignore-breakpoints   Ignore the breakpoints
+
+File Selection:
+  -f, --filter string        Run only the files matching the regex
+  -r, --recursive            Search for markdown files recursively
+
+Output & Logging:
+  -v, --verbose              Print more logs
+  -q, --quiet                Disable output
+      --no-styling           Disable spinners in CLI
+
+Help:
+  -h, --help                 Show this help message
 ````
 
 To execute this documentation, you can run the following command:
@@ -67,7 +79,7 @@ Unit tests can be run with:
 go test ./...
 ```
 ```shell markdown_runner
-?   	github.com/arkmq-org/markdown-runner	[no test files]
+ok  	github.com/arkmq-org/markdown-runner	(cached)
 ok  	github.com/arkmq-org/markdown-runner/chunk	(cached)
 ok  	github.com/arkmq-org/markdown-runner/config	(cached)
 ok  	github.com/arkmq-org/markdown-runner/parser	(cached)
@@ -484,7 +496,7 @@ cd ${WORKING_DIR}
 go run main.go \
    --update-files \
    --quiet \
-   --markdown-dir ${MARKDOWN_DIR}
+   ${MARKDOWN_DIR}
 ```
 
 As we've executed the markdown runner tool with the `--update-files` option.
@@ -656,7 +668,7 @@ Let's run and see the result
 cd ${WORKING_DIR}
 go run main.go \
    --no-styling \
-   --markdown-dir ${MD_DIR} | grep "SUCCESS.*someID" || exit 0
+   ${MD_DIR} | grep "SUCCESS.*someID" || exit 0
 ```
 ```shell markdown_runner
 

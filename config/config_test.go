@@ -14,7 +14,7 @@ func TestParseFlags(t *testing.T) {
 	defer func() { os.Args = oldArgs }()
 
 	// Test case
-	os.Args = []string{"cmd", "--dry-run", "--interactive=true", "--verbose", "--recursive", "--timeout=5", "--start-from=stage2", "--markdown-dir=/tmp", "--filter=test.md", "--ignore-breakpoints", "--update-files", "--list", "--no-styling", "--quiet"}
+	os.Args = []string{"cmd", "--dry-run", "--interactive=true", "--verbose", "--recursive", "--timeout=5", "--start-from=stage2", "--filter=test.md", "--ignore-breakpoints", "--update-files", "--list", "--no-styling", "--quiet", "/tmp"}
 
 	// Reset flags to default values before parsing
 	pflag.CommandLine = pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
@@ -35,13 +35,63 @@ func TestParseFlags(t *testing.T) {
 	assert.True(t, Quiet, "Expected Quiet to be true, but got false")
 }
 
+func TestParseFlags_PositionalDir(t *testing.T) {
+	t.Run("flag before positional", func(t *testing.T) {
+		// Save original os.Args
+		oldArgs := os.Args
+		defer func() { os.Args = oldArgs }()
+
+		// Test case
+		os.Args = []string{"cmd", "-f=test.md", "/tmp"}
+
+		// Reset flags to default values before parsing
+		pflag.CommandLine = pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
+		ParseFlags()
+
+		assert.Equal(t, "/tmp", MarkdownDir, "Expected MarkdownDir to be '/tmp'")
+		assert.Equal(t, "test.md", Filter, "Expected filter to be 'test.md'")
+	})
+
+	t.Run("positional before flag", func(t *testing.T) {
+		// Save original os.Args
+		oldArgs := os.Args
+		defer func() { os.Args = oldArgs }()
+
+		// Test case
+		os.Args = []string{"cmd", "/tmp", "-f=test.md"}
+
+		// Reset flags to default values before parsing
+		pflag.CommandLine = pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
+		ParseFlags()
+
+		assert.Equal(t, "/tmp", MarkdownDir, "Expected MarkdownDir to be '/tmp'")
+		assert.Equal(t, "test.md", Filter, "Expected filter to be 'test.md'")
+	})
+
+	t.Run("no positional before or after flag", func(t *testing.T) {
+		// Save original os.Args
+		oldArgs := os.Args
+		defer func() { os.Args = oldArgs }()
+
+		// Test case
+		os.Args = []string{"cmd", "-f=test.md"}
+
+		// Reset flags to default values before parsing
+		pflag.CommandLine = pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
+		ParseFlags()
+
+		assert.Equal(t, "./", MarkdownDir, "Expected MarkdownDir to be '/tmp'")
+		assert.Equal(t, "test.md", Filter, "Expected filter to be 'test.md'")
+	})
+}
+
 func TestParseFlags_Shorthand(t *testing.T) {
 	// Save original os.Args
 	oldArgs := os.Args
 	defer func() { os.Args = oldArgs }()
 
 	// Test case
-	os.Args = []string{"cmd", "-d", "-i=true", "-v", "-r", "-t=5", "-s=stage2", "-m=/tmp", "-f=test.md", "-u", "-l", "-q"}
+	os.Args = []string{"cmd", "-d", "-i=true", "-v", "-r", "-t=5", "-s=stage2", "-f=test.md", "-u", "-l", "-q", "/tmp"}
 
 	// Reset flags to default values before parsing
 	pflag.CommandLine = pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)

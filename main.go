@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"slices"
+	"sort"
 
 	"github.com/arkmq-org/markdown-runner/config"
 	"github.com/arkmq-org/markdown-runner/runner"
@@ -13,25 +14,37 @@ import (
 	"github.com/spf13/pflag"
 )
 
-// findMarkdownFiles recursively finds all files in a given directory. If
-// recursive is true, it will traverse into subdirectories.
-func findMarkdownFiles(dir string, recursive bool) ([]string, error) {
+// findMarkdownFiles recursively finds all files in a given path. If the
+// provided path is a file, it will be returned directly. If the path is a
+// directory and recursive is true, it will traverse into subdirectories.
+func findMarkdownFiles(path string, recursive bool) ([]string, error) {
+	info, statErr := os.Stat(path)
+	if statErr != nil {
+		return nil, statErr
+	}
+	if !info.IsDir() {
+		return []string{path}, nil
+	}
 	var files []string
-	dirEntries, err := os.ReadDir(dir)
+	dirEntries, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
 	}
 	for _, entry := range dirEntries {
-		if !entry.IsDir() {
-			files = append(files, filepath.Join(dir, entry.Name()))
-		} else if recursive {
-			subDirFiles, err := findMarkdownFiles(filepath.Join(dir, entry.Name()), recursive)
-			if err != nil {
-				return nil, err
-			}
-			files = append(files, subDirFiles...)
+		info, statErr := os.Stat(filepath.Join(path, entry.Name()))
+		if statErr != nil {
+			return nil, statErr
 		}
+		if info.IsDir() && !recursive {
+			continue
+		}
+		subDirFiles, err := findMarkdownFiles(filepath.Join(path, entry.Name()), recursive)
+		if err != nil {
+			return nil, err
+		}
+		files = append(files, subDirFiles...)
 	}
+	sort.Strings(files)
 	return files, nil
 }
 
