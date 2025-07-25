@@ -6,15 +6,13 @@ import (
 
 	"github.com/arkmq-org/markdown-runner/chunk"
 	"github.com/arkmq-org/markdown-runner/config"
-	"github.com/pterm/pterm"
+	"github.com/arkmq-org/markdown-runner/runnercontext"
+	"github.com/arkmq-org/markdown-runner/view"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMain(m *testing.M) {
-	pterm.DisableOutput()
-	code := m.Run()
-	pterm.EnableOutput()
-	os.Exit(code)
+	os.Exit(m.Run())
 }
 
 func TestStage(t *testing.T) {
@@ -25,7 +23,12 @@ func TestStage(t *testing.T) {
 				{Stage: "test-stage"},
 			}
 			cfg := &config.Config{}
-			stage := NewStage(cfg, chunks)
+			ui := view.NewMock()
+			ctx := &runnercontext.Context{
+				Cfg: cfg,
+				UI:  ui,
+			}
+			stage := NewStage(ctx, chunks)
 			assert.NotNil(t, stage)
 			assert.Equal(t, "test-stage", stage.Name)
 			assert.Len(t, stage.Chunks, 2)
@@ -33,7 +36,12 @@ func TestStage(t *testing.T) {
 
 		t.Run("returns nil for empty chunk slice", func(t *testing.T) {
 			cfg := &config.Config{}
-			stage := NewStage(cfg, []*chunk.ExecutableChunk{})
+			ui := view.NewMock()
+			ctx := &runnercontext.Context{
+				Cfg: cfg,
+				UI:  ui,
+			}
+			stage := NewStage(ctx, []*chunk.ExecutableChunk{})
 			assert.Nil(t, stage)
 		})
 	})
@@ -117,63 +125,84 @@ func TestStage(t *testing.T) {
 	t.Run("execute", func(t *testing.T) {
 		t.Run("should execute a sequential stage", func(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1}
-			chunks := []*chunk.ExecutableChunk{
-				{Stage: "test-stage", Content: []string{"echo 1"}, Cfg: cfg},
-				{Stage: "test-stage", Content: []string{"echo 2"}, Cfg: cfg},
+			ui := view.NewMock()
+			ctx := &runnercontext.Context{
+				Cfg: cfg,
+				UI:  ui,
 			}
-			stage := NewStage(cfg, chunks)
+			chunks := []*chunk.ExecutableChunk{
+				{Stage: "test-stage", Content: []string{"echo 1"}, Context: ctx},
+				{Stage: "test-stage", Content: []string{"echo 2"}, Context: ctx},
+			}
+			stage := NewStage(ctx, chunks)
 			err := stage.Execute(nil, make(map[string]string))
 			assert.NoError(t, err)
 		})
 
 		t.Run("should execute a parallel stage", func(t *testing.T) {
-			t.Setenv("CI", "true")
 			cfg := &config.Config{MinutesToTimeout: 1}
-			chunks := []*chunk.ExecutableChunk{
-				{Stage: "test-stage", Content: []string{"sleep 0.1"}, IsParallel: true, Cfg: cfg},
-				{Stage: "test-stage", Content: []string{"sleep 0.1"}, IsParallel: true, Cfg: cfg},
+			ui := view.NewMock()
+			ctx := &runnercontext.Context{
+				Cfg: cfg,
+				UI:  ui,
 			}
-			stage := NewStage(cfg, chunks)
+			chunks := []*chunk.ExecutableChunk{
+				{Stage: "test-stage", Content: []string{"sleep 0.1"}, IsParallel: true, Context: ctx},
+				{Stage: "test-stage", Content: []string{"sleep 0.1"}, IsParallel: true, Context: ctx},
+			}
+			stage := NewStage(ctx, chunks)
 			err := stage.Execute(nil, make(map[string]string))
 			assert.NoError(t, err)
 		})
 
 		t.Run("should handle dependencies", func(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1}
+			ui := view.NewMock()
+			ctx := &runnercontext.Context{
+				Cfg: cfg,
+				UI:  ui,
+			}
 			stages := []*Stage{
 				{
 					Name: "setup",
+					Ctx:  ctx,
 					Chunks: []*chunk.ExecutableChunk{
-						{Id: "chunk1", Stage: "setup", Content: []string{"true"}, Cfg: cfg},
+						{Id: "chunk1", Stage: "setup", Content: []string{"true"}, Context: ctx},
 					},
 				},
 				{
 					Name: "test-stage",
+					Ctx:  ctx,
 					Chunks: []*chunk.ExecutableChunk{
-						{Stage: "test-stage", Requires: "setup/chunk1", Content: []string{"echo 'I have a dependency'"}, Cfg: cfg},
+						{Stage: "test-stage", Requires: "setup/chunk1", Content: []string{"echo 'I have a dependency'"}, Context: ctx},
 					},
 				},
 			}
 
 			// First, execute the setup stage to simulate a real run
 			setupStage := stages[0]
-			setupStage.Cfg = cfg
+			setupStage.Ctx = ctx
 			err := setupStage.Execute(stages, make(map[string]string))
 			assert.NoError(t, err)
 
 			// Then, execute the stage with the dependency
 			testStage := stages[1]
-			testStage.Cfg = cfg
+			testStage.Ctx = ctx
 			err = testStage.Execute(stages, make(map[string]string))
 			assert.NoError(t, err)
 		})
 
 		t.Run("should handle breakpoints", func(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1, IgnoreBreakpoints: false}
-			chunks := []*chunk.ExecutableChunk{
-				{Stage: "test-stage", HasBreakpoint: true, Cfg: cfg},
+			ui := view.NewMock()
+			ctx := &runnercontext.Context{
+				Cfg: cfg,
+				UI:  ui,
 			}
-			stage := NewStage(cfg, chunks)
+			chunks := []*chunk.ExecutableChunk{
+				{Stage: "test-stage", HasBreakpoint: true, Context: ctx},
+			}
+			stage := NewStage(ctx, chunks)
 			err := stage.Execute(nil, make(map[string]string))
 			assert.NoError(t, err)
 			assert.True(t, cfg.Interactive)
@@ -182,11 +211,16 @@ func TestStage(t *testing.T) {
 	t.Run("execute with errors", func(t *testing.T) {
 		t.Run("should stop execution on sequential stage error", func(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1}
-			chunks := []*chunk.ExecutableChunk{
-				{Stage: "test-stage", Content: []string{"false"}, Cfg: cfg},
-				{Stage: "test-stage", Content: []string{"echo 'should not run'"}, Cfg: cfg},
+			ui := view.NewMock()
+			ctx := &runnercontext.Context{
+				Cfg: cfg,
+				UI:  ui,
 			}
-			stage := NewStage(cfg, chunks)
+			chunks := []*chunk.ExecutableChunk{
+				{Stage: "test-stage", Content: []string{"false"}, Context: ctx},
+				{Stage: "test-stage", Content: []string{"echo 'should not run'"}, Context: ctx},
+			}
+			stage := NewStage(ctx, chunks)
 			err := stage.Execute(nil, make(map[string]string))
 			assert.Error(t, err)
 		})
@@ -194,39 +228,51 @@ func TestStage(t *testing.T) {
 		t.Run("should run all chunks on parallel stage error", func(t *testing.T) {
 			t.Setenv("CI", "true")
 			cfg := &config.Config{MinutesToTimeout: 1}
-			chunks := []*chunk.ExecutableChunk{
-				{Stage: "test-stage", Content: []string{"false"}, IsParallel: true, Cfg: cfg},
-				{Stage: "test-stage", Content: []string{"sleep 0.1"}, IsParallel: true, Cfg: cfg},
+			ui := view.NewMock()
+			ctx := &runnercontext.Context{
+				Cfg: cfg,
+				UI:  ui,
 			}
-			stage := NewStage(cfg, chunks)
+			chunks := []*chunk.ExecutableChunk{
+				{Stage: "test-stage", Content: []string{"false"}, IsParallel: true, Context: ctx},
+				{Stage: "test-stage", Content: []string{"sleep 0.1"}, IsParallel: true, Context: ctx},
+			}
+			stage := NewStage(ctx, chunks)
 			err := stage.Execute(nil, make(map[string]string))
 			assert.Error(t, err)
 		})
 
 		t.Run("should skip chunk with unmet dependency", func(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1}
+			ui := view.NewMock()
+			ctx := &runnercontext.Context{
+				Cfg: cfg,
+				UI:  ui,
+			}
 			stages := []*Stage{
 				{
 					Name: "setup",
+					Ctx:  ctx,
 					Chunks: []*chunk.ExecutableChunk{
-						{Id: "chunk1", Stage: "setup", Content: []string{"false"}, Cfg: cfg}, // This chunk will fail
+						{Id: "chunk1", Stage: "setup", Content: []string{"false"}, Context: ctx}, // This chunk will fail
 					},
 				},
 				{
 					Name: "test-stage",
+					Ctx:  ctx,
 					Chunks: []*chunk.ExecutableChunk{
-						{Stage: "test-stage", Requires: "setup/chunk1", Content: []string{"echo 'should not run'"}, Cfg: cfg},
+						{Stage: "test-stage", Requires: "setup/chunk1", Content: []string{"echo 'should not run'"}, Context: ctx},
 					},
 				},
 			}
 
 			setupStage := stages[0]
-			setupStage.Cfg = cfg
+			setupStage.Ctx = ctx
 			err := setupStage.Execute(stages, make(map[string]string))
 			assert.Error(t, err)
 
 			testStage := stages[1]
-			testStage.Cfg = cfg
+			testStage.Ctx = ctx
 			err = testStage.Execute(stages, make(map[string]string))
 			assert.NoError(t, err)
 		})

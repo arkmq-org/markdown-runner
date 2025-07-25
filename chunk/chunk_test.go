@@ -11,6 +11,8 @@ import (
 
 	"github.com/arkmq-org/markdown-runner/chunk"
 	"github.com/arkmq-org/markdown-runner/config"
+	"github.com/arkmq-org/markdown-runner/runnercontext"
+	"github.com/arkmq-org/markdown-runner/view"
 	"github.com/pterm/pterm"
 	"github.com/stretchr/testify/assert"
 )
@@ -32,7 +34,7 @@ func TestMain(m *testing.M) {
 
 func TestExecutableChunk(t *testing.T) {
 	t.Run("init", func(t *testing.T) {
-		testChunk := chunk.ExecutableChunk{HasBreakpoint: true}
+		testChunk := chunk.ExecutableChunk{HasBreakpoint: true, Context: &runnercontext.Context{UI: view.NewMock()}}
 		testChunk.Init()
 		assert.NotNil(t, testChunk.Content, "Expected Content to be initialized, but it was nil")
 	})
@@ -46,7 +48,10 @@ func TestExecutableChunk(t *testing.T) {
 				name: "Chunk with no commands has no output",
 				chunk: &chunk.ExecutableChunk{
 					Commands: []*chunk.RunningCommand{},
-					Cfg:      &config.Config{MinutesToTimeout: 1},
+					Context: &runnercontext.Context{
+						Cfg: &config.Config{MinutesToTimeout: 1},
+						UI:  view.NewMock(),
+					},
 				},
 				expected: false,
 			},
@@ -59,7 +64,10 @@ func TestExecutableChunk(t *testing.T) {
 							Stderr: "",
 						},
 					},
-					Cfg: &config.Config{MinutesToTimeout: 1},
+					Context: &runnercontext.Context{
+						Cfg: &config.Config{MinutesToTimeout: 1},
+						UI:  view.NewMock(),
+					},
 				},
 				expected: false,
 			},
@@ -72,7 +80,10 @@ func TestExecutableChunk(t *testing.T) {
 							Stderr: "",
 						},
 					},
-					Cfg: &config.Config{MinutesToTimeout: 1},
+					Context: &runnercontext.Context{
+						Cfg: &config.Config{MinutesToTimeout: 1},
+						UI:  view.NewMock(),
+					},
 				},
 				expected: true,
 			},
@@ -85,7 +96,10 @@ func TestExecutableChunk(t *testing.T) {
 							Stderr: "some error",
 						},
 					},
-					Cfg: &config.Config{MinutesToTimeout: 1},
+					Context: &runnercontext.Context{
+						Cfg: &config.Config{MinutesToTimeout: 1},
+						UI:  view.NewMock(),
+					},
 				},
 				expected: true,
 			},
@@ -101,24 +115,24 @@ func TestExecutableChunk(t *testing.T) {
 		tmpDirs := make(map[string]string)
 		defer os.RemoveAll(tmpDirs["$tmpdir.test"])
 
-		testChunk := chunk.ExecutableChunk{RootDir: "$initial_dir", Cfg: &config.Config{MinutesToTimeout: 1, Rootdir: "/tmp"}}
+		testChunk := chunk.ExecutableChunk{RootDir: "$initial_dir", Context: &runnercontext.Context{Cfg: &config.Config{MinutesToTimeout: 1, Rootdir: "/tmp"}, UI: view.NewMock()}}
 		dir, err := testChunk.GetOrCreateRuntimeDirectory(tmpDirs)
 		assert.NoError(t, err)
 		assert.Equal(t, "/tmp", dir)
 
-		testChunk = chunk.ExecutableChunk{RootDir: "$tmpdir.test", Cfg: &config.Config{MinutesToTimeout: 1}}
+		testChunk = chunk.ExecutableChunk{RootDir: "$tmpdir.test", Context: &runnercontext.Context{Cfg: &config.Config{MinutesToTimeout: 1}, UI: view.NewMock()}}
 		dir, err = testChunk.GetOrCreateRuntimeDirectory(tmpDirs)
 		assert.NoError(t, err)
 		assert.True(t, strings.HasPrefix(dir, "/tmp"))
 		_, ok := tmpDirs["$tmpdir.test"]
 		assert.True(t, ok, "Expected tmpdir to be created and stored")
 
-		testChunk = chunk.ExecutableChunk{RootDir: "/custom/dir", Cfg: &config.Config{MinutesToTimeout: 1}}
+		testChunk = chunk.ExecutableChunk{RootDir: "/custom/dir", Context: &runnercontext.Context{Cfg: &config.Config{MinutesToTimeout: 1}, UI: view.NewMock()}}
 		dir, err = testChunk.GetOrCreateRuntimeDirectory(tmpDirs)
 		assert.NoError(t, err)
 		assert.Equal(t, "/custom/dir", dir)
 
-		testChunk = chunk.ExecutableChunk{RootDir: "", Cfg: &config.Config{MinutesToTimeout: 1}}
+		testChunk = chunk.ExecutableChunk{RootDir: "", Context: &runnercontext.Context{Cfg: &config.Config{MinutesToTimeout: 1}, UI: view.NewMock()}}
 		dir, err = testChunk.GetOrCreateRuntimeDirectory(tmpDirs)
 		assert.NoError(t, err)
 		defer os.RemoveAll(dir)
@@ -126,7 +140,7 @@ func TestExecutableChunk(t *testing.T) {
 	})
 	t.Run("add command to execute", func(t *testing.T) {
 		tmpDirs := make(map[string]string)
-		testChunk := chunk.ExecutableChunk{Cfg: &config.Config{MinutesToTimeout: 1}}
+		testChunk := chunk.ExecutableChunk{Context: &runnercontext.Context{Cfg: &config.Config{MinutesToTimeout: 1}, UI: view.NewMock()}}
 		cmdStr := "echo 'hello world'"
 		cmd, err := testChunk.AddCommandToExecute(cmdStr, tmpDirs)
 		assert.NoError(t, err)
@@ -136,7 +150,10 @@ func TestExecutableChunk(t *testing.T) {
 	t.Run("execute error", func(t *testing.T) {
 		testChunk := chunk.ExecutableChunk{
 			IsParallel: true,
-			Cfg:        &config.Config{MinutesToTimeout: 1},
+			Context: &runnercontext.Context{
+				Cfg: &config.Config{MinutesToTimeout: 1},
+				UI:  view.NewMock(),
+			},
 		}
 		err := testChunk.ExecuteSequential()
 		assert.Error(t, err, "Expected an error when executing a parallel chunk with Execute")
@@ -146,7 +163,10 @@ func TestExecutableChunk(t *testing.T) {
 			c := &chunk.ExecutableChunk{
 				IsParallel: true,
 				Content:    []string{"echo 1", "echo 2"},
-				Cfg:        &config.Config{MinutesToTimeout: 1},
+				Context: &runnercontext.Context{
+					Cfg: &config.Config{MinutesToTimeout: 1},
+					UI:  view.NewMock(),
+				},
 			}
 			err := c.PrepareForExecution(make(map[string]string))
 			assert.Error(t, err)
@@ -157,7 +177,10 @@ func TestExecutableChunk(t *testing.T) {
 				IsParallel: true,
 				Runtime:    "bash",
 				Content:    []string{"echo 1", "echo 2"},
-				Cfg:        &config.Config{MinutesToTimeout: 1},
+				Context: &runnercontext.Context{
+					Cfg: &config.Config{MinutesToTimeout: 1},
+					UI:  view.NewMock(),
+				},
 			}
 			err := c.PrepareForExecution(make(map[string]string))
 			assert.NoError(t, err)
@@ -167,7 +190,10 @@ func TestExecutableChunk(t *testing.T) {
 		t.Run("it should execute a command", func(t *testing.T) {
 			c := &chunk.ExecutableChunk{
 				Content: []string{"echo 1"},
-				Cfg:     &config.Config{MinutesToTimeout: 1},
+				Context: &runnercontext.Context{
+					Cfg: &config.Config{MinutesToTimeout: 1},
+					UI:  view.NewMock(),
+				},
 			}
 			err := c.PrepareForExecution(make(map[string]string))
 			assert.NoError(t, err)
@@ -177,14 +203,18 @@ func TestExecutableChunk(t *testing.T) {
 	})
 	t.Run("wait", func(t *testing.T) {
 		t.Run("it should wait for a command", func(t *testing.T) {
+			ui := view.NewMock()
 			c := &chunk.ExecutableChunk{
 				IsParallel: true,
 				Content:    []string{"sleep 0.1"},
-				Cfg:        &config.Config{MinutesToTimeout: 1},
+				Context: &runnercontext.Context{
+					Cfg: &config.Config{MinutesToTimeout: 1},
+					UI:  ui,
+				},
 			}
 			err := c.PrepareForExecution(make(map[string]string))
 			assert.NoError(t, err)
-			err = c.IgniteParallel(&pterm.DefaultMultiPrinter)
+			err = c.DeclareParallelLoggers()
 			assert.NoError(t, err)
 			err = c.StartParallel()
 			assert.NoError(t, err)
@@ -193,14 +223,18 @@ func TestExecutableChunk(t *testing.T) {
 		})
 
 		t.Run("it should kill a command", func(t *testing.T) {
+			ui := view.NewMock()
 			c := &chunk.ExecutableChunk{
 				IsParallel: true,
 				Content:    []string{"sleep 1"},
-				Cfg:        &config.Config{MinutesToTimeout: 1},
+				Context: &runnercontext.Context{
+					Cfg: &config.Config{MinutesToTimeout: 1},
+					UI:  ui,
+				},
 			}
 			err := c.PrepareForExecution(make(map[string]string))
 			assert.NoError(t, err)
-			err = c.IgniteParallel(&pterm.DefaultMultiPrinter)
+			err = c.DeclareParallelLoggers()
 			assert.NoError(t, err)
 			err = c.StartParallel()
 			assert.NoError(t, err)
@@ -216,7 +250,10 @@ func TestExecutableChunk(t *testing.T) {
 		testChunk := chunk.ExecutableChunk{
 			Runtime: "bash",
 			Content: []string{"export GREETING='hello from bash'", "echo $GREETING"},
-			Cfg:     &config.Config{MinutesToTimeout: 1},
+			Context: &runnercontext.Context{
+				Cfg: &config.Config{MinutesToTimeout: 1},
+				UI:  view.NewMock(),
+			},
 		}
 		err = testChunk.PrepareForExecution(make(map[string]string))
 		assert.NoError(t, err, "Failed to write the bash script to disk or prepare for execution")
@@ -226,7 +263,7 @@ func TestExecutableChunk(t *testing.T) {
 
 		assert.Contains(t, testChunk.Commands[0].Stdout, "hello from bash")
 
-		found := slices.ContainsFunc(testChunk.Cfg.Env, func(env string) bool {
+		found := slices.ContainsFunc(testChunk.Context.Cfg.Env, func(env string) bool {
 			return env == "GREETING=hello from bash"
 		})
 		assert.True(t, found, "Expected GREETING to be in the environment variables")
@@ -239,7 +276,7 @@ func TestExecutableChunk(t *testing.T) {
 		err = os.Chmod(readOnlyDir, 0o444)
 		assert.NoError(t, err, "Failed to change directory permissions")
 
-		testChunk := chunk.ExecutableChunk{}
+		testChunk := chunk.ExecutableChunk{Context: &runnercontext.Context{UI: view.NewMock()}}
 		err = testChunk.WriteBashScript(readOnlyDir, "test.sh")
 		assert.Error(t, err, "Expected an error when writing to a read-only directory")
 	})
@@ -249,7 +286,10 @@ func TestExecutableChunk(t *testing.T) {
 			Runtime:     "writer",
 			Destination: "test.txt",
 			Content:     []string{"hello", "world"},
-			Cfg:         &config.Config{MinutesToTimeout: 1},
+			Context: &runnercontext.Context{
+				Cfg: &config.Config{MinutesToTimeout: 1},
+				UI:  view.NewMock(),
+			},
 		}
 		err := testChunk.PrepareForExecution(tmpDirs)
 		assert.NoError(t, err, "Failed to apply writer")
@@ -267,6 +307,7 @@ func TestExecutableChunk(t *testing.T) {
 					Stdout: "hello world",
 				},
 			},
+			Context: &runnercontext.Context{UI: view.NewMock()},
 		}
 		var writer strings.Builder
 		bufWriter := bufio.NewWriter(&writer)
@@ -285,6 +326,7 @@ func TestExecutableChunk(t *testing.T) {
 			Runtime:     "writer",
 			Destination: "test.txt",
 			Content:     []string{"hello", "world"},
+			Context:     &runnercontext.Context{UI: view.NewMock()},
 		}
 
 		err = testChunk.WriteFile(tmpDir)
@@ -299,6 +341,7 @@ func TestExecutableChunk(t *testing.T) {
 			Runtime:     "writer",
 			Destination: "test.txt",
 			Content:     []string{"hello", "world"},
+			Context:     &runnercontext.Context{UI: view.NewMock()},
 		}
 
 		err := testChunk.WriteFile("/invalid/dir")
@@ -310,7 +353,10 @@ func TestExecutableChunk(t *testing.T) {
 			Destination: "test.txt",
 			Content:     []string{"hello", "world"},
 			RootDir:     "/invalid/dir",
-			Cfg:         &config.Config{MinutesToTimeout: 1},
+			Context: &runnercontext.Context{
+				Cfg: &config.Config{MinutesToTimeout: 1},
+				UI:  view.NewMock(),
+			},
 		}
 		err := testChunk.PrepareForExecution(make(map[string]string))
 		assert.Error(t, err, "Expected an error when writing to an invalid directory")
@@ -318,20 +364,23 @@ func TestExecutableChunk(t *testing.T) {
 	t.Run("prepare classical error", func(t *testing.T) {
 		testChunk := chunk.ExecutableChunk{
 			Content: []string{"'"},
-			Cfg:     &config.Config{MinutesToTimeout: 1},
+			Context: &runnercontext.Context{
+				Cfg: &config.Config{MinutesToTimeout: 1},
+				UI:  view.NewMock(),
+			},
 		}
 		err := testChunk.PrepareForExecution(make(map[string]string))
 		assert.Error(t, err, "Expected an error for an invalid command")
 	})
 	t.Run("add command to execute error", func(t *testing.T) {
 		tmpDirs := make(map[string]string)
-		testChunk := chunk.ExecutableChunk{Cfg: &config.Config{MinutesToTimeout: 1}}
+		testChunk := chunk.ExecutableChunk{Context: &runnercontext.Context{Cfg: &config.Config{MinutesToTimeout: 1}, UI: view.NewMock()}}
 		_, err := testChunk.AddCommandToExecute("", tmpDirs)
 		assert.Error(t, err, "Expected an error for an empty command string")
 	})
 	t.Run("prepare bash chunk for execution error", func(t *testing.T) {
 		tmpDirs := make(map[string]string)
-		testChunk := chunk.ExecutableChunk{Cfg: &config.Config{MinutesToTimeout: 1}}
+		testChunk := chunk.ExecutableChunk{Context: &runnercontext.Context{Cfg: &config.Config{MinutesToTimeout: 1}, UI: view.NewMock()}}
 
 		// This is not a valid command, so it should fail.
 		testChunk.Content = []string{"'"}
@@ -346,6 +395,7 @@ func TestExecutableChunk(t *testing.T) {
 					Stderr: "this is an error",
 				},
 			},
+			Context: &runnercontext.Context{UI: view.NewMock()},
 		}
 		var writer strings.Builder
 		bufWriter := bufio.NewWriter(&writer)
@@ -358,13 +408,16 @@ func TestExecutableChunk(t *testing.T) {
 	t.Run("has output dry run", func(t *testing.T) {
 		testChunk := &chunk.ExecutableChunk{
 			Commands: []*chunk.RunningCommand{},
-			Cfg:      &config.Config{DryRun: true},
+			Context: &runnercontext.Context{
+				Cfg: &config.Config{DryRun: true},
+				UI:  view.NewMock(),
+			},
 		}
 		assert.True(t, testChunk.HasOutput(), "Expected HasOutput to be true in dry run mode")
 	})
 	t.Run("parallel functions on non parallel chunk", func(t *testing.T) {
-		c := &chunk.ExecutableChunk{IsParallel: false}
-		err := c.IgniteParallel(nil)
+		c := &chunk.ExecutableChunk{IsParallel: false, Context: &runnercontext.Context{UI: view.NewMock()}}
+		err := c.DeclareParallelLoggers()
 		assert.Error(t, err)
 
 		err = c.StartParallel()
@@ -395,7 +448,10 @@ func TestExecutableChunk(t *testing.T) {
 				name: "Chunk with a not-run command",
 				chunk: &chunk.ExecutableChunk{
 					Commands: []*chunk.RunningCommand{notRunCmd},
-					Cfg:      &config.Config{MinutesToTimeout: 1},
+					Context: &runnercontext.Context{
+						Cfg: &config.Config{MinutesToTimeout: 1},
+						UI:  view.NewMock(),
+					},
 				},
 				expectedFinished:          false,
 				expectedCorrectlyExecuted: false,
@@ -404,7 +460,10 @@ func TestExecutableChunk(t *testing.T) {
 				name: "Chunk with a successful command",
 				chunk: &chunk.ExecutableChunk{
 					Commands: []*chunk.RunningCommand{successCmd},
-					Cfg:      &config.Config{MinutesToTimeout: 1},
+					Context: &runnercontext.Context{
+						Cfg: &config.Config{MinutesToTimeout: 1},
+						UI:  view.NewMock(),
+					},
 				},
 				expectedFinished:          true,
 				expectedCorrectlyExecuted: true,
@@ -413,7 +472,10 @@ func TestExecutableChunk(t *testing.T) {
 				name: "Chunk with a failed command",
 				chunk: &chunk.ExecutableChunk{
 					Commands: []*chunk.RunningCommand{failCmd},
-					Cfg:      &config.Config{MinutesToTimeout: 1},
+					Context: &runnercontext.Context{
+						Cfg: &config.Config{MinutesToTimeout: 1},
+						UI:  view.NewMock(),
+					},
 				},
 				expectedFinished:          true,
 				expectedCorrectlyExecuted: false,
@@ -422,7 +484,10 @@ func TestExecutableChunk(t *testing.T) {
 				name: "Chunk with mixed commands (one not run)",
 				chunk: &chunk.ExecutableChunk{
 					Commands: []*chunk.RunningCommand{successCmd, notRunCmd},
-					Cfg:      &config.Config{MinutesToTimeout: 1},
+					Context: &runnercontext.Context{
+						Cfg: &config.Config{MinutesToTimeout: 1},
+						UI:  view.NewMock(),
+					},
 				},
 				expectedFinished:          false,
 				expectedCorrectlyExecuted: false,
@@ -431,7 +496,10 @@ func TestExecutableChunk(t *testing.T) {
 				name: "Chunk with mixed commands (one failed)",
 				chunk: &chunk.ExecutableChunk{
 					Commands: []*chunk.RunningCommand{successCmd, failCmd},
-					Cfg:      &config.Config{MinutesToTimeout: 1},
+					Context: &runnercontext.Context{
+						Cfg: &config.Config{MinutesToTimeout: 1},
+						UI:  view.NewMock(),
+					},
 				},
 				expectedFinished:          true,
 				expectedCorrectlyExecuted: false,
@@ -439,7 +507,10 @@ func TestExecutableChunk(t *testing.T) {
 			{
 				name: "Empty chunk",
 				chunk: &chunk.ExecutableChunk{
-					Cfg: &config.Config{MinutesToTimeout: 1},
+					Context: &runnercontext.Context{
+						Cfg: &config.Config{MinutesToTimeout: 1},
+						UI:  view.NewMock(),
+					},
 				},
 				expectedFinished:          false,
 				expectedCorrectlyExecuted: false,

@@ -9,7 +9,8 @@ import (
 
 	"github.com/arkmq-org/markdown-runner/config"
 	"github.com/arkmq-org/markdown-runner/parser"
-	"github.com/pterm/pterm"
+	"github.com/arkmq-org/markdown-runner/runnercontext"
+	"github.com/arkmq-org/markdown-runner/view"
 )
 
 // RunMD orchestrates the entire execution process for a single markdown file.
@@ -25,10 +26,15 @@ func RunMD(cfg *config.Config, file string) error {
 	var terminatingError error
 	markdownDir := path.Dir(file)
 	fileName := path.Base(file)
+	ui := view.New()
+	ctx := &runnercontext.Context{
+		Cfg: cfg,
+		UI:  ui,
+	}
 
-	pterm.DefaultSection.Println("Testing " + file)
+	ui.StartFile(file)
 
-	stages, err := parser.ExtractStages(cfg, fileName, markdownDir)
+	stages, err := parser.ExtractStages(ctx, fileName, markdownDir)
 	if err != nil {
 		return err
 	}
@@ -44,9 +50,9 @@ func RunMD(cfg *config.Config, file string) error {
 				cfg.StartFrom = ""
 			}
 		}
-		if cfg.Verbose {
-			pterm.DefaultSection.WithLevel(2).Printf("stage %s with %d chunks\n", currentStage.Name, len(currentStage.Chunks))
-		}
+
+		ui.StartStage(currentStage.Name, len(currentStage.Chunks), cfg.Verbose)
+
 		var err error
 
 		err = currentStage.Execute(stages, tmpDirs)

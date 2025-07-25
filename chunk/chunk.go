@@ -13,10 +13,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/arkmq-org/markdown-runner/config"
+	"github.com/arkmq-org/markdown-runner/runnercontext"
 	"github.com/google/shlex"
 	"github.com/google/uuid"
-	"github.com/pterm/pterm"
 )
 
 // ExecutableChunk represents a block of code from a markdown file that can be
@@ -57,7 +56,7 @@ type ExecutableChunk struct {
 	// BackQuotes stores the number of backquotes used in the opening code fence,
 	// which is needed to correctly parse the end of the chunk.
 	BackQuotes int
-	Cfg        *config.Config
+	Context    *runnercontext.Context
 }
 
 // Init initializes an ExecutableChunk after it has been unmarshalled from JSON.
@@ -65,14 +64,14 @@ type ExecutableChunk struct {
 func (chunk *ExecutableChunk) Init() {
 	chunk.Content = []string{}
 	if chunk.HasBreakpoint {
-		pterm.Warning.Println("breakpoint in the document")
+		chunk.Context.UI.Warning("breakpoint in the document")
 	}
 }
 
 // HasOutput checks if any of the commands in the chunk have produced stdout.
 // It always returns true if the runner is in dry-run mode.
 func (chunk *ExecutableChunk) HasOutput() bool {
-	if chunk.Cfg.DryRun {
+	if chunk.Context.Cfg.DryRun {
 		return true
 	}
 	for _, command := range chunk.Commands {
@@ -159,7 +158,7 @@ func (chunk *ExecutableChunk) GetOrCreateRuntimeDirectory(tmpDirs map[string]str
 	}
 	// Initialize where the command is getting executed
 	if chunk.RootDir == "$initial_dir" {
-		return chunk.Cfg.Rootdir, nil
+		return chunk.Context.Cfg.Rootdir, nil
 	}
 	// tmpdirs are reusable between commands.
 	if strings.HasPrefix(chunk.RootDir, "$tmpdir") {
@@ -169,7 +168,7 @@ func (chunk *ExecutableChunk) GetOrCreateRuntimeDirectory(tmpDirs map[string]str
 		if !exists {
 			tmpdir, err = os.MkdirTemp("/tmp", "*")
 			if err != nil {
-				pterm.Error.PrintOnError(err)
+				chunk.Context.UI.Error(err.Error())
 				return "", err
 			}
 			tmpDirs[dirselector] = tmpdir
@@ -258,7 +257,7 @@ func (chunk *ExecutableChunk) WriteBashScript(basedir string, script_name string
 // HasFinishedExecution checks if all commands within the chunk have completed
 // their execution, regardless of their exit code.
 func (chunk *ExecutableChunk) HasFinishedExecution() bool {
-	if chunk.Cfg.DryRun {
+	if chunk.Context.Cfg.DryRun {
 		return true
 	}
 	if len(chunk.Commands) == 0 {
@@ -293,12 +292,13 @@ func (chunk *ExecutableChunk) HasExecutedCorrectly() bool {
 // It returns the newly created RunningCommand and an error if parsing fails.
 func (chunk *ExecutableChunk) AddCommandToExecute(trimedCommand string, tmpDirs map[string]string) (*RunningCommand, error) {
 	var command RunningCommand
-	command.Cfg = chunk.Cfg
+	command.Ctx = chunk.Context
+	command.id = uuid.New().String()
 
 	// create the cancel background function, the command.cancelFunc has to get called eventually to avoid leaking
 	// memory
 	ctx := context.Background()
-	ctx, command.CancelFunc = context.WithTimeout(context.Background(), time.Duration(chunk.Cfg.MinutesToTimeout)*time.Minute)
+	ctx, command.CancelFunc = context.WithTimeout(context.Background(), time.Duration(chunk.Context.Cfg.MinutesToTimeout)*time.Minute)
 
 	if trimedCommand == "" {
 		return nil, errors.New("empty command string provided")
@@ -320,10 +320,10 @@ func (chunk *ExecutableChunk) AddCommandToExecute(trimedCommand string, tmpDirs 
 	}
 
 	// Copy the environment before calling the command
-	command.Cmd.Env = append(command.Cmd.Env, chunk.Cfg.Env...)
+	command.Cmd.Env = append(command.Cmd.Env, chunk.Context.Cfg.Env...)
 
 	// give a pretty name to the command for the cli output
-	command.InitCommandLabel(chunk)
+	command.CmdPrettyName = trimedCommand
 
 	// set the bash flag for the command
 	command.IsBash = chunk.Runtime == "bash"
@@ -340,11 +340,7 @@ func (chunk *ExecutableChunk) ExecuteSequential() error {
 		return errors.New("Cannot execute a parallel chunk with Execute, use Start instead")
 	}
 	for _, command := range chunk.Commands {
-		err := command.InitializeSequentialSpinner()
-		if err != nil {
-			return err
-		}
-		err = command.Execute()
+		err := command.Execute()
 		if err != nil {
 			return err
 		}
@@ -352,14 +348,11 @@ func (chunk *ExecutableChunk) ExecuteSequential() error {
 	return nil
 }
 
-// IgniteParallel prepares a parallel chunk for execution by initializing its spinner
-// within a multi-printer. This allows multiple spinners to be displayed
-// concurrently. It should only be used for chunks where IsParallel is true.
-func (chunk *ExecutableChunk) IgniteParallel(multiPrinter *pterm.MultiPrinter) error {
+func (chunk *ExecutableChunk) DeclareParallelLoggers() error {
 	if !chunk.IsParallel {
-		return errors.New("Cannot initialize a non-parallel chunk with Ignite, use Execute instead")
+		return errors.New("Cannot declare parallel loggers on a sequential chunk")
 	}
-	return chunk.Commands[0].InitializeParallelSpiner(multiPrinter)
+	return chunk.Commands[0].InitializeLogger()
 }
 
 // StartParallel begins the execution of a parallel chunk's command without waiting for
@@ -396,18 +389,19 @@ func (chunk *ExecutableChunk) applyWriter(tmpDirs map[string]string) error {
 	if chunk.Label != "" {
 		writerString += " for " + chunk.Label
 	}
-	spiner, _ := pterm.DefaultSpinner.Start(writerString)
+	id := uuid.New().String()
+	chunk.Context.UI.StartCommand(id, writerString)
 	directory, err := chunk.GetOrCreateRuntimeDirectory(tmpDirs)
 	if err != nil {
-		spiner.Fail(err.Error())
+		chunk.Context.UI.StopCommand(id, false, err.Error())
 		return err
 	}
 	err = chunk.WriteFile(directory)
 	if err != nil {
-		spiner.Fail(err.Error())
+		chunk.Context.UI.StopCommand(id, false, err.Error())
 		return err
 	}
-	spiner.Success()
+	chunk.Context.UI.StopCommand(id, true, "")
 	return nil
 }
 

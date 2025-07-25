@@ -2,12 +2,10 @@
 package stage
 
 import (
-	"os"
 	"strings"
 
 	"github.com/arkmq-org/markdown-runner/chunk"
-	"github.com/arkmq-org/markdown-runner/config"
-	"github.com/pterm/pterm"
+	"github.com/arkmq-org/markdown-runner/runnercontext"
 )
 
 // Stage represents a single stage in the execution pipeline, containing a list
@@ -16,12 +14,12 @@ type Stage struct {
 	Name       string
 	IsParallel bool // Indicates if the stage is parallel or sequential
 	Chunks     []*chunk.ExecutableChunk
-	Cfg        *config.Config
+	Ctx        *runnercontext.Context
 }
 
 // NewStage creates a new stage from a list of chunks. It assumes all chunks
 // belong to the same stage and extracts the stage name from the first chunk.
-func NewStage(cfg *config.Config, chunks []*chunk.ExecutableChunk) *Stage {
+func NewStage(ctx *runnercontext.Context, chunks []*chunk.ExecutableChunk) *Stage {
 	if len(chunks) == 0 {
 		return nil
 	}
@@ -35,7 +33,7 @@ func NewStage(cfg *config.Config, chunks []*chunk.ExecutableChunk) *Stage {
 		Name:       chunks[0].Stage,
 		Chunks:     chunks,
 		IsParallel: isParallel,
-		Cfg:        cfg,
+		Ctx:        ctx,
 	}
 }
 
@@ -69,18 +67,20 @@ func (s *Stage) Execute(stages []*Stage, tmpDirs map[string]string) error {
 	var towait []*chunk.ExecutableChunk
 	var terminatingError error
 
-	var multiPrinter pterm.MultiPrinter
-	if s.IsParallel && os.Getenv("CI") == "" {
-		multiPrinter = *pterm.DefaultMultiPrinter.WithWriter(os.Stdout)
+	if s.IsParallel {
+		s.Ctx.UI.DeclareParallelMode()
+		defer s.Ctx.UI.QuitParallelMode()
 	}
+
 	for _, chunk := range s.Chunks {
+		chunk.Context = s.Ctx
 		// Examine if the chunk can be executed based on previous errors
 		if terminatingError != nil && chunk.Stage != "teardown" {
 			continue
 		}
 		// Examine if the tool must be run interactively from this chunk
-		if chunk.HasBreakpoint && !s.Cfg.IgnoreBreakpoints {
-			s.Cfg.Interactive = true
+		if chunk.HasBreakpoint && !s.Ctx.Cfg.IgnoreBreakpoints {
+			s.Ctx.Cfg.Interactive = true
 		}
 		// Examine if the chunk has a particular dependency to another one
 		if chunk.Requires != "" {
@@ -104,7 +104,7 @@ func (s *Stage) Execute(stages []*Stage, tmpDirs map[string]string) error {
 		// Or we prepare the UI, and then execute all the chunks alongside each other.
 		if chunk.IsParallel {
 			// initialize the spinners
-			err := chunk.IgniteParallel(&multiPrinter)
+			err := chunk.DeclareParallelLoggers()
 			if err != nil {
 				terminatingError = err
 			}
@@ -117,13 +117,9 @@ func (s *Stage) Execute(stages []*Stage, tmpDirs map[string]string) error {
 	}
 	// When In parallel, we start and wait for every chunks.
 	if s.IsParallel {
-		if os.Getenv("CI") == "" {
-			multiPrinter.Start()
-		}
-		pterm.Debug.Println("Running stage " + s.Name + " with " + pterm.Green(len(s.Chunks)) + " chunks in parallel")
+		s.Ctx.UI.StartParallelMode()
 		for _, chunk := range s.Chunks {
 			// start the chunk
-			pterm.Debug.Println("Starting chunk " + pterm.Green(chunk.Id) + " in stage " + pterm.Green(s.Name))
 			err := chunk.StartParallel()
 			if err != nil {
 				terminatingError = err
@@ -132,14 +128,10 @@ func (s *Stage) Execute(stages []*Stage, tmpDirs map[string]string) error {
 		}
 		// wait or kill (in case an error occurred)
 		for _, chunk := range towait {
-			pterm.Debug.Println("Waiting for chunk " + pterm.Green(chunk.Id) + " in stage " + pterm.Green(s.Name))
 			err := chunk.WaitParallel(terminatingError != nil)
 			if err != nil {
 				terminatingError = err
 			}
-		}
-		if os.Getenv("CI") == "" {
-			multiPrinter.Stop()
 		}
 	}
 	return terminatingError

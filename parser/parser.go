@@ -14,7 +14,7 @@ import (
 	"strings"
 
 	"github.com/arkmq-org/markdown-runner/chunk"
-	"github.com/arkmq-org/markdown-runner/config"
+	"github.com/arkmq-org/markdown-runner/runnercontext"
 	"github.com/arkmq-org/markdown-runner/stage"
 	"github.com/santhosh-tekuri/jsonschema/v5"
 )
@@ -53,10 +53,10 @@ var schema string = `
 //
 // params is the raw JSON string from the code fence.
 // It returns the initialized ExecutableChunk and an error if unmarshalling fails.
-func initChunk(cfg *config.Config, params string) (*chunk.ExecutableChunk, error) {
+func initChunk(ctx *runnercontext.Context, params string) (*chunk.ExecutableChunk, error) {
 	var chunk chunk.ExecutableChunk
 	err := json.Unmarshal([]byte(params), &chunk)
-	chunk.Cfg = cfg
+	chunk.Context = ctx
 	chunk.Init()
 	if chunk.Runtime == "writer" {
 		if chunk.Destination == "" {
@@ -74,7 +74,7 @@ func initChunk(cfg *config.Config, params string) (*chunk.ExecutableChunk, error
 // markdownDir is the directory containing the markdown file.
 // It returns a slice of Stages, where each Stage represents the chunks to be
 // executed, and an error if parsing fails.
-func ExtractStages(cfg *config.Config, file string, markdownDir string) ([]*stage.Stage, error) {
+func ExtractStages(ctx *runnercontext.Context, file string, markdownDir string) ([]*stage.Stage, error) {
 	var chunkStages [][]*chunk.ExecutableChunk
 	var fileHandle *os.File
 	filepath := path.Join(markdownDir, file)
@@ -136,7 +136,7 @@ func ExtractStages(cfg *config.Config, file string, markdownDir string) ([]*stag
 			if err = sch.Validate(v); err != nil {
 				return nil, fmt.Errorf("JSON validation error in %s at line %d: %w in %s", file, lineCounter, err, params)
 			}
-			currentChunk, err = initChunk(cfg, params)
+			currentChunk, err = initChunk(ctx, params)
 			if err != nil {
 				return nil, fmt.Errorf("chunk initialization error in %s at line %d: %w in %s", file, lineCounter, err, params)
 			}
@@ -158,7 +158,7 @@ func ExtractStages(cfg *config.Config, file string, markdownDir string) ([]*stag
 	}
 	var stages []*stage.Stage
 	for _, chunks := range chunkStages {
-		if s := stage.NewStage(cfg, chunks); s != nil {
+		if s := stage.NewStage(ctx, chunks); s != nil {
 			if !s.IsParallelismConsistent() {
 				return nil, errors.New("inconsistent parallelism found in stage " + s.Name)
 			}

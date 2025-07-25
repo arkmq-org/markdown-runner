@@ -8,6 +8,8 @@ import (
 
 	"github.com/arkmq-org/markdown-runner/chunk"
 	"github.com/arkmq-org/markdown-runner/config"
+	"github.com/arkmq-org/markdown-runner/runnercontext"
+	"github.com/arkmq-org/markdown-runner/view"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -32,7 +34,12 @@ echo "world"
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		stages, err := ExtractStages(cfg, "test.md", tmpDir)
+		ui := view.NewMock()
+		ctx := &runnercontext.Context{
+			Cfg: cfg,
+			UI:  ui,
+		}
+		stages, err := ExtractStages(ctx, "test.md", tmpDir)
 		assert.NoError(t, err, "Failed to extract stages")
 		assert.Len(t, stages, 2, "Expected 2 stages")
 		assert.Equal(t, "test1", stages[0].Name, "Stages were not extracted correctly")
@@ -60,7 +67,12 @@ echo "world"
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		stages, err := ExtractStages(cfg, "test.md", tmpDir)
+		ui := view.NewMock()
+		ctx := &runnercontext.Context{
+			Cfg: cfg,
+			UI:  ui,
+		}
+		stages, err := ExtractStages(ctx, "test.md", tmpDir)
 		assert.NoError(t, err, "Failed to extract stages")
 		assert.Len(t, stages, 1, "Expected 1 stage")
 		assert.Len(t, stages[0].Chunks, 2, "Expected 2 chunks in the stage")
@@ -116,7 +128,12 @@ echo "world"
 				assert.NoError(t, err, "Failed to write to temp file")
 
 				cfg := &config.Config{}
-				_, err = ExtractStages(cfg, "test.md", tmpDir)
+				ui := view.NewMock()
+				ctx := &runnercontext.Context{
+					Cfg: cfg,
+					UI:  ui,
+				}
+				_, err = ExtractStages(ctx, "test.md", tmpDir)
 				if tc.expectError {
 					assert.Error(t, err)
 				} else {
@@ -127,7 +144,12 @@ echo "world"
 	})
 	t.Run("extract stages file not found", func(t *testing.T) {
 		cfg := &config.Config{}
-		_, err := ExtractStages(cfg, "nonexistent.md", "anydir")
+		ui := view.NewMock()
+		ctx := &runnercontext.Context{
+			Cfg: cfg,
+			UI:  ui,
+		}
+		_, err := ExtractStages(ctx, "nonexistent.md", "anydir")
 		assert.Error(t, err, "Expected an error for a nonexistent file, but got none")
 	})
 	t.Run("update chunk output", func(t *testing.T) {
@@ -145,7 +167,12 @@ echo "hello"
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		stages, err := ExtractStages(cfg, "test.md", tmpDir)
+		ui := view.NewMock()
+		ctx := &runnercontext.Context{
+			Cfg: cfg,
+			UI:  ui,
+		}
+		stages, err := ExtractStages(ctx, "test.md", tmpDir)
 		assert.NoError(t, err, "Failed to extract stages")
 		stages[0].Chunks[0].Commands = []*chunk.RunningCommand{
 			{Stdout: "hello\n"},
@@ -182,7 +209,12 @@ i-will-fail
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		stages, err := ExtractStages(cfg, "test.md", tmpDir)
+		ui := view.NewMock()
+		ctx := &runnercontext.Context{
+			Cfg: cfg,
+			UI:  ui,
+		}
+		stages, err := ExtractStages(ctx, "test.md", tmpDir)
 		assert.NoError(t, err, "Failed to extract stages")
 		stages[0].Chunks[0].Commands = []*chunk.RunningCommand{
 			{
@@ -219,7 +251,12 @@ this is an error on stderr
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		stages, err := ExtractStages(cfg, "test.md", tmpDir)
+		ui := view.NewMock()
+		ctx := &runnercontext.Context{
+			Cfg: cfg,
+			UI:  ui,
+		}
+		stages, err := ExtractStages(ctx, "test.md", tmpDir)
 		assert.NoError(t, err, "Failed to extract stages")
 		stages[0].Chunks[0].Commands = []*chunk.RunningCommand{
 			{
@@ -253,7 +290,12 @@ echo "no output either" > /dev/null
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		stages, err := ExtractStages(cfg, "test.md", tmpDir)
+		ui := view.NewMock()
+		ctx := &runnercontext.Context{
+			Cfg: cfg,
+			UI:  ui,
+		}
+		stages, err := ExtractStages(ctx, "test.md", tmpDir)
 		assert.NoError(t, err, "Failed to extract stages")
 		stages[0].Chunks[0].Commands = []*chunk.RunningCommand{
 			{Stdout: ""},
@@ -298,7 +340,12 @@ old output
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		stages, err := ExtractStages(cfg, "test.md", tmpDir)
+		ui := view.NewMock()
+		ctx := &runnercontext.Context{
+			Cfg: cfg,
+			UI:  ui,
+		}
+		stages, err := ExtractStages(ctx, "test.md", tmpDir)
 		assert.NoError(t, err, "Failed to extract stages")
 
 		// Simulate command execution
@@ -340,7 +387,12 @@ new output
 	})
 	t.Run("init chunk error", func(t *testing.T) {
 		cfg := &config.Config{}
-		_, err := initChunk(cfg, `{"stage":"test", "runtime":"writer"}`)
+		ui := view.NewMock()
+		ctx := &runnercontext.Context{
+			Cfg: cfg,
+			UI:  ui,
+		}
+		_, err := initChunk(ctx, `{"stage":"test", "runtime":"writer"}`)
 		assert.Error(t, err, "Expected an error for a writer chunk without a destination")
 	})
 	t.Run("extract stages inconsistent parallelism", func(t *testing.T) {
@@ -361,7 +413,12 @@ echo "world"
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		_, err = ExtractStages(cfg, "test.md", tmpDir)
+		ui := view.NewMock()
+		ctx := &runnercontext.Context{
+			Cfg: cfg,
+			UI:  ui,
+		}
+		_, err = ExtractStages(ctx, "test.md", tmpDir)
 		assert.Error(t, err, "Expected an error for inconsistent parallelism")
 	})
 	t.Run("extract stages mismatched fences", func(t *testing.T) {
@@ -380,7 +437,12 @@ echo "hello"
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		stages, err := ExtractStages(cfg, "test.md", tmpDir)
+		ui := view.NewMock()
+		ctx := &runnercontext.Context{
+			Cfg: cfg,
+			UI:  ui,
+		}
+		stages, err := ExtractStages(ctx, "test.md", tmpDir)
 		assert.NoError(t, err, "Failed to extract stages")
 		assert.Len(t, stages, 1, "Expected 1 stage")
 		assert.Len(t, stages[0].Chunks[0].Content, 2, "Should have two lines of content")
@@ -434,7 +496,12 @@ This is a markdown file with no executable chunks.
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		stages, err := ExtractStages(cfg, "test.md", tmpDir)
+		ui := view.NewMock()
+		ctx := &runnercontext.Context{
+			Cfg: cfg,
+			UI:  ui,
+		}
+		stages, err := ExtractStages(ctx, "test.md", tmpDir)
 		assert.NoError(t, err, "Should not return an error for a file with no chunks")
 		assert.Len(t, stages, 0, "Expected 0 stages")
 	})
@@ -452,7 +519,12 @@ This is a markdown file with no executable chunks.
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		stages, err := ExtractStages(cfg, "test.md", tmpDir)
+		ui := view.NewMock()
+		ctx := &runnercontext.Context{
+			Cfg: cfg,
+			UI:  ui,
+		}
+		stages, err := ExtractStages(ctx, "test.md", tmpDir)
 		assert.NoError(t, err, "Should not return an error for a chunk with no content")
 		assert.Len(t, stages, 1, "Expected 1 stage")
 		assert.Len(t, stages[0].Chunks, 1, "Expected 1 chunk in the stage")
