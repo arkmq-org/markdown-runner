@@ -1,14 +1,14 @@
 package chunk
 
 import (
-	"os"
 	"os/exec"
 	"slices"
 	"strings"
 	"testing"
 
 	"github.com/arkmq-org/markdown-runner/config"
-	"github.com/pterm/pterm"
+	"github.com/arkmq-org/markdown-runner/runnercontext"
+	"github.com/arkmq-org/markdown-runner/view"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,14 +16,15 @@ func TestRunningCommand(t *testing.T) {
 	t.Run("init command label", func(t *testing.T) {
 		cmd := exec.Command("echo", "hello")
 		cfg := &config.Config{}
-		command := RunningCommand{Cmd: cmd, Cfg: cfg}
+		ctx := &runnercontext.Context{Cfg: cfg}
+		command := RunningCommand{Cmd: cmd, Ctx: ctx}
 		chunk := ExecutableChunk{Label: "Test Label"}
 		command.InitCommandLabel(&chunk)
 		if command.CmdPrettyName != "Test Label" {
 			t.Errorf("Expected CmdPrettyName to be 'Test Label', but got '%s'", command.CmdPrettyName)
 		}
 
-		command.Cfg.Verbose = true
+		command.Ctx.Cfg.Verbose = true
 		command.InitCommandLabel(&chunk)
 		if !strings.Contains(command.CmdPrettyName, "Test Label") {
 			t.Error("Expected CmdPrettyName to contain 'Test Label' in verbose mode")
@@ -34,11 +35,15 @@ func TestRunningCommand(t *testing.T) {
 		tmpDirs := make(map[string]string)
 		cfg := &config.Config{MinutesToTimeout: 1}
 		// Happy path
-		chunk := ExecutableChunk{Cfg: cfg}
+		ui := view.NewMock()
+		chunk := ExecutableChunk{
+			Context: &runnercontext.Context{
+				Cfg: cfg,
+				UI:  ui,
+			},
+		}
 		cmdStr := "echo 'hello world'"
 		command, err := chunk.AddCommandToExecute(cmdStr, tmpDirs)
-		err = command.InitializeSequentialSpinner()
-		assert.NoError(t, err, "Expected no error when initializing spinner")
 		err = command.Execute()
 		assert.NoError(t, err, "Expected no error when executing command")
 		assert.NotEmpty(t, command.Stdout, "Expected command to produce output")
@@ -46,10 +51,15 @@ func TestRunningCommand(t *testing.T) {
 		assert.Equal(t, 0, command.ReturnCode, "Expected command to return exit code 0")
 
 		// Failure path
-		chunk = ExecutableChunk{Cfg: cfg}
+		chunk = ExecutableChunk{
+			Context: &runnercontext.Context{
+				Cfg: cfg,
+				UI:  ui,
+			},
+		}
 		cmdStr = "nonexistent-command"
 		command, err = chunk.AddCommandToExecute(cmdStr, tmpDirs)
-		err = command.InitializeSequentialSpinner()
+		err = command.InitializeLogger()
 		assert.NoError(t, err, "Expected no error when initializing spinner")
 		err = command.Start()
 		assert.Error(t, err, "Expected an error when starting a nonexistent command")
@@ -60,7 +70,8 @@ func TestRunningCommand(t *testing.T) {
 	t.Run("execute error missing spinner", func(t *testing.T) {
 		cmd := exec.Command("nonexistent-command")
 		cfg := &config.Config{MinutesToTimeout: 1}
-		command := RunningCommand{Cmd: cmd, Cfg: cfg}
+		ctx := &runnercontext.Context{Cfg: cfg, UI: view.NewMock()}
+		command := RunningCommand{Cmd: cmd, Ctx: ctx}
 		err := command.Execute()
 		assert.Error(t, err, "Expected an error when executing a command without a spinner initialized")
 	})
@@ -68,19 +79,21 @@ func TestRunningCommand(t *testing.T) {
 	t.Run("bash env extraction", func(t *testing.T) {
 		tmpDirs := make(map[string]string)
 		cfg := &config.Config{MinutesToTimeout: 1}
+		ui := view.NewMock()
 		chunk := ExecutableChunk{
 			Runtime: "bash",
-			Cfg:     cfg,
+			Context: &runnercontext.Context{
+				Cfg: cfg,
+				UI:  ui,
+			},
 		}
 		cmdStr := "bash -c 'echo \"### ENV ###\" && echo \"TEST_ENV_VAR=test_value\"'"
 		command, err := chunk.AddCommandToExecute(cmdStr, tmpDirs)
 		assert.NoError(t, err, "Expected no error when adding command to execute")
 		command.IsBash = true
-		err = command.InitializeSequentialSpinner()
-		assert.NoError(t, err, "Expected no error when initializing spinner")
 		err = command.Execute()
 		assert.NoError(t, err, "Expected no error when executing bash command")
-		found := slices.ContainsFunc(command.Cfg.Env, func(env string) bool {
+		found := slices.ContainsFunc(command.Ctx.Cfg.Env, func(env string) bool {
 			return env == "TEST_ENV_VAR=test_value"
 		})
 		assert.True(t, found, "Expected to find TEST_ENV_VAR in the environment variables")
@@ -88,11 +101,16 @@ func TestRunningCommand(t *testing.T) {
 
 	t.Run("kill", func(t *testing.T) {
 		cmd := exec.Command("sleep", "1")
+		ui := view.NewMock()
 		runningCmd := &RunningCommand{
 			Cmd: cmd,
-			Cfg: &config.Config{MinutesToTimeout: 1},
+			Ctx: &runnercontext.Context{
+				Cfg: &config.Config{MinutesToTimeout: 1},
+				UI:  ui,
+			},
+			id: "test-kill",
 		}
-		err := runningCmd.InitializeSequentialSpinner()
+		err := runningCmd.InitializeLogger()
 		assert.NoError(t, err)
 		err = runningCmd.Start()
 		assert.NoError(t, err)
@@ -101,75 +119,103 @@ func TestRunningCommand(t *testing.T) {
 	})
 
 	t.Run("start error", func(t *testing.T) {
+		ui := view.NewMock()
 		runningCmd := &RunningCommand{
-			Cfg: &config.Config{MinutesToTimeout: 1},
+			Ctx: &runnercontext.Context{
+				Cfg: &config.Config{MinutesToTimeout: 1},
+				UI:  ui,
+			},
 		}
 		err := runningCmd.Start()
 		assert.Error(t, err, "Expected an error when starting a command without a spinner")
 	})
 
 	t.Run("interactive should not throw an error when the value is valid", func(t *testing.T) {
-		oldStdin := os.Stdin
-		defer func() { os.Stdin = oldStdin }()
+		ui := view.NewMock()
 		runningCmd := &RunningCommand{
-			Cfg: &config.Config{MinutesToTimeout: 1, Interactive: true},
+			Ctx: &runnercontext.Context{
+				Cfg: &config.Config{MinutesToTimeout: 1, Interactive: true},
+				UI:  ui,
+			},
 			Cmd: exec.Command("echo", "hello"),
 			GetUserInput: func(string) (string, error) {
 				return "yes", nil
 			},
 		}
-		err := runningCmd.InitializeSequentialSpinner()
+		err := runningCmd.InitializeLogger()
 		assert.NoError(t, err)
 	})
 
 	t.Run("interactive should throw an error when the user enters something wrong", func(t *testing.T) {
+		ui := view.NewMock()
 		runningCmd := &RunningCommand{
-			Cfg: &config.Config{MinutesToTimeout: 1, Interactive: true},
+			Ctx: &runnercontext.Context{
+				Cfg: &config.Config{MinutesToTimeout: 1, Interactive: true},
+				UI:  ui,
+			},
 			Cmd: exec.Command("echo", "hello"),
 			GetUserInput: func(string) (string, error) {
 				return "", assert.AnError
 			},
 		}
-		err := runningCmd.InitializeSequentialSpinner()
+		err := runningCmd.InitializeLogger()
 		assert.Error(t, err)
 	})
 
 	t.Run("initialize parallel spiner error", func(t *testing.T) {
+		ui := view.NewMock()
 		runningCmd := &RunningCommand{
-			Cfg: &config.Config{MinutesToTimeout: 1},
+			Ctx: &runnercontext.Context{
+				Cfg: &config.Config{MinutesToTimeout: 1},
+				UI:  ui,
+			},
 		}
-		err := runningCmd.InitializeParallelSpiner(nil)
-		assert.Error(t, err, "Expected an error when initializing a parallel spinner without a multi-printer")
+		runningCmd.Ctx.UI.DeclareParallelMode()
+		err := runningCmd.InitializeLogger()
+		assert.NoError(t, err)
+		runningCmd.Ctx.UI.QuitParallelMode()
 	})
 
 	t.Run("initialize parallel spiner nil spinners", func(t *testing.T) {
-		t.Setenv("CI", "true")
+		ui := view.NewMock()
 		runningCmd := &RunningCommand{
-			Cfg: &config.Config{MinutesToTimeout: 1},
+			Ctx: &runnercontext.Context{
+				Cfg: &config.Config{MinutesToTimeout: 1},
+				UI:  ui,
+			},
 		}
-		err := runningCmd.InitializeParallelSpiner(&pterm.DefaultMultiPrinter)
+		err := runningCmd.InitializeLogger()
 		assert.NoError(t, err)
 	})
 
 	t.Run("wait dry run", func(t *testing.T) {
+		ui := view.NewMock()
 		runningCmd := &RunningCommand{
-			Cfg: &config.Config{MinutesToTimeout: 1, DryRun: true},
+			Ctx: &runnercontext.Context{
+				Cfg: &config.Config{MinutesToTimeout: 1, DryRun: true},
+				UI:  ui,
+			},
 			Cmd: exec.Command("echo", "hello"),
+			id:  "test-dry-run",
 		}
-		err := runningCmd.InitializeSequentialSpinner()
+		err := runningCmd.InitializeLogger()
 		assert.NoError(t, err)
 		err = runningCmd.Wait()
 		assert.NoError(t, err, "Expected no error in dry run mode")
 	})
 
 	t.Run("wait error", func(t *testing.T) {
+		ui := view.NewMock()
 		chunk := ExecutableChunk{
 			Runtime: "bash",
-			Cfg:     &config.Config{MinutesToTimeout: 1},
+			Context: &runnercontext.Context{
+				Cfg: &config.Config{MinutesToTimeout: 1},
+				UI:  ui,
+			},
 		}
 		runningCmd, err := chunk.AddCommandToExecute("false", make(map[string]string))
 		assert.NoError(t, err, "Expected no error when adding command to execute")
-		err = runningCmd.InitializeSequentialSpinner()
+		err = runningCmd.InitializeLogger()
 		assert.NoError(t, err)
 		err = runningCmd.Start()
 		assert.NoError(t, err)
