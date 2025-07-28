@@ -57,6 +57,7 @@ type ExecutableChunk struct {
 	// which is needed to correctly parse the end of the chunk.
 	BackQuotes int
 	Context    *runnercontext.Context
+	IsSkipped  bool
 }
 
 // Init initializes an ExecutableChunk after it has been unmarshalled from JSON.
@@ -66,6 +67,7 @@ func (chunk *ExecutableChunk) Init() {
 	if chunk.HasBreakpoint {
 		chunk.Context.UI.Warning("breakpoint in the document")
 	}
+	chunk.IsSkipped = false
 }
 
 // HasOutput checks if any of the commands in the chunk have produced stdout.
@@ -451,5 +453,19 @@ func (chunk *ExecutableChunk) PrepareForExecution(tmpDirs map[string]string) err
 		return chunk.prepareBashChunkForExecution(tmpDirs)
 	default:
 		return chunk.prepareClassical(tmpDirs)
+	}
+}
+
+func (chunk *ExecutableChunk) Skip() {
+	chunk.IsSkipped = true
+	switch chunk.Runtime {
+	case "writer":
+		chunk.Context.UI.Info("Skip writer chunk '" + chunk.Label + "' due to previous errors")
+	case "bash":
+		chunk.Context.UI.Info("Skip bash chunk '" + chunk.Label + "' due to previous errors")
+	default:
+		for _, command := range chunk.Content {
+			chunk.Context.UI.Info("Skip command '" + command + "' due to previous errors")
+		}
 	}
 }

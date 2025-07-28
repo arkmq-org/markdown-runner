@@ -135,7 +135,7 @@ func TestStage(t *testing.T) {
 				{Stage: "test-stage", Content: []string{"echo 2"}, Context: ctx},
 			}
 			stage := NewStage(ctx, chunks)
-			err := stage.Execute(nil, make(map[string]string))
+			err := stage.Execute(nil, make(map[string]string), nil)
 			assert.NoError(t, err)
 		})
 
@@ -151,7 +151,7 @@ func TestStage(t *testing.T) {
 				{Stage: "test-stage", Content: []string{"sleep 0.1"}, IsParallel: true, Context: ctx},
 			}
 			stage := NewStage(ctx, chunks)
-			err := stage.Execute(nil, make(map[string]string))
+			err := stage.Execute(nil, make(map[string]string), nil)
 			assert.NoError(t, err)
 		})
 
@@ -182,13 +182,13 @@ func TestStage(t *testing.T) {
 			// First, execute the setup stage to simulate a real run
 			setupStage := stages[0]
 			setupStage.Ctx = ctx
-			err := setupStage.Execute(stages, make(map[string]string))
+			err := setupStage.Execute(stages, make(map[string]string), nil)
 			assert.NoError(t, err)
 
 			// Then, execute the stage with the dependency
 			testStage := stages[1]
 			testStage.Ctx = ctx
-			err = testStage.Execute(stages, make(map[string]string))
+			err = testStage.Execute(stages, make(map[string]string), nil)
 			assert.NoError(t, err)
 		})
 
@@ -203,12 +203,61 @@ func TestStage(t *testing.T) {
 				{Stage: "test-stage", HasBreakpoint: true, Context: ctx},
 			}
 			stage := NewStage(ctx, chunks)
-			err := stage.Execute(nil, make(map[string]string))
+			err := stage.Execute(nil, make(map[string]string), nil)
 			assert.NoError(t, err)
 			assert.True(t, cfg.Interactive)
 		})
 	})
 	t.Run("execute with errors", func(t *testing.T) {
+		t.Run("should not execute subsequent stages on failure unless it is a teardown stage", func(t *testing.T) {
+			cfg := &config.Config{MinutesToTimeout: 1}
+			ui := view.NewMock()
+			ctx := &runnercontext.Context{
+				Cfg: cfg,
+				UI:  ui,
+			}
+			stages := []*Stage{
+				{
+					Name: "stage1",
+					Ctx:  ctx,
+					Chunks: []*chunk.ExecutableChunk{
+						{Id: "chunk1_success", Stage: "stage1", Content: []string{"true"}, Context: ctx},
+						{Id: "chunk1_fail", Stage: "stage1", Content: []string{"false"}, Context: ctx},
+					},
+				},
+				{
+					Name: "stage2",
+					Ctx:  ctx,
+					Chunks: []*chunk.ExecutableChunk{
+						{Id: "chunk2", Stage: "stage2", Content: []string{"echo 'should not run'"}, Context: ctx},
+					},
+				},
+				{
+					Name: "teardown",
+					Ctx:  ctx,
+					Chunks: []*chunk.ExecutableChunk{
+						{Id: "teardown_for_success", Requires: "stage1/chunk1_success", Stage: "teardown", Content: []string{"echo 'should run'"}, Context: ctx},
+						{Id: "teardown_for_fail", Requires: "stage1/chunk1_fail", Stage: "teardown", Content: []string{"echo 'should not run'"}, Context: ctx},
+					},
+				},
+			}
+
+			var err error
+			for _, s := range stages {
+				err2 := s.Execute(stages, make(map[string]string), err)
+				if err2 != nil {
+					err = err2
+				}
+			}
+
+			assert.Error(t, err)
+			assert.True(t, stages[0].Chunks[0].HasExecutedCorrectly())
+			assert.False(t, stages[0].Chunks[1].HasExecutedCorrectly())
+			assert.True(t, stages[1].Chunks[0].IsSkipped)
+			assert.True(t, stages[2].Chunks[0].HasExecutedCorrectly())
+			assert.False(t, stages[2].Chunks[1].HasFinishedExecution())
+		})
+
 		t.Run("should stop execution on sequential stage error", func(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1}
 			ui := view.NewMock()
@@ -221,7 +270,7 @@ func TestStage(t *testing.T) {
 				{Stage: "test-stage", Content: []string{"echo 'should not run'"}, Context: ctx},
 			}
 			stage := NewStage(ctx, chunks)
-			err := stage.Execute(nil, make(map[string]string))
+			err := stage.Execute(nil, make(map[string]string), nil)
 			assert.Error(t, err)
 		})
 
@@ -238,7 +287,7 @@ func TestStage(t *testing.T) {
 				{Stage: "test-stage", Content: []string{"sleep 0.1"}, IsParallel: true, Context: ctx},
 			}
 			stage := NewStage(ctx, chunks)
-			err := stage.Execute(nil, make(map[string]string))
+			err := stage.Execute(nil, make(map[string]string), nil)
 			assert.Error(t, err)
 		})
 
@@ -268,12 +317,12 @@ func TestStage(t *testing.T) {
 
 			setupStage := stages[0]
 			setupStage.Ctx = ctx
-			err := setupStage.Execute(stages, make(map[string]string))
+			err := setupStage.Execute(stages, make(map[string]string), nil)
 			assert.Error(t, err)
 
 			testStage := stages[1]
 			testStage.Ctx = ctx
-			err = testStage.Execute(stages, make(map[string]string))
+			err = testStage.Execute(stages, make(map[string]string), nil)
 			assert.NoError(t, err)
 		})
 	})
