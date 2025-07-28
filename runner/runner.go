@@ -55,7 +55,7 @@ func RunMD(cfg *config.Config, file string) error {
 
 		var err error
 
-		err = currentStage.Execute(stages, tmpDirs)
+		err = currentStage.Execute(stages, tmpDirs, terminatingError)
 		if err != nil {
 			terminatingError = err
 		}

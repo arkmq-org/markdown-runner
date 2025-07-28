@@ -63,9 +63,8 @@ func (s *Stage) IsParallelismConsistent() bool {
 // chunk, preparing it for execution (which includes handling dependencies) and
 // then running it. If chunks are parallel, it waits for all of them to complete.
 // An error is returned if any part of the execution fails.
-func (s *Stage) Execute(stages []*Stage, tmpDirs map[string]string) error {
+func (s *Stage) Execute(stages []*Stage, tmpDirs map[string]string, terminatingError error) error {
 	var towait []*chunk.ExecutableChunk
-	var terminatingError error
 
 	if s.IsParallel {
 		s.Ctx.UI.DeclareParallelMode()
@@ -76,6 +75,7 @@ func (s *Stage) Execute(stages []*Stage, tmpDirs map[string]string) error {
 		chunk.Context = s.Ctx
 		// Examine if the chunk can be executed based on previous errors
 		if terminatingError != nil && chunk.Stage != "teardown" {
+			chunk.Skip()
 			continue
 		}
 		// Examine if the tool must be run interactively from this chunk
@@ -119,6 +119,9 @@ func (s *Stage) Execute(stages []*Stage, tmpDirs map[string]string) error {
 	if s.IsParallel {
 		s.Ctx.UI.StartParallelMode()
 		for _, chunk := range s.Chunks {
+			if chunk.IsSkipped {
+				continue
+			}
 			// start the chunk
 			err := chunk.StartParallel()
 			if err != nil {
