@@ -8,8 +8,8 @@ type MockRunnerView struct {
 	Spinners map[string]string
 }
 
-// NewMock returns a new MockUI instance.
-func NewMock() *MockRunnerView {
+// newMockView returns a new MockUI instance.
+func newMockView() *MockRunnerView {
 	return &MockRunnerView{
 		Calls:    make(map[string][][]any),
 		Spinners: make(map[string]string),
@@ -22,6 +22,9 @@ func (m *MockRunnerView) logCall(name string, args ...any) {
 
 func (m *MockRunnerView) StartFile(file string) {
 	m.logCall("StartRun", file)
+}
+
+func (v *MockRunnerView) EndFile(file string, err error) {
 }
 
 func (m *MockRunnerView) StartStage(stageName string, chunkCount int, verbose bool) {

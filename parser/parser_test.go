@@ -34,7 +34,7 @@ echo "world"
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
 			Cfg: cfg,
 			UI:  ui,
@@ -67,7 +67,7 @@ echo "world"
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
 			Cfg: cfg,
 			UI:  ui,
@@ -128,7 +128,7 @@ echo "world"
 				assert.NoError(t, err, "Failed to write to temp file")
 
 				cfg := &config.Config{}
-				ui := view.NewMock()
+				ui := view.NewView("mock")
 				ctx := &runnercontext.Context{
 					Cfg: cfg,
 					UI:  ui,
@@ -144,7 +144,7 @@ echo "world"
 	})
 	t.Run("extract stages file not found", func(t *testing.T) {
 		cfg := &config.Config{}
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
 			Cfg: cfg,
 			UI:  ui,
@@ -167,7 +167,7 @@ echo "hello"
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
 			Cfg: cfg,
 			UI:  ui,
@@ -209,7 +209,7 @@ i-will-fail
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
 			Cfg: cfg,
 			UI:  ui,
@@ -251,7 +251,7 @@ this is an error on stderr
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
 			Cfg: cfg,
 			UI:  ui,
@@ -290,7 +290,7 @@ echo "no output either" > /dev/null
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
 			Cfg: cfg,
 			UI:  ui,
@@ -340,7 +340,7 @@ old output
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
 			Cfg: cfg,
 			UI:  ui,
@@ -387,7 +387,7 @@ new output
 	})
 	t.Run("init chunk error", func(t *testing.T) {
 		cfg := &config.Config{}
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
 			Cfg: cfg,
 			UI:  ui,
@@ -413,7 +413,7 @@ echo "world"
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
 			Cfg: cfg,
 			UI:  ui,
@@ -437,7 +437,7 @@ echo "hello"
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
 			Cfg: cfg,
 			UI:  ui,
@@ -496,7 +496,7 @@ This is a markdown file with no executable chunks.
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
 			Cfg: cfg,
 			UI:  ui,
@@ -519,7 +519,7 @@ This is a markdown file with no executable chunks.
 		assert.NoError(t, err, "Failed to write to temp file")
 
 		cfg := &config.Config{}
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
 			Cfg: cfg,
 			UI:  ui,

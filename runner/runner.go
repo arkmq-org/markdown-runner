@@ -26,7 +26,7 @@ func RunMD(cfg *config.Config, file string) error {
 	var terminatingError error
 	markdownDir := path.Dir(file)
 	fileName := path.Base(file)
-	ui := view.New()
+	ui := view.NewView(cfg.View)
 	ctx := &runnercontext.Context{
 		Cfg: cfg,
 		UI:  ui,
@@ -36,6 +36,7 @@ func RunMD(cfg *config.Config, file string) error {
 
 	stages, err := parser.ExtractStages(ctx, fileName, markdownDir)
 	if err != nil {
+		ui.EndFile(file, err)
 		return err
 	}
 	if len(stages) == 0 {
@@ -72,5 +73,7 @@ func RunMD(cfg *config.Config, file string) error {
 	for _, tmpDir := range tmpDirs {
 		os.RemoveAll(tmpDir)
 	}
+
+	ui.EndFile(file, terminatingError)
 	return terminatingError
 }

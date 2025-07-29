@@ -35,7 +35,7 @@ func TestRunningCommand(t *testing.T) {
 		tmpDirs := make(map[string]string)
 		cfg := &config.Config{MinutesToTimeout: 1}
 		// Happy path
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		chunk := ExecutableChunk{
 			Context: &runnercontext.Context{
 				Cfg: cfg,
@@ -70,7 +70,7 @@ func TestRunningCommand(t *testing.T) {
 	t.Run("execute error missing spinner", func(t *testing.T) {
 		cmd := exec.Command("nonexistent-command")
 		cfg := &config.Config{MinutesToTimeout: 1}
-		ctx := &runnercontext.Context{Cfg: cfg, UI: view.NewMock()}
+		ctx := &runnercontext.Context{Cfg: cfg, UI: view.NewView("mock")}
 		command := RunningCommand{Cmd: cmd, Ctx: ctx}
 		err := command.Execute()
 		assert.Error(t, err, "Expected an error when executing a command without a spinner initialized")
@@ -79,7 +79,7 @@ func TestRunningCommand(t *testing.T) {
 	t.Run("bash env extraction", func(t *testing.T) {
 		tmpDirs := make(map[string]string)
 		cfg := &config.Config{MinutesToTimeout: 1}
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		chunk := ExecutableChunk{
 			Runtime: "bash",
 			Context: &runnercontext.Context{
@@ -101,7 +101,7 @@ func TestRunningCommand(t *testing.T) {
 
 	t.Run("kill", func(t *testing.T) {
 		cmd := exec.Command("sleep", "1")
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		runningCmd := &RunningCommand{
 			Cmd: cmd,
 			Ctx: &runnercontext.Context{
@@ -119,7 +119,7 @@ func TestRunningCommand(t *testing.T) {
 	})
 
 	t.Run("start error", func(t *testing.T) {
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		runningCmd := &RunningCommand{
 			Ctx: &runnercontext.Context{
 				Cfg: &config.Config{MinutesToTimeout: 1},
@@ -131,7 +131,7 @@ func TestRunningCommand(t *testing.T) {
 	})
 
 	t.Run("interactive should not throw an error when the value is valid", func(t *testing.T) {
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		runningCmd := &RunningCommand{
 			Ctx: &runnercontext.Context{
 				Cfg: &config.Config{MinutesToTimeout: 1, Interactive: true},
@@ -147,7 +147,7 @@ func TestRunningCommand(t *testing.T) {
 	})
 
 	t.Run("interactive should throw an error when the user enters something wrong", func(t *testing.T) {
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		runningCmd := &RunningCommand{
 			Ctx: &runnercontext.Context{
 				Cfg: &config.Config{MinutesToTimeout: 1, Interactive: true},
@@ -163,7 +163,7 @@ func TestRunningCommand(t *testing.T) {
 	})
 
 	t.Run("initialize parallel spiner error", func(t *testing.T) {
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		runningCmd := &RunningCommand{
 			Ctx: &runnercontext.Context{
 				Cfg: &config.Config{MinutesToTimeout: 1},
@@ -177,7 +177,7 @@ func TestRunningCommand(t *testing.T) {
 	})
 
 	t.Run("initialize parallel spiner nil spinners", func(t *testing.T) {
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		runningCmd := &RunningCommand{
 			Ctx: &runnercontext.Context{
 				Cfg: &config.Config{MinutesToTimeout: 1},
@@ -189,7 +189,7 @@ func TestRunningCommand(t *testing.T) {
 	})
 
 	t.Run("wait dry run", func(t *testing.T) {
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		runningCmd := &RunningCommand{
 			Ctx: &runnercontext.Context{
 				Cfg: &config.Config{MinutesToTimeout: 1, DryRun: true},
@@ -205,7 +205,7 @@ func TestRunningCommand(t *testing.T) {
 	})
 
 	t.Run("wait error", func(t *testing.T) {
-		ui := view.NewMock()
+		ui := view.NewView("mock")
 		chunk := ExecutableChunk{
 			Runtime: "bash",
 			Context: &runnercontext.Context{
