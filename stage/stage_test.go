@@ -23,7 +23,7 @@ func TestStage(t *testing.T) {
 				{Stage: "test-stage"},
 			}
 			cfg := &config.Config{}
-			ui := view.NewMock()
+			ui := view.NewView("mock")
 			ctx := &runnercontext.Context{
 				Cfg: cfg,
 				UI:  ui,
@@ -36,7 +36,7 @@ func TestStage(t *testing.T) {
 
 		t.Run("returns nil for empty chunk slice", func(t *testing.T) {
 			cfg := &config.Config{}
-			ui := view.NewMock()
+			ui := view.NewView("mock")
 			ctx := &runnercontext.Context{
 				Cfg: cfg,
 				UI:  ui,
@@ -125,7 +125,7 @@ func TestStage(t *testing.T) {
 	t.Run("execute", func(t *testing.T) {
 		t.Run("should execute a sequential stage", func(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1}
-			ui := view.NewMock()
+			ui := view.NewView("mock")
 			ctx := &runnercontext.Context{
 				Cfg: cfg,
 				UI:  ui,
@@ -141,7 +141,7 @@ func TestStage(t *testing.T) {
 
 		t.Run("should execute a parallel stage", func(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1}
-			ui := view.NewMock()
+			ui := view.NewView("mock")
 			ctx := &runnercontext.Context{
 				Cfg: cfg,
 				UI:  ui,
@@ -157,7 +157,7 @@ func TestStage(t *testing.T) {
 
 		t.Run("should handle dependencies", func(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1}
-			ui := view.NewMock()
+			ui := view.NewView("mock")
 			ctx := &runnercontext.Context{
 				Cfg: cfg,
 				UI:  ui,
@@ -194,7 +194,7 @@ func TestStage(t *testing.T) {
 
 		t.Run("should handle breakpoints", func(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1, IgnoreBreakpoints: false}
-			ui := view.NewMock()
+			ui := view.NewView("mock")
 			ctx := &runnercontext.Context{
 				Cfg: cfg,
 				UI:  ui,
@@ -211,7 +211,7 @@ func TestStage(t *testing.T) {
 	t.Run("execute with errors", func(t *testing.T) {
 		t.Run("should not execute subsequent stages on failure unless it is a teardown stage", func(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1}
-			ui := view.NewMock()
+			ui := view.NewView("mock")
 			ctx := &runnercontext.Context{
 				Cfg: cfg,
 				UI:  ui,
@@ -260,7 +260,7 @@ func TestStage(t *testing.T) {
 
 		t.Run("should stop execution on sequential stage error", func(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1}
-			ui := view.NewMock()
+			ui := view.NewView("mock")
 			ctx := &runnercontext.Context{
 				Cfg: cfg,
 				UI:  ui,
@@ -277,7 +277,7 @@ func TestStage(t *testing.T) {
 		t.Run("should run all chunks on parallel stage error", func(t *testing.T) {
 			t.Setenv("CI", "true")
 			cfg := &config.Config{MinutesToTimeout: 1}
-			ui := view.NewMock()
+			ui := view.NewView("mock")
 			ctx := &runnercontext.Context{
 				Cfg: cfg,
 				UI:  ui,
@@ -293,7 +293,7 @@ func TestStage(t *testing.T) {
 
 		t.Run("should skip chunk with unmet dependency", func(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1}
-			ui := view.NewMock()
+			ui := view.NewView("mock")
 			ctx := &runnercontext.Context{
 				Cfg: cfg,
 				UI:  ui,

@@ -26,6 +26,7 @@ type Config struct {
 	MinutesToTimeout  int
 	UpdateFile        bool
 	Verbose           bool
+	View              string
 	Env               []string
 	Rootdir           string
 }
@@ -56,6 +57,7 @@ File Selection:
   -r, --recursive            Search for markdown files recursively
 
 Output & Logging:
+      --view string          UI to be used, can be 'default' or 'ci'
   -v, --verbose              Print more logs
   -q, --quiet                Disable output
       --no-styling           Disable spinners in CLI
@@ -79,6 +81,7 @@ Help:
 	pflag.IntVarP(&cfg.MinutesToTimeout, "timeout", "t", 10, "The timeout in minutes for every executed command")
 	pflag.BoolVarP(&cfg.UpdateFile, "update-files", "u", false, "Update the chunk output section in the markdown files")
 	pflag.BoolVarP(&cfg.Verbose, "verbose", "v", false, "Print more logs")
+	pflag.StringVar(&cfg.View, "view", "default", "UI to be used, can be 'default' or 'ci'")
 
 	pflag.Parse()
 
