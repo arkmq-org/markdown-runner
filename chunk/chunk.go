@@ -65,7 +65,7 @@ type ExecutableChunk struct {
 func (chunk *ExecutableChunk) Init() {
 	chunk.Content = []string{}
 	if chunk.HasBreakpoint {
-		chunk.Context.UI.Warning("breakpoint in the document")
+		chunk.Context.RView.Warning("breakpoint in the document")
 	}
 	chunk.IsSkipped = false
 }
@@ -170,7 +170,7 @@ func (chunk *ExecutableChunk) GetOrCreateRuntimeDirectory(tmpDirs map[string]str
 		if !exists {
 			tmpdir, err = os.MkdirTemp("/tmp", "*")
 			if err != nil {
-				chunk.Context.UI.Error(err.Error())
+				chunk.Context.RView.Error(err.Error())
 				return "", err
 			}
 			tmpDirs[dirselector] = tmpdir
@@ -392,18 +392,18 @@ func (chunk *ExecutableChunk) applyWriter(tmpDirs map[string]string) error {
 		writerString += " for " + chunk.Label
 	}
 	id := uuid.New().String()
-	chunk.Context.UI.StartCommand(id, writerString)
+	chunk.Context.RView.StartCommand(id, writerString)
 	directory, err := chunk.GetOrCreateRuntimeDirectory(tmpDirs)
 	if err != nil {
-		chunk.Context.UI.StopCommand(id, false, err.Error())
+		chunk.Context.RView.StopCommand(id, false, err.Error())
 		return err
 	}
 	err = chunk.WriteFile(directory)
 	if err != nil {
-		chunk.Context.UI.StopCommand(id, false, err.Error())
+		chunk.Context.RView.StopCommand(id, false, err.Error())
 		return err
 	}
-	chunk.Context.UI.StopCommand(id, true, "")
+	chunk.Context.RView.StopCommand(id, true, "")
 	return nil
 }
 
@@ -460,12 +460,12 @@ func (chunk *ExecutableChunk) Skip() {
 	chunk.IsSkipped = true
 	switch chunk.Runtime {
 	case "writer":
-		chunk.Context.UI.Info("Skip writer chunk '" + chunk.Label + "' due to previous errors")
+		chunk.Context.RView.Info("Skip writer chunk '" + chunk.Label + "' due to previous errors")
 	case "bash":
-		chunk.Context.UI.Info("Skip bash chunk '" + chunk.Label + "' due to previous errors")
+		chunk.Context.RView.Info("Skip bash chunk '" + chunk.Label + "' due to previous errors")
 	default:
 		for _, command := range chunk.Content {
-			chunk.Context.UI.Info("Skip command '" + command + "' due to previous errors")
+			chunk.Context.RView.Info("Skip command '" + command + "' due to previous errors")
 		}
 	}
 }

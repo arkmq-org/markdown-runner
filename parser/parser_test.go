@@ -36,8 +36,8 @@ echo "world"
 		cfg := &config.Config{}
 		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
-			Cfg: cfg,
-			UI:  ui,
+			Cfg:   cfg,
+			RView: ui,
 		}
 		stages, err := ExtractStages(ctx, "test.md", tmpDir)
 		assert.NoError(t, err, "Failed to extract stages")
@@ -69,8 +69,8 @@ echo "world"
 		cfg := &config.Config{}
 		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
-			Cfg: cfg,
-			UI:  ui,
+			Cfg:   cfg,
+			RView: ui,
 		}
 		stages, err := ExtractStages(ctx, "test.md", tmpDir)
 		assert.NoError(t, err, "Failed to extract stages")
@@ -130,8 +130,8 @@ echo "world"
 				cfg := &config.Config{}
 				ui := view.NewView("mock")
 				ctx := &runnercontext.Context{
-					Cfg: cfg,
-					UI:  ui,
+					Cfg:   cfg,
+					RView: ui,
 				}
 				_, err = ExtractStages(ctx, "test.md", tmpDir)
 				if tc.expectError {
@@ -146,8 +146,8 @@ echo "world"
 		cfg := &config.Config{}
 		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
-			Cfg: cfg,
-			UI:  ui,
+			Cfg:   cfg,
+			RView: ui,
 		}
 		_, err := ExtractStages(ctx, "nonexistent.md", "anydir")
 		assert.Error(t, err, "Expected an error for a nonexistent file, but got none")
@@ -169,8 +169,8 @@ echo "hello"
 		cfg := &config.Config{}
 		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
-			Cfg: cfg,
-			UI:  ui,
+			Cfg:   cfg,
+			RView: ui,
 		}
 		stages, err := ExtractStages(ctx, "test.md", tmpDir)
 		assert.NoError(t, err, "Failed to extract stages")
@@ -211,8 +211,8 @@ i-will-fail
 		cfg := &config.Config{}
 		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
-			Cfg: cfg,
-			UI:  ui,
+			Cfg:   cfg,
+			RView: ui,
 		}
 		stages, err := ExtractStages(ctx, "test.md", tmpDir)
 		assert.NoError(t, err, "Failed to extract stages")
@@ -253,8 +253,8 @@ this is an error on stderr
 		cfg := &config.Config{}
 		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
-			Cfg: cfg,
-			UI:  ui,
+			Cfg:   cfg,
+			RView: ui,
 		}
 		stages, err := ExtractStages(ctx, "test.md", tmpDir)
 		assert.NoError(t, err, "Failed to extract stages")
@@ -292,8 +292,8 @@ echo "no output either" > /dev/null
 		cfg := &config.Config{}
 		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
-			Cfg: cfg,
-			UI:  ui,
+			Cfg:   cfg,
+			RView: ui,
 		}
 		stages, err := ExtractStages(ctx, "test.md", tmpDir)
 		assert.NoError(t, err, "Failed to extract stages")
@@ -342,8 +342,8 @@ old output
 		cfg := &config.Config{}
 		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
-			Cfg: cfg,
-			UI:  ui,
+			Cfg:   cfg,
+			RView: ui,
 		}
 		stages, err := ExtractStages(ctx, "test.md", tmpDir)
 		assert.NoError(t, err, "Failed to extract stages")
@@ -389,8 +389,8 @@ new output
 		cfg := &config.Config{}
 		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
-			Cfg: cfg,
-			UI:  ui,
+			Cfg:   cfg,
+			RView: ui,
 		}
 		_, err := initChunk(ctx, `{"stage":"test", "runtime":"writer"}`)
 		assert.Error(t, err, "Expected an error for a writer chunk without a destination")
@@ -415,8 +415,8 @@ echo "world"
 		cfg := &config.Config{}
 		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
-			Cfg: cfg,
-			UI:  ui,
+			Cfg:   cfg,
+			RView: ui,
 		}
 		_, err = ExtractStages(ctx, "test.md", tmpDir)
 		assert.Error(t, err, "Expected an error for inconsistent parallelism")
@@ -439,8 +439,8 @@ echo "hello"
 		cfg := &config.Config{}
 		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
-			Cfg: cfg,
-			UI:  ui,
+			Cfg:   cfg,
+			RView: ui,
 		}
 		stages, err := ExtractStages(ctx, "test.md", tmpDir)
 		assert.NoError(t, err, "Failed to extract stages")
@@ -498,8 +498,8 @@ This is a markdown file with no executable chunks.
 		cfg := &config.Config{}
 		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
-			Cfg: cfg,
-			UI:  ui,
+			Cfg:   cfg,
+			RView: ui,
 		}
 		stages, err := ExtractStages(ctx, "test.md", tmpDir)
 		assert.NoError(t, err, "Should not return an error for a file with no chunks")
@@ -521,8 +521,8 @@ This is a markdown file with no executable chunks.
 		cfg := &config.Config{}
 		ui := view.NewView("mock")
 		ctx := &runnercontext.Context{
-			Cfg: cfg,
-			UI:  ui,
+			Cfg:   cfg,
+			RView: ui,
 		}
 		stages, err := ExtractStages(ctx, "test.md", tmpDir)
 		assert.NoError(t, err, "Should not return an error for a chunk with no content")

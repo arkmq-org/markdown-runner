@@ -8,6 +8,6 @@ import (
 // Context provides a shared context for execution, containing
 // the configuration and UI view.
 type Context struct {
-	Cfg *config.Config
-	UI  view.RunnerView
+	Cfg   *config.Config
+	RView view.RunnerView
 }

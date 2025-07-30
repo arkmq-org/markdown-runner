@@ -38,8 +38,8 @@ func TestRunningCommand(t *testing.T) {
 		ui := view.NewView("mock")
 		chunk := ExecutableChunk{
 			Context: &runnercontext.Context{
-				Cfg: cfg,
-				UI:  ui,
+				Cfg:   cfg,
+				RView: ui,
 			},
 		}
 		cmdStr := "echo 'hello world'"
@@ -53,8 +53,8 @@ func TestRunningCommand(t *testing.T) {
 		// Failure path
 		chunk = ExecutableChunk{
 			Context: &runnercontext.Context{
-				Cfg: cfg,
-				UI:  ui,
+				Cfg:   cfg,
+				RView: ui,
 			},
 		}
 		cmdStr = "nonexistent-command"
@@ -70,7 +70,7 @@ func TestRunningCommand(t *testing.T) {
 	t.Run("execute error missing spinner", func(t *testing.T) {
 		cmd := exec.Command("nonexistent-command")
 		cfg := &config.Config{MinutesToTimeout: 1}
-		ctx := &runnercontext.Context{Cfg: cfg, UI: view.NewView("mock")}
+		ctx := &runnercontext.Context{Cfg: cfg, RView: view.NewView("mock")}
 		command := RunningCommand{Cmd: cmd, Ctx: ctx}
 		err := command.Execute()
 		assert.Error(t, err, "Expected an error when executing a command without a spinner initialized")
@@ -83,8 +83,8 @@ func TestRunningCommand(t *testing.T) {
 		chunk := ExecutableChunk{
 			Runtime: "bash",
 			Context: &runnercontext.Context{
-				Cfg: cfg,
-				UI:  ui,
+				Cfg:   cfg,
+				RView: ui,
 			},
 		}
 		cmdStr := "bash -c 'echo \"### ENV ###\" && echo \"TEST_ENV_VAR=test_value\"'"
@@ -105,8 +105,8 @@ func TestRunningCommand(t *testing.T) {
 		runningCmd := &RunningCommand{
 			Cmd: cmd,
 			Ctx: &runnercontext.Context{
-				Cfg: &config.Config{MinutesToTimeout: 1},
-				UI:  ui,
+				Cfg:   &config.Config{MinutesToTimeout: 1},
+				RView: ui,
 			},
 			id: "test-kill",
 		}
@@ -122,8 +122,8 @@ func TestRunningCommand(t *testing.T) {
 		ui := view.NewView("mock")
 		runningCmd := &RunningCommand{
 			Ctx: &runnercontext.Context{
-				Cfg: &config.Config{MinutesToTimeout: 1},
-				UI:  ui,
+				Cfg:   &config.Config{MinutesToTimeout: 1},
+				RView: ui,
 			},
 		}
 		err := runningCmd.Start()
@@ -134,8 +134,8 @@ func TestRunningCommand(t *testing.T) {
 		ui := view.NewView("mock")
 		runningCmd := &RunningCommand{
 			Ctx: &runnercontext.Context{
-				Cfg: &config.Config{MinutesToTimeout: 1, Interactive: true},
-				UI:  ui,
+				Cfg:   &config.Config{MinutesToTimeout: 1, Interactive: true},
+				RView: ui,
 			},
 			Cmd: exec.Command("echo", "hello"),
 			GetUserInput: func(string) (string, error) {
@@ -150,8 +150,8 @@ func TestRunningCommand(t *testing.T) {
 		ui := view.NewView("mock")
 		runningCmd := &RunningCommand{
 			Ctx: &runnercontext.Context{
-				Cfg: &config.Config{MinutesToTimeout: 1, Interactive: true},
-				UI:  ui,
+				Cfg:   &config.Config{MinutesToTimeout: 1, Interactive: true},
+				RView: ui,
 			},
 			Cmd: exec.Command("echo", "hello"),
 			GetUserInput: func(string) (string, error) {
@@ -166,22 +166,22 @@ func TestRunningCommand(t *testing.T) {
 		ui := view.NewView("mock")
 		runningCmd := &RunningCommand{
 			Ctx: &runnercontext.Context{
-				Cfg: &config.Config{MinutesToTimeout: 1},
-				UI:  ui,
+				Cfg:   &config.Config{MinutesToTimeout: 1},
+				RView: ui,
 			},
 		}
-		runningCmd.Ctx.UI.DeclareParallelMode()
+		runningCmd.Ctx.RView.DeclareParallelMode()
 		err := runningCmd.InitializeLogger()
 		assert.NoError(t, err)
-		runningCmd.Ctx.UI.QuitParallelMode()
+		runningCmd.Ctx.RView.QuitParallelMode()
 	})
 
 	t.Run("initialize parallel spiner nil spinners", func(t *testing.T) {
 		ui := view.NewView("mock")
 		runningCmd := &RunningCommand{
 			Ctx: &runnercontext.Context{
-				Cfg: &config.Config{MinutesToTimeout: 1},
-				UI:  ui,
+				Cfg:   &config.Config{MinutesToTimeout: 1},
+				RView: ui,
 			},
 		}
 		err := runningCmd.InitializeLogger()
@@ -192,8 +192,8 @@ func TestRunningCommand(t *testing.T) {
 		ui := view.NewView("mock")
 		runningCmd := &RunningCommand{
 			Ctx: &runnercontext.Context{
-				Cfg: &config.Config{MinutesToTimeout: 1, DryRun: true},
-				UI:  ui,
+				Cfg:   &config.Config{MinutesToTimeout: 1, DryRun: true},
+				RView: ui,
 			},
 			Cmd: exec.Command("echo", "hello"),
 			id:  "test-dry-run",
@@ -209,8 +209,8 @@ func TestRunningCommand(t *testing.T) {
 		chunk := ExecutableChunk{
 			Runtime: "bash",
 			Context: &runnercontext.Context{
-				Cfg: &config.Config{MinutesToTimeout: 1},
-				UI:  ui,
+				Cfg:   &config.Config{MinutesToTimeout: 1},
+				RView: ui,
 			},
 		}
 		runningCmd, err := chunk.AddCommandToExecute("false", make(map[string]string))

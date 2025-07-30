@@ -28,8 +28,8 @@ func RunMD(cfg *config.Config, file string) error {
 	fileName := path.Base(file)
 	ui := view.NewView(cfg.View)
 	ctx := &runnercontext.Context{
-		Cfg: cfg,
-		UI:  ui,
+		Cfg:   cfg,
+		RView: ui,
 	}
 
 	ui.StartFile(file)
