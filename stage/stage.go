@@ -67,8 +67,8 @@ func (s *Stage) Execute(stages []*Stage, tmpDirs map[string]string, terminatingE
 	var towait []*chunk.ExecutableChunk
 
 	if s.IsParallel {
-		s.Ctx.UI.DeclareParallelMode()
-		defer s.Ctx.UI.QuitParallelMode()
+		s.Ctx.RView.DeclareParallelMode()
+		defer s.Ctx.RView.QuitParallelMode()
 	}
 
 	for _, chunk := range s.Chunks {
@@ -117,7 +117,7 @@ func (s *Stage) Execute(stages []*Stage, tmpDirs map[string]string, terminatingE
 	}
 	// When In parallel, we start and wait for every chunks.
 	if s.IsParallel {
-		s.Ctx.UI.StartParallelMode()
+		s.Ctx.RView.StartParallelMode()
 		for _, chunk := range s.Chunks {
 			if chunk.IsSkipped {
 				continue

@@ -25,8 +25,8 @@ func TestStage(t *testing.T) {
 			cfg := &config.Config{}
 			ui := view.NewView("mock")
 			ctx := &runnercontext.Context{
-				Cfg: cfg,
-				UI:  ui,
+				Cfg:   cfg,
+				RView: ui,
 			}
 			stage := NewStage(ctx, chunks)
 			assert.NotNil(t, stage)
@@ -38,8 +38,8 @@ func TestStage(t *testing.T) {
 			cfg := &config.Config{}
 			ui := view.NewView("mock")
 			ctx := &runnercontext.Context{
-				Cfg: cfg,
-				UI:  ui,
+				Cfg:   cfg,
+				RView: ui,
 			}
 			stage := NewStage(ctx, []*chunk.ExecutableChunk{})
 			assert.Nil(t, stage)
@@ -127,8 +127,8 @@ func TestStage(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1}
 			ui := view.NewView("mock")
 			ctx := &runnercontext.Context{
-				Cfg: cfg,
-				UI:  ui,
+				Cfg:   cfg,
+				RView: ui,
 			}
 			chunks := []*chunk.ExecutableChunk{
 				{Stage: "test-stage", Content: []string{"echo 1"}, Context: ctx},
@@ -143,8 +143,8 @@ func TestStage(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1}
 			ui := view.NewView("mock")
 			ctx := &runnercontext.Context{
-				Cfg: cfg,
-				UI:  ui,
+				Cfg:   cfg,
+				RView: ui,
 			}
 			chunks := []*chunk.ExecutableChunk{
 				{Stage: "test-stage", Content: []string{"sleep 0.1"}, IsParallel: true, Context: ctx},
@@ -159,8 +159,8 @@ func TestStage(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1}
 			ui := view.NewView("mock")
 			ctx := &runnercontext.Context{
-				Cfg: cfg,
-				UI:  ui,
+				Cfg:   cfg,
+				RView: ui,
 			}
 			stages := []*Stage{
 				{
@@ -196,8 +196,8 @@ func TestStage(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1, IgnoreBreakpoints: false}
 			ui := view.NewView("mock")
 			ctx := &runnercontext.Context{
-				Cfg: cfg,
-				UI:  ui,
+				Cfg:   cfg,
+				RView: ui,
 			}
 			chunks := []*chunk.ExecutableChunk{
 				{Stage: "test-stage", HasBreakpoint: true, Context: ctx},
@@ -213,8 +213,8 @@ func TestStage(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1}
 			ui := view.NewView("mock")
 			ctx := &runnercontext.Context{
-				Cfg: cfg,
-				UI:  ui,
+				Cfg:   cfg,
+				RView: ui,
 			}
 			stages := []*Stage{
 				{
@@ -262,8 +262,8 @@ func TestStage(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1}
 			ui := view.NewView("mock")
 			ctx := &runnercontext.Context{
-				Cfg: cfg,
-				UI:  ui,
+				Cfg:   cfg,
+				RView: ui,
 			}
 			chunks := []*chunk.ExecutableChunk{
 				{Stage: "test-stage", Content: []string{"false"}, Context: ctx},
@@ -279,8 +279,8 @@ func TestStage(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1}
 			ui := view.NewView("mock")
 			ctx := &runnercontext.Context{
-				Cfg: cfg,
-				UI:  ui,
+				Cfg:   cfg,
+				RView: ui,
 			}
 			chunks := []*chunk.ExecutableChunk{
 				{Stage: "test-stage", Content: []string{"false"}, IsParallel: true, Context: ctx},
@@ -295,8 +295,8 @@ func TestStage(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1}
 			ui := view.NewView("mock")
 			ctx := &runnercontext.Context{
-				Cfg: cfg,
-				UI:  ui,
+				Cfg:   cfg,
+				RView: ui,
 			}
 			stages := []*Stage{
 				{

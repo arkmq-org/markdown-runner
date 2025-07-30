@@ -71,7 +71,7 @@ func (command *RunningCommand) interactivePrompt() error {
 		if command.GetUserInput != nil {
 			result, err = command.GetUserInput(command.CmdPrettyName)
 		} else {
-			result, err = command.Ctx.UI.InteractivePromptForCommand(command.CmdPrettyName, command.CmdPrettyName, &command.Ctx.Cfg.Interactive)
+			result, err = command.Ctx.RView.InteractivePromptForCommand(command.CmdPrettyName, command.CmdPrettyName, &command.Ctx.Cfg.Interactive)
 		}
 		if err != nil {
 			return err
@@ -94,7 +94,7 @@ func (command *RunningCommand) interactivePrompt() error {
 // complete. It sets up the I/O pipes and starts the command process.
 // It returns an error if the command cannot be started.
 func (command *RunningCommand) Start() error {
-	if !command.Ctx.UI.HasLogger(command.id) {
+	if !command.Ctx.RView.HasLogger(command.id) {
 		return errors.New("This command doesn't have a corresponding spinner in the UI")
 	}
 	if command.Cmd == nil {
@@ -108,7 +108,7 @@ func (command *RunningCommand) Start() error {
 	}
 	err := command.Cmd.Start()
 	if err != nil {
-		command.Ctx.UI.Error(fmt.Sprintf("%s: %s\n", command.CmdPrettyName, err))
+		command.Ctx.RView.Error(fmt.Sprintf("%s: %s\n", command.CmdPrettyName, err))
 	}
 	return err
 }
@@ -125,7 +125,7 @@ func (command *RunningCommand) InitializeLogger() error {
 	if command.Ctx.Cfg.Interactive {
 		spinnerText = "executing"
 	}
-	return command.Ctx.UI.StartCommand(command.id, spinnerText)
+	return command.Ctx.RView.StartCommand(command.id, spinnerText)
 }
 
 // Wait blocks until the command has finished execution. It captures the exit
@@ -134,13 +134,13 @@ func (command *RunningCommand) InitializeLogger() error {
 func (command *RunningCommand) Wait() error {
 	// don't wait if we're in dryRun mode
 	if command.Ctx.Cfg.DryRun {
-		command.Ctx.UI.DryRunCommand(command.id, command.CmdPrettyName)
+		command.Ctx.RView.DryRunCommand(command.id, command.CmdPrettyName)
 		return nil
 	}
 	defer command.CancelFunc()
 	// handle the interactive scenario where the command doesn't exist because the user skipped it
 	if command.Cmd == nil {
-		command.Ctx.UI.SkipCommand(command.id, command.CmdPrettyName)
+		command.Ctx.RView.SkipCommand(command.id, command.CmdPrettyName)
 		return nil
 	}
 	// wait for the termination
@@ -150,10 +150,10 @@ func (command *RunningCommand) Wait() error {
 
 	// handle the output depending on the status of the command
 	if terminatingError != nil {
-		command.Ctx.UI.StopCommand(command.id, false, fmt.Sprintf("stdout:\n%s\nstderr:\n%s\nexit code:%d", command.Outb.String(), command.Errb.String(), command.Cmd.ProcessState.ExitCode()))
+		command.Ctx.RView.StopCommand(command.id, false, fmt.Sprintf("stdout:\n%s\nstderr:\n%s\nexit code:%d", command.Outb.String(), command.Errb.String(), command.Cmd.ProcessState.ExitCode()))
 		return terminatingError
 	}
-	command.Ctx.UI.StopCommand(command.id, true, command.CmdPrettyName)
+	command.Ctx.RView.StopCommand(command.id, true, command.CmdPrettyName)
 
 	// During a bash runtime the user might want to export new variables.
 	// Our job here is to recover them to build the new environment for the next chunk
@@ -191,10 +191,10 @@ func (command *RunningCommand) Wait() error {
 	// print more things while in verbose mode
 	if command.Ctx.Cfg.Verbose {
 		if command.Stdout != "" {
-			command.Ctx.UI.Info(command.Stdout)
+			command.Ctx.RView.Info(command.Stdout)
 		}
 		if command.Stderr != "" {
-			command.Ctx.UI.Warning(command.Stderr)
+			command.Ctx.RView.Warning(command.Stderr)
 		}
 	}
 	return nil
@@ -204,7 +204,7 @@ func (command *RunningCommand) Wait() error {
 // running processes when a stage fails.
 // It returns an error if the process cannot be killed.
 func (command *RunningCommand) Kill() error {
-	command.Ctx.UI.KillCommand(command.id, command.CmdPrettyName)
+	command.Ctx.RView.KillCommand(command.id, command.CmdPrettyName)
 	return command.Cmd.Process.Kill()
 }
 
