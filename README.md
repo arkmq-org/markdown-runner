@@ -674,18 +674,37 @@ go run main.go \
 ```
 ```shell markdown_runner
 
-                                                                                echo this executes correctly
-                                                                                SUCCESS: echo this executes correctly
-                                                                                ./21ad5eca-6cf7-486f-96ca-ec7a61492ea3.sh
-                                                                                ERROR: stdout:
+
+                                                                                
+echo this executes correctly
+
+                                                                                
+SUCCESS: echo this executes correctly
+
+                                                                                
+./21ad5eca-6cf7-486f-96ca-ec7a61492ea3.sh
+
+                                                                                
+ERROR: stdout:
 this has failed
 
 stderr:
 
 exit code:1
-                                                                                echo executed because inner_test1/someID got executed
-                                                                                SUCCESS: echo executed because inner_test1/someID got executed
+
+                                                                                
+echo executed because inner_test1/someID got executed
+
+                                                                                
+SUCCESS: echo executed because inner_test1/someID got executed
 exit status 1
 ```
 
 As we can see only the first teardown command did run.
+
+## Presentation Slides
+
+This repository includes a presentation about Markdown Runner.
+
+- [View the slides](./slides/slides.md) (github will render the source somewhat)
+- [Building the slides](./slides/README.md)
