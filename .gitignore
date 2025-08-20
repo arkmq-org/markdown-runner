@@ -1,0 +1,6 @@
+# Generated slide decks
+slides/*.html
+slides/*.err
+
+# Node-related (for local filters / tools)
+node_modules/ 
