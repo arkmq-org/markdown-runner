@@ -78,15 +78,15 @@ Unit tests can be run with:
 go test ./...
 ```
 ```shell markdown_runner
-?   github.com/arkmq-org/markdown-runner/pterm[no test files]
-?   github.com/arkmq-org/markdown-runner/runnercontext[no test files]
-?   github.com/arkmq-org/markdown-runner/view[no test files]
-ok  github.com/arkmq-org/markdown-runner0.005s
-ok  github.com/arkmq-org/markdown-runner/chunk(cached)
-ok  github.com/arkmq-org/markdown-runner/config(cached)
-ok  github.com/arkmq-org/markdown-runner/parser(cached)
-ok  github.com/arkmq-org/markdown-runner/runner(cached)
-ok  github.com/arkmq-org/markdown-runner/stage(cached)
+?   	github.com/arkmq-org/markdown-runner/pterm	[no test files]
+?   	github.com/arkmq-org/markdown-runner/runnercontext	[no test files]
+?   	github.com/arkmq-org/markdown-runner/view	[no test files]
+ok  	github.com/arkmq-org/markdown-runner	0.005s
+ok  	github.com/arkmq-org/markdown-runner/chunk	(cached)
+ok  	github.com/arkmq-org/markdown-runner/config	(cached)
+ok  	github.com/arkmq-org/markdown-runner/parser	(cached)
+ok  	github.com/arkmq-org/markdown-runner/runner	(cached)
+ok  	github.com/arkmq-org/markdown-runner/stage	(cached)
 ```
 
 Integration tests can be run with:
@@ -95,19 +95,19 @@ Integration tests can be run with:
 ./test/run.sh
 ```
 ```shell markdown_runner
-[33m--- Building markdown-runner binary ---[0m
-[36mRunning test #1: Dry run test for (happy) should show DRY-RUN...[0m[32m ✅[0m
-[36mRunning test #2: Happy path test (happy) should succeed...[0m[32m ✅[0m
-[36mRunning test #3: Test case parallel...[0m[32m ✅[0m
-[36mRunning test #4: Schema error test (schema_error) should fail as expected...[0m[32m ✅[0m
-[36mRunning test #5: Teardown test (teardown) should execute teardown...[0m[32m ✅[0m
-[36mRunning test #6: Test case writer...[0m[32m ✅[0m
-[36mRunning test #7: Recursive test...[0m[32m ✅[0m
-[36mRunning test #8: Recursive test with file filter...[0m[32m ✅[0m
-[33m\n--- Test Summary ---[0m
-[32mAll 8 tests passed![0m
-[33m--- Cleaning up ---[0m
-[32mCleanup complete.[0m
+[33m--- Building markdown-runner binary ---[0m
+[36mRunning test #1: Dry run test for (happy) should show DRY-RUN...[0m[32m ✅[0m
+[36mRunning test #2: Happy path test (happy) should succeed...[0m[32m ✅[0m
+[36mRunning test #3: Test case parallel...[0m[32m ✅[0m
+[36mRunning test #4: Schema error test (schema_error) should fail as expected...[0m[32m ✅[0m
+[36mRunning test #5: Teardown test (teardown) should execute teardown...[0m[32m ✅[0m
+[36mRunning test #6: Test case writer...[0m[32m ✅[0m
+[36mRunning test #7: Recursive test...[0m[32m ✅[0m
+[36mRunning test #8: Recursive test with file filter...[0m[32m ✅[0m
+[33m\n--- Test Summary ---[0m
+[32mAll 8 tests passed![0m
+[33m--- Cleaning up ---[0m
+[32mCleanup complete.[0m
 ```
 
 You can also run the integration tests with `-v` to show the details of every
@@ -674,29 +674,17 @@ go run main.go \
 ```
 ```shell markdown_runner
 
-
-                                                                                
-echo this executes correctly
-
-                                                                                
-SUCCESS: echo this executes correctly
-
-                                                                                
-./21ad5eca-6cf7-486f-96ca-ec7a61492ea3.sh
-
-                                                                                
-ERROR: stdout:
+                                                                                working command
+                                                                                SUCCESS: working command
+                                                                                failing command
+                                                                                ERROR: stdout:
 this has failed
 
 stderr:
 
 exit code:1
-
-                                                                                
-echo executed because inner_test1/someID got executed
-
-                                                                                
-SUCCESS: echo executed because inner_test1/someID got executed
+                                                                                Successful teardown
+                                                                                SUCCESS: Successful teardown
 exit status 1
 ```
 
