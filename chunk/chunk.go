@@ -325,7 +325,7 @@ func (chunk *ExecutableChunk) AddCommandToExecute(trimedCommand string, tmpDirs 
 	command.Cmd.Env = append(command.Cmd.Env, chunk.Context.Cfg.Env...)
 
 	// give a pretty name to the command for the cli output
-	command.CmdPrettyName = trimedCommand
+	command.InitCommandLabel(chunk)
 
 	// set the bash flag for the command
 	command.IsBash = chunk.Runtime == "bash"
