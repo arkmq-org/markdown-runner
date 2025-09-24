@@ -235,6 +235,14 @@ func (chunk *ExecutableChunk) WriteBashScript(basedir string, script_name string
 		return err
 	}
 
+	// enable verbose mode (set -x) when verbose flag is set
+	if chunk.Context.Cfg.Verbose {
+		_, err = writer.WriteString("set -x\n")
+		if err != nil {
+			return err
+		}
+	}
+
 	// the actual script the user wants to execute
 	for _, line := range chunk.Content {
 		_, err = writer.WriteString(line + "\n")
