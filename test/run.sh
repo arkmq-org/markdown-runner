@@ -91,6 +91,12 @@ for test_file in cases/*.md; do
             "./markdown-runner -d cases -f '.*'${test_file} 2>&1 | grep -E 'DRY-RUN.*|.*echo happy path'" || ((FAILED_TESTS++))
         run_test "Happy path test (${test_name}) should succeed" \
             "./markdown-runner cases -f '.*'${test_file}" || ((FAILED_TESTS++))
+    # The verbose_set_x test verifies set -x functionality
+    elif [ "${test_name}" == "verbose_set_x" ]; then
+        run_test "Verbose set -x test (${test_name}) should show command tracing with -v" \
+            "./markdown-runner -v cases -f '.*'${test_file} 2>&1 | grep -E '\\+ echo.*Testing set -x functionality'" || ((FAILED_TESTS++))
+        run_test "Non-verbose test (${test_name}) should not show command tracing without -v" \
+            "! ./markdown-runner cases -f '.*'${test_file} 2>&1 | grep -E '\\+ echo.*Testing set -x functionality'" || ((FAILED_TESTS++))
     else
         run_test "Test case ${test_name}" \
             "./markdown-runner cases -f '.*'${test_file}" || ((FAILED_TESTS++))
