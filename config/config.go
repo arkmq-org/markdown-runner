@@ -5,6 +5,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/pterm/pterm"
 	"github.com/spf13/pflag"
@@ -23,6 +24,12 @@ type Config struct {
 	Quiet             bool
 	Recursive         bool
 	StartFrom         string
+	StartFromFile     string
+	StartFromStage    string
+	DebugFrom         string
+	DebugFromFile     string
+	DebugFromStage    string
+	DebugFromChunk    string
 	MinutesToTimeout  int
 	UpdateFile        bool
 	Verbose           bool
@@ -47,7 +54,8 @@ Modes:
 
 Execution Control:
   -i, --interactive          Prompt to press enter between each chunk
-  -s, --start-from string    Start from a specific stage name
+  -s, --start-from string    Start from a specific stage (stage or file@stage)
+  -B, --break-at string      Start debugging from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID)
   -t, --timeout int          The timeout in minutes for every executed command (default 10)
   -u, --update-files         Update the chunk output section in the markdown files
       --ignore-breakpoints   Ignore the breakpoints
@@ -77,13 +85,59 @@ Help:
 	pflag.BoolVarP(&cfg.NoStyling, "no-styling", "", false, "Disable spinners in CLI")
 	pflag.BoolVarP(&cfg.Quiet, "quiet", "q", false, "Disable output")
 	pflag.BoolVarP(&cfg.Recursive, "recursive", "r", false, "Search for markdown files recursively")
-	pflag.StringVarP(&cfg.StartFrom, "start-from", "s", "", "Start from a specific stage name")
+	pflag.StringVarP(&cfg.StartFrom, "start-from", "s", "", "Start from a specific stage (stage or file@stage)")
+	pflag.StringVarP(&cfg.DebugFrom, "break-at", "B", "", "Start debugging from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID)")
 	pflag.IntVarP(&cfg.MinutesToTimeout, "timeout", "t", 10, "The timeout in minutes for every executed command")
 	pflag.BoolVarP(&cfg.UpdateFile, "update-files", "u", false, "Update the chunk output section in the markdown files")
 	pflag.BoolVarP(&cfg.Verbose, "verbose", "v", false, "Print more logs")
 	pflag.StringVar(&cfg.View, "view", "default", "UI to be used, can be 'default' or 'ci'")
 
 	pflag.Parse()
+
+	// Parse start-from format: stage or file@stage
+	if cfg.StartFrom != "" {
+		// Check for file@stage format
+		if strings.Contains(cfg.StartFrom, "@") {
+			atParts := strings.Split(cfg.StartFrom, "@")
+			if len(atParts) != 2 {
+				pterm.Fatal.Println("Invalid start-from format. Use 'stage' or 'file@stage'.")
+			}
+			cfg.StartFromFile = atParts[0]
+			cfg.StartFromStage = atParts[1]
+		} else {
+			cfg.StartFromStage = cfg.StartFrom
+		}
+	}
+
+	// Parse break-at format: stage, stage/chunkID, or file@stage/chunkID
+	if cfg.DebugFrom != "" {
+		var debugPart string
+
+		// Check for file@stage format
+		if strings.Contains(cfg.DebugFrom, "@") {
+			atParts := strings.Split(cfg.DebugFrom, "@")
+			if len(atParts) != 2 {
+				pterm.Fatal.Println("Invalid break-at format. Use 'stage', 'stage/chunkID', or 'file@stage/chunkID'.")
+			}
+			cfg.DebugFromFile = atParts[0]
+			debugPart = atParts[1]
+		} else {
+			debugPart = cfg.DebugFrom
+		}
+
+		// Parse stage/chunk part
+		parts := strings.Split(debugPart, "/")
+		if len(parts) == 1 {
+			// Just stage name
+			cfg.DebugFromStage = parts[0]
+		} else if len(parts) == 2 {
+			// Stage and chunk ID
+			cfg.DebugFromStage = parts[0]
+			cfg.DebugFromChunk = parts[1]
+		} else {
+			pterm.Fatal.Println("Invalid break-at format. Use 'stage', 'stage/chunkID', or 'file@stage/chunkID'.")
+		}
+	}
 
 	if len(pflag.Args()) > 1 {
 		pterm.Fatal.Println("Too many positional arguments, please specify only one directory.")

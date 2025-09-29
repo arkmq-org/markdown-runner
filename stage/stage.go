@@ -2,6 +2,8 @@
 package stage
 
 import (
+	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/arkmq-org/markdown-runner/chunk"
@@ -11,10 +13,11 @@ import (
 // Stage represents a single stage in the execution pipeline, containing a list
 // of chunks to be executed.
 type Stage struct {
-	Name       string
-	IsParallel bool // Indicates if the stage is parallel or sequential
-	Chunks     []*chunk.ExecutableChunk
-	Ctx        *runnercontext.Context
+	Name           string
+	IsParallel     bool // Indicates if the stage is parallel or sequential
+	Chunks         []*chunk.ExecutableChunk
+	Ctx            *runnercontext.Context
+	DebugFromChunk string // ID or index of chunk to start debugging from
 }
 
 // NewStage creates a new stage from a list of chunks. It assumes all chunks
@@ -81,6 +84,11 @@ func (s *Stage) Execute(stages []*Stage, tmpDirs map[string]string, terminatingE
 		// Examine if the tool must be run interactively from this chunk
 		if chunk.HasBreakpoint && !s.Ctx.Cfg.IgnoreBreakpoints {
 			s.Ctx.Cfg.Interactive = true
+		}
+		// Check if we should start debugging at this specific chunk
+		if s.shouldStartDebuggingAtChunk(chunk) {
+			s.Ctx.Cfg.Interactive = true
+			s.DebugFromChunk = "" // Clear the flag so we don't keep enabling debug mode
 		}
 		// Examine if the chunk has a particular dependency to another one
 		if chunk.Requires != "" {
@@ -159,4 +167,48 @@ func FindChunkById(stages []*Stage, stageName string, chunkId string) *chunk.Exe
 		}
 	}
 	return nil
+}
+
+// findChunkByIdOrIndex finds a chunk in a stage by either its ID or by index (0-based)
+func (s *Stage) findChunkByIdOrIndex(identifier string) (*chunk.ExecutableChunk, error) {
+	// Try to parse as integer index first
+	if index, err := strconv.Atoi(identifier); err == nil {
+		if index < 0 || index >= len(s.Chunks) {
+			return nil, fmt.Errorf("chunk index %d is out of range (0-%d) in stage '%s'",
+				index, len(s.Chunks)-1, s.Name)
+		}
+		return s.Chunks[index], nil
+	}
+
+	// Try to find by ID
+	for _, chunk := range s.Chunks {
+		if chunk.Id == identifier {
+			return chunk, nil
+		}
+	}
+
+	return nil, fmt.Errorf("chunk with ID '%s' not found in stage '%s'", identifier, s.Name)
+}
+
+// shouldStartDebuggingAtChunk checks if debugging should start at a specific chunk
+func (s *Stage) shouldStartDebuggingAtChunk(currentChunk *chunk.ExecutableChunk) bool {
+	if s.DebugFromChunk == "" {
+		return false
+	}
+
+	// Check if this is the target chunk by ID
+	if currentChunk.Id != "" && currentChunk.Id == s.DebugFromChunk {
+		return true
+	}
+
+	// Check if this is the target chunk by index
+	if index, err := strconv.Atoi(s.DebugFromChunk); err == nil {
+		for i, chunk := range s.Chunks {
+			if chunk == currentChunk && i == index {
+				return true
+			}
+		}
+	}
+
+	return false
 }
