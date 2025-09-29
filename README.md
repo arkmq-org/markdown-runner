@@ -45,7 +45,8 @@ Modes:
 
 Execution Control:
   -i, --interactive          Prompt to press enter between each chunk
-  -s, --start-from string    Start from a specific stage name
+  -s, --start-from string    Start from a specific stage (stage or file@stage)
+  -B, --break-at string      Start debugging from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID)
   -t, --timeout int          The timeout in minutes for every executed command (default 10)
   -u, --update-files         Update the chunk output section in the markdown files
       --ignore-breakpoints   Ignore the breakpoints
@@ -81,12 +82,12 @@ go test ./...
 ?   	github.com/arkmq-org/markdown-runner/pterm	[no test files]
 ?   	github.com/arkmq-org/markdown-runner/runnercontext	[no test files]
 ?   	github.com/arkmq-org/markdown-runner/view	[no test files]
-ok  	github.com/arkmq-org/markdown-runner	0.005s
-ok  	github.com/arkmq-org/markdown-runner/chunk	(cached)
+ok  	github.com/arkmq-org/markdown-runner	0.016s
+ok  	github.com/arkmq-org/markdown-runner/chunk	0.127s
 ok  	github.com/arkmq-org/markdown-runner/config	(cached)
 ok  	github.com/arkmq-org/markdown-runner/parser	(cached)
-ok  	github.com/arkmq-org/markdown-runner/runner	(cached)
-ok  	github.com/arkmq-org/markdown-runner/stage	(cached)
+ok  	github.com/arkmq-org/markdown-runner/runner	0.041s
+ok  	github.com/arkmq-org/markdown-runner/stage	0.126s
 ```
 
 Integration tests can be run with:
@@ -101,11 +102,13 @@ Integration tests can be run with:
 [36mRunning test #3: Test case parallel...[0m[32m ✅[0m
 [36mRunning test #4: Schema error test (schema_error) should fail as expected...[0m[32m ✅[0m
 [36mRunning test #5: Teardown test (teardown) should execute teardown...[0m[32m ✅[0m
-[36mRunning test #6: Test case writer...[0m[32m ✅[0m
-[36mRunning test #7: Recursive test...[0m[32m ✅[0m
-[36mRunning test #8: Recursive test with file filter...[0m[32m ✅[0m
+[36mRunning test #6: Verbose set -x test (verbose_set_x) should show command tracing with -v...[0m[32m ✅[0m
+[36mRunning test #7: Non-verbose test (verbose_set_x) should not show command tracing without -v...[0m[32m ✅[0m
+[36mRunning test #8: Test case writer...[0m[32m ✅[0m
+[36mRunning test #9: Recursive test...[0m[32m ✅[0m
+[36mRunning test #10: Recursive test with file filter...[0m[32m ✅[0m
 [33m\n--- Test Summary ---[0m
-[32mAll 8 tests passed![0m
+[32mAll 10 tests passed![0m
 [33m--- Cleaning up ---[0m
 [32mCleanup complete.[0m
 ```
@@ -384,6 +387,78 @@ This works only if:
 
 Enters interactive mode when the chunk is started. Useful for debugging
 purposes. Better to use alongside `--verbose`
+
+#### Debugging and Interactive Execution
+
+The markdown-runner provides several ways to debug and interactively control the execution of your markdown files:
+
+##### Using `--break-at` flag
+
+The `--break-at` (`-B`) flag allows you to start debugging from a specific stage or even a specific chunk within a stage:
+
+**Debug from a stage:**
+```bash
+markdown-runner --break-at stage2 myfile.md
+```
+
+**Debug from a specific chunk by ID:**
+```bash
+markdown-runner --break-at stage2/myChunkID myfile.md
+```
+
+**Debug from a specific chunk by index (0-based):**
+```bash
+markdown-runner --break-at stage2/0 myfile.md
+```
+
+**Debug from a specific file when running a directory:**
+```bash
+markdown-runner --break-at myfile@stage2 mydirectory/
+```
+
+When debugging is enabled, the runner will prompt you for each chunk:
+- `yes` - Execute this chunk and continue prompting for the next
+- `no` - Skip this chunk and continue prompting for the next  
+- `all` - Execute this chunk and all remaining chunks without prompting
+- `cancel` - Stop execution immediately
+
+**Examples:**
+
+Given a markdown file with chunks:
+````markdown
+```bash {"stage":"setup", "id":"init", "label": "Initialize"}
+echo "Setting up..."
+```
+```shell markdown_runner
+Setting up...
+```
+
+```bash {"stage":"setup", "label": "Configure"}  
+echo "Configuring..."
+```
+```shell markdown_runner
+Configuring...
+```
+
+```bash {"stage":"main", "id":"process", "label": "Process data"}
+echo "Processing..."
+```
+```shell markdown_runner
+Processing...
+```
+````
+
+- `markdown-runner -B setup myfile.md` - Start debugging from the "setup" stage
+- `markdown-runner -B setup/init myfile.md` - Start debugging from the "init" chunk
+- `markdown-runner -B setup/1 myfile.md` - Start debugging from the second chunk in setup (index 1)
+- `markdown-runner -B main/process myfile.md` - Start debugging from the "process" chunk in main stage
+- `markdown-runner -B myfile@setup mydirectory/` - Start debugging from the "setup" stage in myfile.md only
+- `markdown-runner -B myfile@setup/init mydirectory/` - Start debugging from the "init" chunk in myfile.md only
+- `markdown-runner -s myfile@setup mydirectory/` - Start execution from the "setup" stage in myfile.md only
+
+**Useful combinations:**
+- `markdown-runner -D stage2/0 --dry-run myfile.md` - See what would be executed without running it
+- `markdown-runner -B stage2/myChunk --verbose myfile.md` - Get detailed output during debugging
 
 ##### `"id":"someID"`
 
@@ -674,17 +749,29 @@ go run main.go \
 ```
 ```shell markdown_runner
 
-                                                                                working command
-                                                                                SUCCESS: working command
-                                                                                failing command
-                                                                                ERROR: stdout:
+
+                                                                                
+working command
+
+                                                                                
+SUCCESS: working command
+
+                                                                                
+failing command
+
+                                                                                
+ERROR: stdout:
 this has failed
 
 stderr:
 
 exit code:1
-                                                                                Successful teardown
-                                                                                SUCCESS: Successful teardown
+
+                                                                                
+Successful teardown
+
+                                                                                
+SUCCESS: Successful teardown
 exit status 1
 ```
 

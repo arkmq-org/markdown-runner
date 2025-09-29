@@ -19,6 +19,7 @@ func TestNewConfig(t *testing.T) {
 			recursive         bool
 			timeout           int
 			startFrom         string
+			debugFrom         string
 			markdownDir       string
 			filter            string
 			ignoreBreakpoints bool
@@ -29,13 +30,14 @@ func TestNewConfig(t *testing.T) {
 		}{
 			{
 				name:              "long-form flags",
-				args:              []string{"cmd", "--dry-run", "--interactive=true", "--verbose", "--recursive", "--timeout=5", "--start-from=stage2", "--filter=test.md", "--ignore-breakpoints", "--update-files", "--list", "--no-styling", "--quiet", "/tmp"},
+				args:              []string{"cmd", "--dry-run", "--interactive=true", "--verbose", "--recursive", "--timeout=5", "--start-from=stage2", "--break-at=stage3", "--filter=test.md", "--ignore-breakpoints", "--update-files", "--list", "--no-styling", "--quiet", "/tmp"},
 				dryRun:            true,
 				interactive:       true,
 				verbose:           true,
 				recursive:         true,
 				timeout:           5,
 				startFrom:         "stage2",
+				debugFrom:         "stage3",
 				markdownDir:       "/tmp",
 				filter:            "test.md",
 				ignoreBreakpoints: true,
@@ -53,6 +55,7 @@ func TestNewConfig(t *testing.T) {
 				recursive:         true,
 				timeout:           5,
 				startFrom:         "stage2",
+				debugFrom:         "",
 				markdownDir:       "/tmp",
 				filter:            "test.md",
 				ignoreBreakpoints: false,
@@ -80,6 +83,7 @@ func TestNewConfig(t *testing.T) {
 				assert.Equal(t, tc.recursive, cfg.Recursive)
 				assert.Equal(t, tc.timeout, cfg.MinutesToTimeout)
 				assert.Equal(t, tc.startFrom, cfg.StartFrom)
+				assert.Equal(t, tc.debugFrom, cfg.DebugFrom)
 				assert.Equal(t, tc.markdownDir, cfg.MarkdownDir)
 				assert.Equal(t, tc.filter, cfg.Filter)
 				assert.Equal(t, tc.ignoreBreakpoints, cfg.IgnoreBreakpoints)
@@ -107,6 +111,7 @@ func TestNewConfig(t *testing.T) {
 		assert.False(t, cfg.Verbose, "Expected Verbose to be false by default")
 		assert.Equal(t, 10, cfg.MinutesToTimeout, "Expected MinutesToTimeout to be 10 by default")
 		assert.Equal(t, "", cfg.StartFrom, "Expected StartFrom to be empty by default")
+		assert.Equal(t, "", cfg.DebugFrom, "Expected DebugFrom to be empty by default")
 		assert.Equal(t, "./", cfg.MarkdownDir, "Expected MarkdownDir to be './' by default")
 		assert.Equal(t, "", cfg.Filter, "Expected filter to be empty by default")
 		assert.False(t, cfg.IgnoreBreakpoints, "Expected IgnoreBreakpoints to be false by default")
