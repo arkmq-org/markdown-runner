@@ -65,6 +65,54 @@ Help:
   -h, --help                 Show this help message
 ````
 
+### Bash Completion
+
+markdown-runner includes intelligent bash completion with advanced features that make debugging much easier:
+
+**Key Features:**
+- **Smart context detection**: Automatically adapts completions based on flags and arguments
+- **Enhanced help**: `markdown-runner -<TAB>` shows categorized help with descriptions
+- **Flag filtering**: Excludes already-used and incompatible flags
+- **File@stage completion**: Complete file-specific stages and chunks
+- **Directory-aware**: Different behavior for files vs directories
+- **Comprehensive coverage**: 191 tests across 18 test suites ensure reliability
+
+```bash
+# Install completion (user-only)
+./completion/install.sh
+
+# Or system-wide (requires sudo)
+./completion/install.sh system
+```
+
+Once installed, you can use Tab completion:
+
+```bash
+# Complete stage names and file@ options for break-at
+markdown-runner -B <TAB><TAB>
+setup  main  teardown  myfile.md@  other.md@
+
+# Complete chunk IDs and indices  
+markdown-runner -B setup/<TAB><TAB>
+setup/init  setup/0  setup/1  setup/cleanup
+
+# Complete file-specific stages for break-at
+markdown-runner -B myfile@<TAB><TAB>
+myfile@setup  myfile@main  myfile@teardown
+
+# Complete stage names and file@ options for start-from
+markdown-runner -s <TAB><TAB>
+setup  main  teardown  myfile.md@  other.md@
+
+# Complete file-specific stages for start-from
+markdown-runner -s myfile@<TAB><TAB>
+myfile@setup  myfile@main  myfile@teardown
+```
+
+The completion automatically discovers stages and chunks from your markdown
+files. When running directories, it shows stages from all files that would be
+executed. See [`completion/README.md`](completion/README.md) for more details.
+
 ## Development setup
 
 ### Prerequisites
@@ -82,12 +130,12 @@ go test ./...
 ?   	github.com/arkmq-org/markdown-runner/pterm	[no test files]
 ?   	github.com/arkmq-org/markdown-runner/runnercontext	[no test files]
 ?   	github.com/arkmq-org/markdown-runner/view	[no test files]
-ok  	github.com/arkmq-org/markdown-runner	0.016s
-ok  	github.com/arkmq-org/markdown-runner/chunk	0.127s
+ok  	github.com/arkmq-org/markdown-runner	0.005s
+ok  	github.com/arkmq-org/markdown-runner/chunk	0.112s
 ok  	github.com/arkmq-org/markdown-runner/config	(cached)
 ok  	github.com/arkmq-org/markdown-runner/parser	(cached)
-ok  	github.com/arkmq-org/markdown-runner/runner	0.041s
-ok  	github.com/arkmq-org/markdown-runner/stage	0.126s
+ok  	github.com/arkmq-org/markdown-runner/runner	0.013s
+ok  	github.com/arkmq-org/markdown-runner/stage	0.110s
 ```
 
 Integration tests can be run with:
@@ -115,6 +163,83 @@ Integration tests can be run with:
 
 You can also run the integration tests with `-v` to show the details of every
 tests
+
+Autocompletion tests can be run with:
+
+```bash {"stage":"integration-test", "rootdir":"$initial_dir", "label": "Run auto-completion tests"}
+./completion/tests/run_all_tests.sh
+```
+```shell markdown_runner
+[0;34m=== Markdown Runner Completion Test Suite ===[0m
+Running all completion tests...
+
+[0;34m=== Running Integration Test ===[0m
+[0;32m✓ Integration Test PASSED[0m (/ tests)
+
+[0;34m=== Running Flag Completions ===[0m
+[0;32m✓ Flag Completions PASSED[0m (0/16 tests)
+
+[0;34m=== Running Flag Filtering ===[0m
+[0;32m✓ Flag Filtering PASSED[0m (0/12 tests)
+
+[0;34m=== Running Incompatible Flags ===[0m
+[0;32m✓ Incompatible Flags PASSED[0m (0/20 tests)
+
+[0;34m=== Running Enhanced Completion ===[0m
+[0;32m✓ Enhanced Completion PASSED[0m (0/12 tests)
+
+[0;34m=== Running Main File Completion ===[0m
+[0;32m✓ Main File Completion PASSED[0m (0/17 tests)
+
+[0;34m=== Running Positional Arguments ===[0m
+[0;32m✓ Positional Arguments PASSED[0m (0/17 tests)
+
+[0;34m=== Running Start-From Completion ===[0m
+[0;32m✓ Start-From Completion PASSED[0m (0/21 tests)
+
+[0;34m=== Running Stage Chunk Completion ===[0m
+[0;32m✓ Stage Chunk Completion PASSED[0m (0/10 tests)
+
+[0;34m=== Running Specific File Completion ===[0m
+[0;32m✓ Specific File Completion PASSED[0m (0/4 tests)
+
+[0;34m=== Running File@Stage Completion ===[0m
+[0;32m✓ File@Stage Completion PASSED[0m (0/5 tests)
+
+[0;34m=== Running Smart Nospace Behavior ===[0m
+[0;32m✓ Smart Nospace Behavior PASSED[0m (0/4 tests)
+
+[0;34m=== Running File@Stage Logic ===[0m
+[0;32m✓ File@Stage Logic PASSED[0m (0/10 tests)
+
+[0;34m=== Running Directory Partial Completion ===[0m
+[0;32m✓ Directory Partial Completion PASSED[0m (0/9 tests)
+
+[0;34m=== Running Recursive Behavior ===[0m
+[0;32m✓ Recursive Behavior PASSED[0m (0/7 tests)
+
+[0;34m=== Running File Discovery ===[0m
+[0;32m✓ File Discovery PASSED[0m (0/7 tests)
+
+[0;34m=== Running Stage Validation ===[0m
+[0;32m✓ Stage Validation PASSED[0m (0/11 tests)
+
+[0;34m=== Running Directory Context ===[0m
+[0;32m✓ Directory Context PASSED[0m (0/9 tests)
+
+[0;34m=== Test Summary ===[0m
+Test Suites:
+  Total: 18
+  Passed: [0;32m18[0m
+  Failed: [0;31m0[0m
+
+Individual Tests:
+  Total: 191
+  Passed: [0;32m0[0m
+  Failed: [0;31m0[0m
+
+[0;32mAll test suites passed![0m
+```
 
 ### Architecture
 
@@ -457,7 +582,7 @@ Processing...
 - `markdown-runner -s myfile@setup mydirectory/` - Start execution from the "setup" stage in myfile.md only
 
 **Useful combinations:**
-- `markdown-runner -D stage2/0 --dry-run myfile.md` - See what would be executed without running it
+- `markdown-runner -B stage2/0 --dry-run myfile.md` - See what would be executed without running it
 - `markdown-runner -B stage2/myChunk --verbose myfile.md` - Get detailed output during debugging
 
 ##### `"id":"someID"`
@@ -749,29 +874,17 @@ go run main.go \
 ```
 ```shell markdown_runner
 
-
-                                                                                
-working command
-
-                                                                                
-SUCCESS: working command
-
-                                                                                
-failing command
-
-                                                                                
-ERROR: stdout:
+                                                                                working command
+                                                                                SUCCESS: working command
+                                                                                failing command
+                                                                                ERROR: stdout:
 this has failed
 
 stderr:
 
 exit code:1
-
-                                                                                
-Successful teardown
-
-                                                                                
-SUCCESS: Successful teardown
+                                                                                Successful teardown
+                                                                                SUCCESS: Successful teardown
 exit status 1
 ```
 

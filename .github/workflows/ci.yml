@@ -1,5 +1,7 @@
-name: Run the markdown runner
+name: CI - Tests and Integration
 on:
+  push:
+    branches: [ main ]
   pull_request:
     types:
       - opened
@@ -24,6 +26,14 @@ jobs:
 
       - name: Integration test
         run: bash test/run.sh
+
+      - name: Bash completion tests
+        run: |
+          echo "Checking bash completion environment..."
+          bash --version
+          echo "BASH_VERSION: $BASH_VERSION"
+          echo "Running bash completion test suite (191 tests across 18 suites)..."
+          ./completion/tests/run_all_tests.sh
 
       - name: Try executing the README
         run: go install && markdown-runner
