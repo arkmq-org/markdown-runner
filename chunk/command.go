@@ -8,7 +8,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 	"os/exec"
 	"strings"
 
@@ -155,15 +154,14 @@ func (command *RunningCommand) Wait() error {
 	}
 	command.Ctx.RView.StopCommand(command.id, true, command.CmdPrettyName)
 
-	// During a bash runtime the user might want to export new variables.
+	// During a bash runtime the user might want to export new variables or unset existing ones.
 	// Our job here is to recover them to build the new environment for the next chunk
 	if command.IsBash {
 		stoudtLines := strings.Split(command.Stdout, "\n")
-		// reinitialize the env
-		command.Ctx.Cfg.Env = []string{}
-		command.Ctx.Cfg.Env = append(command.Ctx.Cfg.Env, os.Environ()...)
 		var newLines []string
 		extractVariables := false
+		var bashEnvVars []string
+
 		for _, line := range stoudtLines {
 			// the environment gets separated by the output from a special string
 			if line == "### ENV ###" {
@@ -173,13 +171,17 @@ func (command *RunningCommand) Wait() error {
 			if extractVariables {
 				parts := strings.Split(line, "=")
 				if len(parts) > 1 {
-					command.Ctx.Cfg.Env = append(command.Ctx.Cfg.Env, line)
+					bashEnvVars = append(bashEnvVars, line)
 				}
 			} else {
 				// if not it's output we want to keep for the user
 				newLines = append(newLines, line)
 			}
 		}
+
+		// This includes all environment variables that should be available to subsequent chunks.
+		command.Ctx.Cfg.Env = bashEnvVars
+
 		if len(newLines) > 0 {
 			command.Stdout = strings.Join(newLines, "\n")
 			command.Stdout = command.Stdout + "\n"
