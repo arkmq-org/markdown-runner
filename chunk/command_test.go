@@ -76,27 +76,153 @@ func TestRunningCommand(t *testing.T) {
 		assert.Error(t, err, "Expected an error when executing a command without a spinner initialized")
 	})
 
-	t.Run("bash env extraction", func(t *testing.T) {
+	t.Run("bash env export preserves original environment", func(t *testing.T) {
 		tmpDirs := make(map[string]string)
-		cfg := &config.Config{MinutesToTimeout: 1}
+
+		// Set up initial environment with some original variables
+		originalEnv := []string{
+			"ORIGINAL_VAR=original_value",
+			"PATH=/usr/bin:/bin",
+			"HOME=/home/test",
+			"WORKING_DIR=/test/dir",
+		}
+
+		cfg := &config.Config{MinutesToTimeout: 1, Env: originalEnv}
 		ui := view.NewView("mock")
+
+		// Export a new variable using the real bash chunk approach
 		chunk := ExecutableChunk{
 			Runtime: "bash",
+			Content: []string{"export NEW_VAR=new_value"},
 			Context: &runnercontext.Context{
 				Cfg:   cfg,
 				RView: ui,
 			},
 		}
-		cmdStr := "bash -c 'echo \"### ENV ###\" && echo \"TEST_ENV_VAR=test_value\"'"
-		command, err := chunk.AddCommandToExecute(cmdStr, tmpDirs)
-		assert.NoError(t, err, "Expected no error when adding command to execute")
-		command.IsBash = true
-		err = command.Execute()
-		assert.NoError(t, err, "Expected no error when executing bash command")
-		found := slices.ContainsFunc(command.Ctx.Cfg.Env, func(env string) bool {
-			return env == "TEST_ENV_VAR=test_value"
+		err := chunk.PrepareForExecution(tmpDirs)
+		assert.NoError(t, err, "Expected no error when preparing chunk for execution")
+
+		err = chunk.ExecuteSequential()
+		assert.NoError(t, err, "Expected no error when executing bash chunk")
+
+		// Verify original environment variables are preserved
+		foundOriginal := slices.ContainsFunc(chunk.Context.Cfg.Env, func(env string) bool {
+			return env == "ORIGINAL_VAR=original_value"
 		})
-		assert.True(t, found, "Expected to find TEST_ENV_VAR in the environment variables")
+		assert.True(t, foundOriginal, "Expected ORIGINAL_VAR to be preserved")
+
+		foundPath := slices.ContainsFunc(chunk.Context.Cfg.Env, func(env string) bool {
+			return strings.HasPrefix(env, "PATH=")
+		})
+		assert.True(t, foundPath, "Expected PATH to be preserved")
+
+		foundHome := slices.ContainsFunc(chunk.Context.Cfg.Env, func(env string) bool {
+			return env == "HOME=/home/test"
+		})
+		assert.True(t, foundHome, "Expected HOME to be preserved")
+
+		foundWorkingDir := slices.ContainsFunc(chunk.Context.Cfg.Env, func(env string) bool {
+			return env == "WORKING_DIR=/test/dir"
+		})
+		assert.True(t, foundWorkingDir, "Expected WORKING_DIR to be preserved")
+
+		// Verify new variable was added
+		foundNew := slices.ContainsFunc(chunk.Context.Cfg.Env, func(env string) bool {
+			return strings.HasPrefix(env, "NEW_VAR=")
+		})
+		assert.True(t, foundNew, "Expected NEW_VAR to be added")
+	})
+
+	t.Run("bash env unset removes variables selectively", func(t *testing.T) {
+		tmpDirs := make(map[string]string)
+
+		// Set up environment with variables to test unset behavior
+		initialEnv := []string{
+			"KEEP_VAR=keep_this",
+			"REMOVE_VAR=remove_this",
+			"PATH=/usr/bin:/bin",
+		}
+
+		cfg := &config.Config{MinutesToTimeout: 1, Env: initialEnv}
+		ui := view.NewView("mock")
+
+		// Unset one variable while keeping others
+		chunk := ExecutableChunk{
+			Runtime: "bash",
+			Content: []string{"unset REMOVE_VAR"},
+			Context: &runnercontext.Context{
+				Cfg:   cfg,
+				RView: ui,
+			},
+		}
+		err := chunk.PrepareForExecution(tmpDirs)
+		assert.NoError(t, err, "Expected no error when preparing chunk for execution")
+
+		err = chunk.ExecuteSequential()
+		assert.NoError(t, err, "Expected no error when executing bash chunk")
+
+		// Verify the targeted variable was unset
+		foundRemoved := slices.ContainsFunc(chunk.Context.Cfg.Env, func(env string) bool {
+			return strings.HasPrefix(env, "REMOVE_VAR=")
+		})
+		assert.False(t, foundRemoved, "Expected REMOVE_VAR to be removed after unset")
+
+		// Verify other variables are still preserved
+		foundKeep := slices.ContainsFunc(chunk.Context.Cfg.Env, func(env string) bool {
+			return env == "KEEP_VAR=keep_this"
+		})
+		assert.True(t, foundKeep, "Expected KEEP_VAR to be preserved after unset")
+
+		foundPath := slices.ContainsFunc(chunk.Context.Cfg.Env, func(env string) bool {
+			return strings.HasPrefix(env, "PATH=")
+		})
+		assert.True(t, foundPath, "Expected PATH to be preserved after unset")
+	})
+
+	t.Run("bash env unset critical variables", func(t *testing.T) {
+		tmpDirs := make(map[string]string)
+
+		// Set up environment with critical variables
+		initialEnv := []string{
+			"HOME=/home/test",
+			"PATH=/usr/bin:/bin",
+			"KEEP_VAR=keep_this",
+		}
+
+		cfg := &config.Config{MinutesToTimeout: 1, Env: initialEnv}
+		ui := view.NewView("mock")
+
+		// Unset HOME to verify critical environment variables can be unset
+		chunk := ExecutableChunk{
+			Runtime: "bash",
+			Content: []string{"unset HOME"},
+			Context: &runnercontext.Context{
+				Cfg:   cfg,
+				RView: ui,
+			},
+		}
+		err := chunk.PrepareForExecution(tmpDirs)
+		assert.NoError(t, err, "Expected no error when preparing chunk for execution")
+
+		err = chunk.ExecuteSequential()
+		assert.NoError(t, err, "Expected no error when executing bash chunk")
+
+		// Verify HOME was unset
+		foundHome := slices.ContainsFunc(chunk.Context.Cfg.Env, func(env string) bool {
+			return strings.HasPrefix(env, "HOME=")
+		})
+		assert.False(t, foundHome, "Expected HOME to be removed after unset")
+
+		// Verify other variables are still preserved
+		foundKeep := slices.ContainsFunc(chunk.Context.Cfg.Env, func(env string) bool {
+			return env == "KEEP_VAR=keep_this"
+		})
+		assert.True(t, foundKeep, "Expected KEEP_VAR to be preserved after unsetting HOME")
+
+		foundPath := slices.ContainsFunc(chunk.Context.Cfg.Env, func(env string) bool {
+			return strings.HasPrefix(env, "PATH=")
+		})
+		assert.True(t, foundPath, "Expected PATH to be preserved after unsetting HOME")
 	})
 
 	t.Run("kill", func(t *testing.T) {

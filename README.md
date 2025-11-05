@@ -131,11 +131,11 @@ go test ./...
 ?   	github.com/arkmq-org/markdown-runner/runnercontext	[no test files]
 ?   	github.com/arkmq-org/markdown-runner/view	[no test files]
 ok  	github.com/arkmq-org/markdown-runner	0.005s
-ok  	github.com/arkmq-org/markdown-runner/chunk	0.112s
+ok  	github.com/arkmq-org/markdown-runner/chunk	(cached)
 ok  	github.com/arkmq-org/markdown-runner/config	(cached)
 ok  	github.com/arkmq-org/markdown-runner/parser	(cached)
-ok  	github.com/arkmq-org/markdown-runner/runner	0.013s
-ok  	github.com/arkmq-org/markdown-runner/stage	0.110s
+ok  	github.com/arkmq-org/markdown-runner/runner	(cached)
+ok  	github.com/arkmq-org/markdown-runner/stage	(cached)
 ```
 
 Integration tests can be run with:
@@ -632,7 +632,8 @@ tool that this a disposable code fence that can be overridden in the future.
 Every chunk is started with the environment of the parent process that started
 it. If as chunk whom runtime is bash is executed, all the variables it adds to
 its own env via `export` will get added to the environment of subsequent
-chunks.
+chunks. Similarly, variables that are `unset` in a bash chunk will be removed
+from the environment of subsequent chunks.
 
 The following diagram illustrates this flow:
 
@@ -737,16 +738,30 @@ export TEST="some value"
 ````
 
 The chunk below is able to perform some comparisons with value of
-`SOME_VARIABLE`
+`SOME_VARIABLE`. It's also possible to unset this variable from the env for
+subsequent chunks.
 
 ````markdown
-```bash {"stage":"test2", "runtime":"bash", "label": "Verify environment variable"}
+```bash {"stage":"test2", "runtime":"bash", "label": "Verify exported variable"}
 if [ "$SOME_VARIABLE" == "This is some content" ]; then
   echo "same string"
+  unset SOME_VARIABLE
 fi
 ```
 ```shell markdown_runner
 same string
+```
+````
+
+
+````markdown
+```bash {"stage":"test2", "runtime":"bash", "label": "Verify unset variable"}
+if [ ! -v SOME_VARIABLE ]; then
+  echo "SOME_VARIABLE is truly unset."
+fi
+```
+```shell markdown_runner
+SOME_VARIABLE is truly unset.
 ```
 ````
 
