@@ -83,25 +83,25 @@ echo
 
 # Test 1: Exact stage names should show chunks
 run_completion_test \
-    "help stage shows chunks" \
+    "help stage (single-chunk) shows chunk directly" \
     "markdown-runner -B help" \
     1 \
     "help/0"
 
 run_completion_test \
-    "setup stage shows chunks" \
+    "setup stage (multi-chunk) adds slash" \
     "markdown-runner -B setup" \
-    2 \
-    "setup/init setup/1"
+    1 \
+    "setup/"
 
 run_completion_test \
-    "main stage shows chunks" \
+    "main stage (single-chunk) shows chunk directly" \
     "markdown-runner -B main" \
     1 \
     "main/process"
 
 run_completion_test \
-    "test stage shows chunks" \
+    "test stage (single-chunk) shows chunk directly" \
     "markdown-runner -B test" \
     1 \
     "test/0"
@@ -114,13 +114,13 @@ run_completion_test \
     "help"
 
 run_completion_test \
-    "partial 'se' shows setup stage" \
+    "partial 'se' completes to setup" \
     "markdown-runner -B se" \
     1 \
     "setup"
 
 run_completion_test \
-    "partial 'tes' shows test stages" \
+    "partial 'tes' shows test stages without slashes" \
     "markdown-runner -B tes" \
     6 \
     "test test1 test2 test3 test4 test5"
