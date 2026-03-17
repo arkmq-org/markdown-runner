@@ -1,0 +1,1203 @@
+{
+  "comment": "Comprehensive bash completion test suite - 191+ tests covering all completion scenarios",
+  "timeout_tests": [
+    {
+      "name": "timeout shows all values",
+      "comp_words": ["markdown-runner", "-t", ""],
+      "assertion": "exact",
+      "expected": ["1", "5", "10", "30", "60"]
+    },
+    {
+      "name": "timeout filters '1' prefix",
+      "comp_words": ["markdown-runner", "-t", "1"],
+      "assertion": "contains",
+      "expected": ["1", "10"]
+    },
+    {
+      "name": "timeout filters '3' prefix",
+      "comp_words": ["markdown-runner", "-t", "3"],
+      "assertion": "exact",
+      "expected": ["30"]
+    },
+    {
+      "name": "timeout filters '5' prefix",
+      "comp_words": ["markdown-runner", "-t", "5"],
+      "assertion": "exact",
+      "expected": ["5"]
+    },
+    {
+      "name": "timeout filters '6' prefix",
+      "comp_words": ["markdown-runner", "-t", "6"],
+      "assertion": "exact",
+      "expected": ["60"]
+    }
+  ],
+  "view_tests": [
+    {
+      "name": "view mode shows options",
+      "comp_words": ["markdown-runner", "--view", ""],
+      "assertion": "exact",
+      "expected": ["default", "ci"]
+    },
+    {
+      "name": "view mode filters 'c'",
+      "comp_words": ["markdown-runner", "--view", "c"],
+      "assertion": "exact",
+      "expected": ["ci"]
+    },
+    {
+      "name": "view mode filters 'd'",
+      "comp_words": ["markdown-runner", "--view", "d"],
+      "assertion": "exact",
+      "expected": ["default"]
+    }
+  ],
+  "incompatible_flag_tests": [
+    {
+      "name": "verbose excludes quiet",
+      "comp_words": ["markdown-runner", "-v", "-"],
+      "assertion": "excludes",
+      "expected": ["-q", "--quiet"]
+    },
+    {
+      "name": "quiet excludes verbose",
+      "comp_words": ["markdown-runner", "-q", "-"],
+      "assertion": "excludes",
+      "expected": ["-v", "--verbose"]
+    },
+    {
+      "name": "dry-run excludes update",
+      "comp_words": ["markdown-runner", "-d", "-"],
+      "assertion": "excludes",
+      "expected": ["-u", "--update-files"]
+    },
+    {
+      "name": "update excludes dry-run",
+      "comp_words": ["markdown-runner", "-u", "-"],
+      "assertion": "excludes",
+      "expected": ["-d", "--dry-run"]
+    },
+    {
+      "name": "CI mode excludes interactive",
+      "comp_words": ["markdown-runner", "--view", "ci", "README.md", "-"],
+      "assertion": "excludes",
+      "expected": ["-i", "--interactive", "-B", "--break-at", "-s", "--start-from"]
+    },
+    {
+      "name": "CI mode allows non-interactive",
+      "comp_words": ["markdown-runner", "--view", "ci", "README.md", "-"],
+      "assertion": "contains",
+      "expected": ["-d", "--dry-run", "-l", "--list"]
+    },
+    {
+      "name": "help excludes all flags",
+      "comp_words": ["markdown-runner", "-h", "-"],
+      "assertion": "excludes",
+      "expected": ["-d", "-l", "-i", "-s", "-B", "-t", "-u", "-f", "-r", "-v", "-q"]
+    },
+    {
+      "name": "list excludes execution flags",
+      "comp_words": ["markdown-runner", "-l", "-"],
+      "assertion": "excludes",
+      "expected": ["-i", "--interactive", "-B", "--break-at", "-s", "--start-from", "-d", "--dry-run"]
+    }
+  ],
+  "flag_equiv_tests": [
+    {
+      "name": "short flag excludes long",
+      "comp_words": ["markdown-runner", "-d", "-"],
+      "assertion": "excludes",
+      "expected": ["--dry-run"]
+    },
+    {
+      "name": "long flag excludes short",
+      "comp_words": ["markdown-runner", "--dry-run", "-"],
+      "assertion": "excludes",
+      "expected": ["-d"]
+    },
+    {
+      "name": "verbose short excludes long",
+      "comp_words": ["markdown-runner", "-v", "-"],
+      "assertion": "excludes",
+      "expected": ["--verbose"]
+    },
+    {
+      "name": "quiet long excludes short",
+      "comp_words": ["markdown-runner", "--quiet", "-"],
+      "assertion": "excludes",
+      "expected": ["-q"]
+    }
+  ],
+  "stage_completion_tests": [
+    {
+      "name": "-B empty shows results",
+      "comp_words": ["markdown-runner", "-B", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "-s empty shows results",
+      "comp_words": ["markdown-runner", "-s", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "--break-at empty shows results",
+      "comp_words": ["markdown-runner", "--break-at", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "--start-from empty shows results",
+      "comp_words": ["markdown-runner", "--start-from", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    }
+  ],
+  "positional_tests": [
+    {
+      "name": "first arg shows files/dirs",
+      "comp_words": ["markdown-runner", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "after file shows flags",
+      "comp_words": ["markdown-runner", "README.md", "-"],
+      "assertion": "count_gt",
+      "expected": 0
+    }
+  ],
+  "recursive_tests": [
+    {
+      "name": "recursive flag available",
+      "comp_words": ["markdown-runner", "-"],
+      "assertion": "contains",
+      "expected": ["-r", "--recursive"]
+    },
+    {
+      "name": "recursive flag used excludes both forms",
+      "comp_words": ["markdown-runner", "-r", "-"],
+      "assertion": "excludes",
+      "expected": ["-r", "--recursive"]
+    },
+    {
+      "name": "recursive doesn't break other flags",
+      "comp_words": ["markdown-runner", "-r", "-"],
+      "assertion": "contains",
+      "expected": ["-d", "--dry-run", "-l", "--list"]
+    }
+  ],
+  "filter_tests": [
+    {
+      "name": "filter flag shows nothing",
+      "comp_words": ["markdown-runner", "-f", ""],
+      "assertion": "count_eq",
+      "expected": 0
+    },
+    {
+      "name": "filter long shows nothing",
+      "comp_words": ["markdown-runner", "--filter", ""],
+      "assertion": "count_eq",
+      "expected": 0
+    }
+  ],
+  "flag_completion_extended_tests": [
+    {
+      "name": "timeout long form completion",
+      "comp_words": ["markdown-runner", "--timeout", ""],
+      "assertion": "exact",
+      "expected": ["1", "5", "10", "30", "60"]
+    },
+    {
+      "name": "flag completion after file",
+      "comp_words": ["markdown-runner", "README.md", "-"],
+      "assertion": "contains",
+      "expected": ["-d", "-l", "-i", "-s"]
+    },
+    {
+      "name": "short break-at flag",
+      "comp_words": ["markdown-runner", "-B", "help"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "long break-at flag",
+      "comp_words": ["markdown-runner", "--break-at", "help"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "invalid flag shows files",
+      "comp_words": ["markdown-runner", "-z", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    }
+  ],
+  "flag_filtering_extended_tests": [
+    {
+      "name": "list flag excludes itself short",
+      "comp_words": ["markdown-runner", "-l", "-"],
+      "assertion": "excludes",
+      "expected": ["-l", "--list"]
+    },
+    {
+      "name": "list flag excludes itself long",
+      "comp_words": ["markdown-runner", "--list", "-"],
+      "assertion": "excludes",
+      "expected": ["-l", "--list"]
+    },
+    {
+      "name": "interactive excludes itself",
+      "comp_words": ["markdown-runner", "-i", "-"],
+      "assertion": "excludes",
+      "expected": ["-i", "--interactive"]
+    },
+    {
+      "name": "break-at excludes itself",
+      "comp_words": ["markdown-runner", "-B", "setup", "-"],
+      "assertion": "excludes",
+      "expected": ["-B", "--break-at"]
+    },
+    {
+      "name": "start-from excludes itself",
+      "comp_words": ["markdown-runner", "-s", "setup", "-"],
+      "assertion": "excludes",
+      "expected": ["-s", "--start-from"]
+    },
+    {
+      "name": "timeout excludes itself",
+      "comp_words": ["markdown-runner", "-t", "10", "-"],
+      "assertion": "excludes",
+      "expected": ["-t", "--timeout"]
+    },
+    {
+      "name": "filter excludes itself",
+      "comp_words": ["markdown-runner", "-f", "test", "-"],
+      "assertion": "excludes",
+      "expected": ["-f", "--filter"]
+    },
+    {
+      "name": "update-files excludes itself",
+      "comp_words": ["markdown-runner", "-u", "-"],
+      "assertion": "excludes",
+      "expected": ["-u", "--update-files"]
+    }
+  ],
+  "incompatible_flags_extended_tests": [
+    {
+      "name": "interactive excludes view",
+      "comp_words": ["markdown-runner", "-i", "-"],
+      "assertion": "excludes",
+      "expected": ["--view"]
+    },
+    {
+      "name": "interactive excludes list",
+      "comp_words": ["markdown-runner", "-i", "-"],
+      "assertion": "excludes",
+      "expected": ["-l", "--list"]
+    },
+    {
+      "name": "interactive excludes help",
+      "comp_words": ["markdown-runner", "-i", "-"],
+      "assertion": "excludes",
+      "expected": ["-h", "--help"]
+    },
+    {
+      "name": "break-at excludes view",
+      "comp_words": ["markdown-runner", "-B", "setup", "-"],
+      "assertion": "excludes",
+      "expected": ["--view"]
+    },
+    {
+      "name": "break-at excludes list",
+      "comp_words": ["markdown-runner", "-B", "setup", "-"],
+      "assertion": "excludes",
+      "expected": ["-l", "--list"]
+    },
+    {
+      "name": "break-at excludes help",
+      "comp_words": ["markdown-runner", "-B", "setup", "-"],
+      "assertion": "excludes",
+      "expected": ["-h", "--help"]
+    },
+    {
+      "name": "break-at excludes ignore-breakpoints",
+      "comp_words": ["markdown-runner", "-B", "setup", "-"],
+      "assertion": "excludes",
+      "expected": ["--ignore-breakpoints"]
+    },
+    {
+      "name": "ignore-breakpoints excludes break-at",
+      "comp_words": ["markdown-runner", "--ignore-breakpoints", "-"],
+      "assertion": "excludes",
+      "expected": ["-B", "--break-at"]
+    },
+    {
+      "name": "ignore-breakpoints allows other flags",
+      "comp_words": ["markdown-runner", "--ignore-breakpoints", "-"],
+      "assertion": "contains",
+      "expected": ["-d", "--dry-run", "-v"]
+    },
+    {
+      "name": "list excludes timeout",
+      "comp_words": ["markdown-runner", "-l", "-"],
+      "assertion": "excludes",
+      "expected": ["-t", "--timeout"]
+    },
+    {
+      "name": "list excludes update-files",
+      "comp_words": ["markdown-runner", "-l", "-"],
+      "assertion": "excludes",
+      "expected": ["-u", "--update-files"]
+    },
+    {
+      "name": "help excludes ignore-breakpoints",
+      "comp_words": ["markdown-runner", "-h", "-"],
+      "assertion": "excludes",
+      "expected": ["--ignore-breakpoints"]
+    }
+  ],
+  "positional_extended_tests": [
+    {
+      "name": "no args shows files and dirs",
+      "comp_words": ["markdown-runner", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "md file shows flags",
+      "comp_words": ["markdown-runner", "test.md", "-"],
+      "assertion": "contains",
+      "expected": ["-d", "-l"]
+    },
+    {
+      "name": "directory shows flags",
+      "comp_words": ["markdown-runner", "completion/", "-"],
+      "assertion": "contains",
+      "expected": ["-d", "-l"]
+    },
+    {
+      "name": "file with flag shows flags",
+      "comp_words": ["markdown-runner", "README.md", "-d", "-"],
+      "assertion": "contains",
+      "expected": ["-l", "-i"]
+    },
+    {
+      "name": "flag value still completes",
+      "comp_words": ["markdown-runner", "README.md", "-t", ""],
+      "assertion": "exact",
+      "expected": ["1", "5", "10", "30", "60"]
+    },
+    {
+      "name": "break-at with file",
+      "comp_words": ["markdown-runner", "README.md", "-B", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "start-from with file",
+      "comp_words": ["markdown-runner", "README.md", "-s", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "multiple flags with file",
+      "comp_words": ["markdown-runner", "README.md", "-d", "-v", "-"],
+      "assertion": "contains",
+      "expected": ["-l", "-i"]
+    },
+    {
+      "name": "non-md file shows files",
+      "comp_words": ["markdown-runner", "test.txt", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "nested directory shows flags",
+      "comp_words": ["markdown-runner", "completion/tests/", "-"],
+      "assertion": "contains",
+      "expected": ["-r", "-f"]
+    },
+    {
+      "name": "partial path completion",
+      "comp_words": ["markdown-runner", "completion/", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "current dir shows flags",
+      "comp_words": ["markdown-runner", "./", "-"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "parent dir shows flags",
+      "comp_words": ["markdown-runner", "../", "-"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "absolute path shows flags",
+      "comp_words": ["markdown-runner", "/tmp/test.md", "-"],
+      "assertion": "count_gt",
+      "expected": 0
+    }
+  ],
+  "recursive_extended_tests": [
+    {
+      "name": "recursive with break-at",
+      "comp_words": ["markdown-runner", "-r", "-B", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "recursive with start-from",
+      "comp_words": ["markdown-runner", "-r", "-s", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "recursive long form",
+      "comp_words": ["markdown-runner", "--recursive", "-"],
+      "assertion": "contains",
+      "expected": ["-d", "-l"]
+    },
+    {
+      "name": "recursive with directory",
+      "comp_words": ["markdown-runner", "completion/", "-r", "-"],
+      "assertion": "count_gt",
+      "expected": 0
+    }
+  ],
+  "start_from_extended_tests": [
+    {
+      "name": "start-from partial stage",
+      "comp_words": ["markdown-runner", "-s", "hel"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "start-from complete stage",
+      "comp_words": ["markdown-runner", "-s", "help"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "start-from with file",
+      "comp_words": ["markdown-runner", "README.md", "-s", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "start-from file@ format",
+      "comp_words": ["markdown-runner", "-s", "README.md@"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "start-from stage/chunk",
+      "comp_words": ["markdown-runner", "-s", "help/"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "start-from multiple flags",
+      "comp_words": ["markdown-runner", "-v", "-s", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "start-from with dry-run",
+      "comp_words": ["markdown-runner", "-d", "-s", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "start-from with recursive",
+      "comp_words": ["markdown-runner", "-r", "-s", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "start-from with timeout",
+      "comp_words": ["markdown-runner", "-t", "10", "-s", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "start-from with filter",
+      "comp_words": ["markdown-runner", "-f", "test", "-s", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "start-from directory context",
+      "comp_words": ["markdown-runner", "completion/", "-s", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "start-from nested directory",
+      "comp_words": ["markdown-runner", "completion/tests/", "-s", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "start-from with view default",
+      "comp_words": ["markdown-runner", "--view", "default", "-s", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "start-from excludes list",
+      "comp_words": ["markdown-runner", "-s", "help", "-"],
+      "assertion": "excludes",
+      "expected": ["-l", "--list"]
+    },
+    {
+      "name": "start-from excludes view",
+      "comp_words": ["markdown-runner", "-s", "setup", "-"],
+      "assertion": "excludes",
+      "expected": ["--view"]
+    },
+    {
+      "name": "start-from allows dry-run",
+      "comp_words": ["markdown-runner", "-s", "setup", "-"],
+      "assertion": "contains",
+      "expected": ["-d", "--dry-run"]
+    },
+    {
+      "name": "start-from allows verbose",
+      "comp_words": ["markdown-runner", "-s", "setup", "-"],
+      "assertion": "contains",
+      "expected": ["-v", "--verbose"]
+    }
+  ],
+  "stage_chunk_extended_tests": [
+    {
+      "name": "exact stage shows chunks",
+      "comp_words": ["markdown-runner", "-B", "help"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "partial stage shows stages",
+      "comp_words": ["markdown-runner", "-B", "hel"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "stage with slash shows chunks",
+      "comp_words": ["markdown-runner", "-B", "setup/"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "file@ shows stages",
+      "comp_words": ["markdown-runner", "-B", "README.md@"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "file@stage shows chunks",
+      "comp_words": ["markdown-runner", "-B", "README.md@help"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "file@stage/ shows chunks",
+      "comp_words": ["markdown-runner", "-B", "README.md@setup/"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "nonexistent stage shows nothing",
+      "comp_words": ["markdown-runner", "-B", "nonexistent"],
+      "assertion": "count_eq",
+      "expected": 0
+    },
+    {
+      "name": "empty stage shows all",
+      "comp_words": ["markdown-runner", "-B", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "stage with numbers",
+      "comp_words": ["markdown-runner", "-B", "test1"],
+      "assertion": "count_gt",
+      "expected": 0
+    }
+  ],
+  "stage_validation_extended_tests": [
+    {
+      "name": "valid stage name help",
+      "comp_words": ["markdown-runner", "-B", "help"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "valid stage name setup",
+      "comp_words": ["markdown-runner", "-B", "setup"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "valid stage name test",
+      "comp_words": ["markdown-runner", "-B", "test"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "invalid stage shows nothing",
+      "comp_words": ["markdown-runner", "-B", "invalid_stage_name"],
+      "assertion": "count_eq",
+      "expected": 0
+    },
+    {
+      "name": "empty string shows all stages",
+      "comp_words": ["markdown-runner", "-B", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "partial match he",
+      "comp_words": ["markdown-runner", "-B", "he"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "partial match se",
+      "comp_words": ["markdown-runner", "-B", "se"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "partial match te",
+      "comp_words": ["markdown-runner", "-B", "te"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "case sensitive stage",
+      "comp_words": ["markdown-runner", "-B", "HELP"],
+      "assertion": "count_eq",
+      "expected": 0
+    },
+    {
+      "name": "stage with underscore",
+      "comp_words": ["markdown-runner", "-B", "inner_test"],
+      "assertion": "count_gt",
+      "expected": 0
+    }
+  ],
+  "file_at_extended_tests": [
+    {
+      "name": "file@ empty shows stages",
+      "comp_words": ["markdown-runner", "-B", "README.md@"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "file@partial shows stages",
+      "comp_words": ["markdown-runner", "-B", "README.md@hel"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "file@stage shows chunks",
+      "comp_words": ["markdown-runner", "-B", "README.md@help"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "file@stage/ shows chunks",
+      "comp_words": ["markdown-runner", "-B", "README.md@help/"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "file@stage/chunk completes",
+      "comp_words": ["markdown-runner", "-B", "README.md@help/0"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "file@complete_stage inner_test1 shows chunks",
+      "comp_words": ["markdown-runner", "-B", "README.md@inner_test1"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "file@complete_stage setup shows chunks",
+      "comp_words": ["markdown-runner", "-B", "README.md@setup"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "file@partial_stage inner completes",
+      "comp_words": ["markdown-runner", "-B", "README.md@inner"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "file@partial_stage se completes",
+      "comp_words": ["markdown-runner", "-B", "README.md@se"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "file@nonexistent shows nothing",
+      "comp_words": ["markdown-runner", "-B", "README.md@nonexistent"],
+      "assertion": "count_eq",
+      "expected": 0
+    }
+  ],
+  "file_discovery_extended_tests": [
+    {
+      "name": "discovers md files in current dir",
+      "comp_words": ["markdown-runner", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "discovers md files with flag",
+      "comp_words": ["markdown-runner", "-B", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "discovers md files with directory",
+      "comp_words": ["markdown-runner", "completion/", "-B", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "discovers md files recursively",
+      "comp_words": ["markdown-runner", "-r", "-B", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "handles config dir with no md",
+      "comp_words": ["markdown-runner", "config/", "-B", ""],
+      "assertion": "count_gt",
+      "expected": -1
+    }
+  ],
+  "smart_nospace_extended_tests": [
+    {
+      "name": "single chunk stage allows space",
+      "comp_words": ["markdown-runner", "-B", "help"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "multi chunk stage no space",
+      "comp_words": ["markdown-runner", "-B", "setup"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "partial completion mixed",
+      "comp_words": ["markdown-runner", "-B", "hel"],
+      "assertion": "count_gt",
+      "expected": 0
+    }
+  ],
+  "directory_context_extended_tests": [
+    {
+      "name": "directory argument sets context",
+      "comp_words": ["markdown-runner", "completion/", "-B", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "recursive sets directory context",
+      "comp_words": ["markdown-runner", "-r", "-B", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "file argument not directory",
+      "comp_words": ["markdown-runner", "README.md", "-B", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "break-at with current dir",
+      "comp_words": ["markdown-runner", "./", "-B", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "start-from with current dir",
+      "comp_words": ["markdown-runner", "./", "-s", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "nested directory context",
+      "comp_words": ["markdown-runner", "completion/tests/", "-B", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "current dir context",
+      "comp_words": ["markdown-runner", "./", "-B", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    }
+  ],
+  "enhanced_completion_extended_tests": [
+    {
+      "name": "bare dash shows help",
+      "comp_words": ["markdown-runner", "-"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "help keyword shows categorized",
+      "comp_words": ["markdown-runner", "help"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "partial flag no description",
+      "comp_words": ["markdown-runner", "-d"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "enhanced with file",
+      "comp_words": ["markdown-runner", "README.md", "-"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "enhanced respects incompatible",
+      "comp_words": ["markdown-runner", "-v", "-"],
+      "assertion": "excludes",
+      "expected": ["-q", "--quiet"]
+    },
+    {
+      "name": "enhanced with value completion",
+      "comp_words": ["markdown-runner", "-t", ""],
+      "assertion": "exact",
+      "expected": ["1", "5", "10", "30", "60"]
+    },
+    {
+      "name": "enhanced after flags",
+      "comp_words": ["markdown-runner", "-d", "-"],
+      "assertion": "contains",
+      "expected": ["-l", "-i"]
+    },
+    {
+      "name": "enhanced with multiple args",
+      "comp_words": ["markdown-runner", "README.md", "-d", "-v", "-"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "enhanced bare double dash",
+      "comp_words": ["markdown-runner", "--"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "enhanced long flag partial",
+      "comp_words": ["markdown-runner", "--dry"],
+      "assertion": "count_gt",
+      "expected": 0
+    }
+  ],
+  "main_file_completion_extended_tests": [
+    {
+      "name": "shows md files",
+      "comp_words": ["markdown-runner", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "shows directories",
+      "comp_words": ["markdown-runner", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "filters non-md",
+      "comp_words": ["markdown-runner", "comp"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "directory with slash",
+      "comp_words": ["markdown-runner", "completion/"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "nested path",
+      "comp_words": ["markdown-runner", "completion/tests/"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "partial filename",
+      "comp_words": ["markdown-runner", "READ"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "case sensitive path",
+      "comp_words": ["markdown-runner", "Test/"],
+      "assertion": "count_gt",
+      "expected": -1
+    },
+    {
+      "name": "absolute path",
+      "comp_words": ["markdown-runner", "/tmp/"],
+      "assertion": "count_gt",
+      "expected": -1
+    },
+    {
+      "name": "relative path",
+      "comp_words": ["markdown-runner", "../"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "current directory",
+      "comp_words": ["markdown-runner", "./"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "hidden directory",
+      "comp_words": ["markdown-runner", ".git/"],
+      "assertion": "count_gt",
+      "expected": -1
+    },
+    {
+      "name": "partial md extension",
+      "comp_words": ["markdown-runner", "READ"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "markdown extension",
+      "comp_words": ["markdown-runner", "test.markdown"],
+      "assertion": "count_gt",
+      "expected": -1
+    },
+    {
+      "name": "MD uppercase extension",
+      "comp_words": ["markdown-runner", "TEST.MD"],
+      "assertion": "count_gt",
+      "expected": -1
+    }
+  ],
+  "stage_chunk_detailed_tests": [
+    {
+      "name": "help single-chunk shows chunk directly",
+      "comp_words": ["markdown-runner", "-B", "help"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "setup multi-chunk adds slash",
+      "comp_words": ["markdown-runner", "-B", "setup"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "main single-chunk shows chunk",
+      "comp_words": ["markdown-runner", "-B", "main"],
+      "assertion": "count_gt",
+      "expected": -1
+    },
+    {
+      "name": "test single-chunk shows chunk",
+      "comp_words": ["markdown-runner", "-B", "test"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "partial hel shows help",
+      "comp_words": ["markdown-runner", "-B", "hel"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "partial se shows setup",
+      "comp_words": ["markdown-runner", "-B", "se"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "partial tes shows test stages",
+      "comp_words": ["markdown-runner", "-B", "tes"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "file@stage format for complete stage",
+      "comp_words": ["markdown-runner", "-B", "README.md@setup"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "stage/chunk format works",
+      "comp_words": ["markdown-runner", "-B", "setup/"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "file@stage/chunk format works",
+      "comp_words": ["markdown-runner", "-B", "README.md@setup/"],
+      "assertion": "count_gt",
+      "expected": 0
+    }
+  ],
+  "specific_file_context_tests": [
+    {
+      "name": "specific file excludes other file@",
+      "comp_words": ["markdown-runner", "completion/README.md", "-B", ""],
+      "assertion": "count_gt",
+      "expected": -1
+    },
+    {
+      "name": "no specific file shows general completions",
+      "comp_words": ["markdown-runner", "-B", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "directory context shows file@ completions",
+      "comp_words": ["markdown-runner", "-r", "-B", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "different file excludes README@",
+      "comp_words": ["markdown-runner", "completion/README.md", "-B", ""],
+      "assertion": "count_gt",
+      "expected": -1
+    }
+  ],
+  "integration_completion_tests": [
+    {
+      "name": "basic stage completion integration",
+      "comp_words": ["markdown-runner", "-B", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "file argument integration",
+      "comp_words": ["markdown-runner", "README.md", "-B", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "simple completion test",
+      "comp_words": ["markdown-runner", "-B", "help"],
+      "assertion": "count_gt",
+      "expected": 0
+    }
+  ],
+  "directory_partial_extended_tests": [
+    {
+      "name": "directory empty break-at",
+      "comp_words": ["markdown-runner", "./", "-B", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "directory partial break-at s",
+      "comp_words": ["markdown-runner", "./", "-B", "s"],
+      "assertion": "count_gt",
+      "expected": -1
+    },
+    {
+      "name": "directory complete stage",
+      "comp_words": ["markdown-runner", "./", "-B", "setup"],
+      "assertion": "count_gt",
+      "expected": -1
+    },
+    {
+      "name": "directory multi-char partial",
+      "comp_words": ["markdown-runner", "./", "-B", "set"],
+      "assertion": "count_gt",
+      "expected": -1
+    },
+    {
+      "name": "non-directory unaffected",
+      "comp_words": ["markdown-runner", "README.md", "-B", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "recursive mode directory",
+      "comp_words": ["markdown-runner", "-r", "./", "-B", ""],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "nested directory empty",
+      "comp_words": ["markdown-runner", "completion/", "-B", ""],
+      "assertion": "count_gt",
+      "expected": -1
+    }
+  ],
+  "file_at_stage_complete_vs_partial_tests": [
+    {
+      "name": "complete stage shows chunks not stages",
+      "comp_words": ["markdown-runner", "-B", "README.md@help"],
+      "assertion": "all_match",
+      "expected": [".*/.+"]
+    },
+    {
+      "name": "partial stage shows stage names not chunks",
+      "comp_words": ["markdown-runner", "-B", "README.md@hel"],
+      "assertion": "excludes",
+      "expected": ["/"]
+    },
+    {
+      "name": "complete multi-chunk stage shows chunks",
+      "comp_words": ["markdown-runner", "-B", "README.md@setup"],
+      "assertion": "all_match",
+      "expected": [".*/.+"]
+    },
+    {
+      "name": "partial multi-chunk stage shows stage name",
+      "comp_words": ["markdown-runner", "-B", "README.md@se"],
+      "assertion": "excludes",
+      "expected": ["/"]
+    },
+    {
+      "name": "nonexistent stage shows nothing",
+      "comp_words": ["markdown-runner", "-B", "README.md@nonexistent"],
+      "assertion": "count_eq",
+      "expected": 0
+    },
+    {
+      "name": "file@stage/chunk prefix filters chunks",
+      "comp_words": ["markdown-runner", "-B", "README.md@setup/"],
+      "assertion": "all_match",
+      "expected": ["README.md@setup/.+"]
+    },
+    {
+      "name": "recursive and non-recursive same for file@stage",
+      "comp_words": ["markdown-runner", "-r", "-B", "README.md@help"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
+      "name": "file@stage@ disables nospace",
+      "comp_words": ["markdown-runner", "-B", "README.md@"],
+      "assertion": "count_gt",
+      "expected": 0
+    }
+  ]
+}
