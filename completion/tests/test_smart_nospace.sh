@@ -108,11 +108,13 @@ run_completion_test \
     "markdown-runner" "-B" "setu"
 
 setup_chunks=$(count_chunks_for_stage "setup")
+# Note: Partial completion ("setu") completes to full name "setup" without slash
+# User must press tab again on "setup" to get the slash
 if [[ ${#COMPREPLY[@]} -eq 1 ]] && [[ "${COMPREPLY[0]}" == "setup" ]] && [[ $setup_chunks -gt 1 ]]; then
-    echo -e "  ${GREEN}PASS: Multi chunk stage should use nospace (chunks: $setup_chunks)${NC}"
+    echo -e "  ${GREEN}PASS: Partial completion shows stage name without slash (chunks: $setup_chunks)${NC}"
     TESTS_PASSED=$((TESTS_PASSED + 1))
 else
-    echo -e "  ${RED}FAIL: Expected single completion 'setup' for multi chunk stage (chunks: $setup_chunks)${NC}"
+    echo -e "  ${RED}FAIL: Expected single completion 'setup' without slash for partial match (chunks: $setup_chunks)${NC}"
     TESTS_FAILED=$((TESTS_FAILED + 1))
 fi
 echo
@@ -125,6 +127,7 @@ run_completion_test \
     "markdown-runner" "-B" "te"
 
 # Check chunk counts for stages starting with "te"
+# New behavior: partial completions don't add slashes - user must complete to full name first
 has_multi_chunk=false
 for completion in "${COMPREPLY[@]}"; do
     chunk_count=$(count_chunks_for_stage "$completion")
@@ -134,11 +137,13 @@ for completion in "${COMPREPLY[@]}"; do
     fi
 done
 
+# For partial matches, we just show stage names without slashes
+# User must complete to full name, then press tab again to get slash
 if [[ "$has_multi_chunk" == true ]]; then
-    echo -e "  ${GREEN}PASS: Mixed completion should use nospace (has multi-chunk stages)${NC}"
+    echo -e "  ${GREEN}PASS: Partial completion shows stage names (user completes to full name, then tab for slash)${NC}"
     TESTS_PASSED=$((TESTS_PASSED + 1))
 else
-    echo -e "  ${RED}FAIL: Mixed completion should use nospace when any stage has multiple chunks${NC}"
+    echo -e "  ${RED}FAIL: Should have multi-chunk stages in result${NC}"
     TESTS_FAILED=$((TESTS_FAILED + 1))
 fi
 echo
