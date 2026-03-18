@@ -911,3 +911,86 @@ This repository includes a presentation about Markdown Runner.
 
 - [View the slides](./slides/slides.md) (github will render the source somewhat)
 - [Building the slides](./slides/README.md)
+
+## Usage tips
+
+### Limitation: interactive shell vs chunk behavior
+
+Markdown-runner uses `set -e` to match tutorial step-by-step expectations, but this creates a disconnect between **script behavior** and **interactive shell behavior**:
+
+**Interactive Shell** (what humans experience):
+
+```bash
+$ oikjoij || ! echo "must show up"
+bash: oikjoij: command not found
+must show up
+$ echo $?
+1  # Command failed as expected
+```
+
+**Script with `set -e`** (what markdown-runner does):
+
+```bash
+#!/bin/bash
+set -e
+oikjoij || ! echo "must show up"
+echo "This continues executing"  # ✅ Script continues, exits 0
+```
+
+**The Disconnect:** 
+- **Humans** typing commands see failures when they expect them
+- **Scripts with `set -e`** have special exemption rules for compound commands (`||`, `&&`) that mask failures
+- **Tutorial authors** write commands based on interactive experience, but CI runs them as scripts
+
+#### The `set -e` Exemption Rules
+
+From the [Bash manual](https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/): *`"This option is also smart enough to not react on failing commands that are part of conditional statements. Moreover, you can append a command with || true for those rare cases where you don’t want a failing command to trigger an immediate exit.`"*
+
+This means:
+
+```bash
+# Interactive shell: FAILS (exit 1)
+oikjoij || ! echo "error"
+
+# Script with set -e: SUCCEEDS (exit 0) 
+# Because oikjoij is "part of a || list"
+```
+
+#### The Human Expectation Gap
+
+**Tutorial authors think:** *"I'll write this like I would in my terminal"*
+
+```bash
+docker --version || echo "Please install Docker first"
+```
+
+**What they experience interactively:** Command fails appropriately when Docker is missing
+
+**What happens in CI:** Script succeeds even when Docker is missing, because `set -e` doesn't apply to the `||` construct
+
+#### Good vs Bad Compound Command Patterns
+
+##### ❌ Problematic Pattern (works interactively, fails in CI):
+```bash
+oikjoij || ! echo "must show up"
+```
+**Problem:** Interactive shell fails (exit 1), but `set -e` script succeeds (exit 0)
+
+##### ✅ Good Pattern (consistent behavior):
+
+```bash
+minikube kubectl -- wait --for=condition=Available --timeout=2m || {
+    echo "Wait command failed. Dumping deployment YAML:"
+    minikube kubectl -- get deployment cert-manager-webhook -o yaml
+    false  # Explicitly fail - works same in both contexts
+}
+```
+
+##### ✅ Alternative Clear Pattern:
+
+```bash
+if ! oikjoij; then
+    echo "oikjoij failed"
+    exit 1  # Explicit failure - consistent everywhere
+fi
+```
