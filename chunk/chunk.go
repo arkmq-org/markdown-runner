@@ -252,7 +252,9 @@ func (chunk *ExecutableChunk) WriteBashScript(basedir string, script_name string
 	}
 
 	// bubble up the env after the script execution
-	_, err = writer.WriteString("echo \"### ENV ###\"\n")
+	// include newline in the echo output itself to ensure ENV marker starts on its own line
+	// even if user script doesn't end with newline (e.g. echo -n)
+	_, err = writer.WriteString("echo \"\n### ENV ###\"\n")
 	_, err = writer.WriteString("printenv\n")
 	if err != nil {
 		return err

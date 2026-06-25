@@ -183,6 +183,11 @@ func (command *RunningCommand) Wait() error {
 		command.Ctx.Cfg.Env = bashEnvVars
 
 		if len(newLines) > 0 {
+			// Remove the trailing empty line that precedes the ENV marker (added by our \n in the echo)
+			// This prevents an extra blank line when the ENV section is stripped
+			if len(newLines) > 0 && newLines[len(newLines)-1] == "" {
+				newLines = newLines[:len(newLines)-1]
+			}
 			command.Stdout = strings.Join(newLines, "\n")
 			command.Stdout = command.Stdout + "\n"
 		} else {
