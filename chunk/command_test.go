@@ -348,4 +348,64 @@ func TestRunningCommand(t *testing.T) {
 		err = runningCmd.Wait()
 		assert.Error(t, err, "Expected an error when waiting for a failing command")
 	})
+
+	t.Run("bash env extraction with echo -n command", func(t *testing.T) {
+		// Regression test for issue #25: ensure ENV marker doesn't get appended
+		// to command output when the command doesn't end with a newline
+		tmpDirs := make(map[string]string)
+
+		cfg := &config.Config{MinutesToTimeout: 1, Env: []string{}}
+		ui := view.NewView("mock")
+
+		chunk := ExecutableChunk{
+			Runtime: "bash",
+			Content: []string{"echo -n 'TEST'"},
+			Context: &runnercontext.Context{
+				Cfg:   cfg,
+				RView: ui,
+			},
+		}
+		err := chunk.PrepareForExecution(tmpDirs)
+		assert.NoError(t, err, "Expected no error when preparing chunk for execution")
+
+		err = chunk.ExecuteSequential()
+		assert.NoError(t, err, "Expected no error when executing bash chunk")
+
+		// Verify the output is just "TEST\n" without the ENV marker appended to it
+		// The trailing \n is added by the command processing logic
+		assert.Equal(t, "TEST\n", chunk.Commands[0].Stdout, "Expected stdout to be 'TEST\\n' without ENV marker concatenated")
+		// Crucially, verify it's NOT "TEST### ENV ###" which was the bug
+		assert.NotContains(t, chunk.Commands[0].Stdout, "### ENV ###", "Expected ENV marker to be stripped from output")
+
+		// Verify ENV section was still extracted (should have environment variables)
+		assert.NotEmpty(t, chunk.Context.Cfg.Env, "Expected environment variables to be extracted")
+	})
+
+	t.Run("bash env extraction with normal echo command", func(t *testing.T) {
+		// Ensure normal commands (with newline) don't get extra blank lines
+		tmpDirs := make(map[string]string)
+
+		cfg := &config.Config{MinutesToTimeout: 1, Env: []string{}}
+		ui := view.NewView("mock")
+
+		chunk := ExecutableChunk{
+			Runtime: "bash",
+			Content: []string{"echo 'NORMAL'"},
+			Context: &runnercontext.Context{
+				Cfg:   cfg,
+				RView: ui,
+			},
+		}
+		err := chunk.PrepareForExecution(tmpDirs)
+		assert.NoError(t, err, "Expected no error when preparing chunk for execution")
+
+		err = chunk.ExecuteSequential()
+		assert.NoError(t, err, "Expected no error when executing bash chunk")
+
+		// Verify the output doesn't have extra blank lines
+		assert.Equal(t, "NORMAL\n", chunk.Commands[0].Stdout, "Expected stdout to be 'NORMAL\\n' without extra blank lines")
+
+		// Verify ENV section was still extracted
+		assert.NotEmpty(t, chunk.Context.Cfg.Env, "Expected environment variables to be extracted")
+	})
 }
