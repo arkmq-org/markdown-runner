@@ -25,6 +25,7 @@ declare -gA FLAG_EQUIV=(
 # Flags that require a value
 declare -gA FLAGS_WITH_VALUES=(
     [-B]=1 [--break-at]=1
+    [--break-before]=1 [--break-after]=1
     [-s]=1 [--start-from]=1
     [-t]=1 [--timeout]=1
     [-f]=1 [--filter]=1
@@ -34,6 +35,7 @@ declare -gA FLAGS_WITH_VALUES=(
 # Flags that can be given several times (not excluded once used)
 declare -gA REPEATABLE_FLAGS=(
     [-B]=1 [--break-at]=1
+    [--break-before]=1 [--break-after]=1
 )
 
 # Flag incompatibilities
@@ -51,24 +53,26 @@ declare -ga FLAG_INCOMPATIBILITIES=(
     "--ignore-breakpoints:-B,--break-at"
 
     # Help excludes everything
-    "-h:-d,--dry-run,-l,--list,-i,--interactive,-s,--start-from,-B,--break-at,-t,--timeout,-u,--update-files,--ignore-breakpoints,-f,--filter,-r,--recursive,--view,-v,--verbose,-q,--quiet,--no-styling"
-    "--help:-d,--dry-run,-l,--list,-i,--interactive,-s,--start-from,-B,--break-at,-t,--timeout,-u,--update-files,--ignore-breakpoints,-f,--filter,-r,--recursive,--view,-v,--verbose,-q,--quiet,--no-styling"
+    "-h:-d,--dry-run,-l,--list,-i,--interactive,-s,--start-from,-B,--break-at,--break-before,--break-after,-t,--timeout,-u,--update-files,--ignore-breakpoints,-f,--filter,-r,--recursive,--view,-v,--verbose,-q,--quiet,--no-styling"
+    "--help:-d,--dry-run,-l,--list,-i,--interactive,-s,--start-from,-B,--break-at,--break-before,--break-after,-t,--timeout,-u,--update-files,--ignore-breakpoints,-f,--filter,-r,--recursive,--view,-v,--verbose,-q,--quiet,--no-styling"
 
     # List mode excludes execution flags
-    "-l:-i,--interactive,-B,--break-at,-s,--start-from,-d,--dry-run,-t,--timeout,-u,--update-files"
-    "--list:-i,--interactive,-B,--break-at,-s,--start-from,-d,--dry-run,-t,--timeout,-u,--update-files"
+    "-l:-i,--interactive,-B,--break-at,--break-before,--break-after,-s,--start-from,-d,--dry-run,-t,--timeout,-u,--update-files"
+    "--list:-i,--interactive,-B,--break-at,--break-before,--break-after,-s,--start-from,-d,--dry-run,-t,--timeout,-u,--update-files"
 
     # Interactive flags exclude list/help
     "-i:--view,-l,--list,-h,--help"
     "--interactive:--view,-l,--list,-h,--help"
     "-B:--view,-l,--list,-h,--help"
     "--break-at:--view,-l,--list,-h,--help"
+    "--break-before:--view,-l,--list,-h,--help"
+    "--break-after:--view,-l,--list,-h,--help"
     "-s:--view,-l,--list,-h,--help"
     "--start-from:--view,-l,--list,-h,--help"
 )
 
 # All available flags
-ALL_FLAGS="-d --dry-run -l --list -i --interactive -s --start-from -B --break-at -t --timeout -u --update-files --ignore-breakpoints -f --filter -r --recursive --view -v --verbose -q --quiet --no-styling -h --help"
+ALL_FLAGS="-d --dry-run -l --list -i --interactive -s --start-from -B --break-at --break-before --break-after -t --timeout -u --update-files --ignore-breakpoints -f --filter -r --recursive --view -v --verbose -q --quiet --no-styling -h --help"
 
 # ============================================================================
 # Utility Functions
@@ -196,7 +200,7 @@ _get_excluded_flags() {
 
         # Special case: --view ci
         if [[ "$arg" == "--view" && "${COMP_WORDS[i+1]}" == "ci" ]]; then
-            excluded+=("-i" "--interactive" "-B" "--break-at" "-s" "--start-from")
+            excluded+=("-i" "--interactive" "-B" "--break-at" "--break-before" "--break-after" "-s" "--start-from")
             continue
         fi
 
@@ -685,6 +689,9 @@ _markdown_runner_completion() {
         -f|--filter)
             return  # No completion for regex
             ;;
+        --break-before|--break-after)
+            return  # No completion for line numbers (line or file@line)
+            ;;
     esac
 
     # Handle flag completion
@@ -714,7 +721,9 @@ _markdown_runner_completion() {
 -l|--list|(list files)
 -i|--interactive|(interactive)
 -s|--start-from|(start from stage or chunk)
--B|--break-at|(break at stage)
+-B|--break-at|(break at stage or line)
+|--break-before|(break before line)
+|--break-after|(break after line)
 -t|--timeout|(timeout)
 -u|--update-files|(update files)
 |--ignore-breakpoints|(ignore breakpoints)
@@ -747,7 +756,9 @@ EOF
             "Execution Control:"
             "  -i, --interactive          Prompt before each chunk (yes/no/continue/quit)"
             "  -s, --start-from string    Start from a specific stage or chunk"
-            "  -B, --break-at string      Start debugging from a specific stage or chunk"
+            "  -B, --break-at string      Start debugging from a specific stage, chunk or line"
+            "      --break-before string  Start debugging from the last chunk before a line"
+            "      --break-after string   Start debugging from the first chunk after a line"
             "  -t, --timeout int          The timeout in minutes for every executed command"
             "  -u, --update-files         Update the chunk output section in the markdown files"
             "      --ignore-breakpoints   Ignore the breakpoints"

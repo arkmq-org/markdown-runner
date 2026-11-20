@@ -27,11 +27,15 @@ import (
 // file is the name of the markdown file to execute.
 // It returns an error if any chunk fails and is not part of a teardown stage.
 func RunMD(cfg *config.Config, file string) error {
+	return runMD(cfg, file, view.NewView(cfg.View))
+}
+
+// runMD is RunMD with the UI given by the caller.
+func runMD(cfg *config.Config, file string, ui view.RunnerView) error {
 	var tmpDirs map[string]string = make(map[string]string)
 	var terminatingError error
 	markdownDir := path.Dir(file)
 	fileName := path.Base(file)
-	ui := view.NewView(cfg.View)
 	ctx := &runnercontext.Context{
 		Cfg:   cfg,
 		RView: ui,
@@ -46,6 +50,15 @@ func RunMD(cfg *config.Config, file string) error {
 	}
 	if len(stages) == 0 {
 		return nil
+	}
+
+	// Handle line breakpoints: hand the chunk around each requested line over
+	// to its stage. Only the chunks that --start-from lets run are considered,
+	// so that a target located in a skipped stage or chunk is not silently
+	// consumed.
+	if err := resolveLineBreakpoints(cfg, file, stages); err != nil {
+		ui.EndFile(file, err)
+		return err
 	}
 
 	for _, currentStage := range stages {
@@ -129,6 +142,122 @@ func applyStartFrom(cfg *config.Config, file string, currentStage *stage.Stage) 
 	return false, nil
 }
 
+// runnableChunk designates a chunk by its stage and its index in that stage.
+type runnableChunk struct {
+	stage *stage.Stage
+	index int
+}
+
+// runnableChunks lists, in document order, the chunks of the given file that
+// the --start-from location does not skip: the chunks of the stages preceding
+// the start stage and, when a chunk is given, the chunks preceding it in the
+// start stage are left out. The location is not consumed, applyStartFrom does
+// it when the stages run.
+// It returns an error if the targeted chunk doesn't exist in the start stage.
+func runnableChunks(cfg *config.Config, file string, stages []*stage.Stage) ([]runnableChunk, error) {
+	loc := cfg.StartFromLocation
+	started := loc.Stage == ""
+	var chunks []runnableChunk
+	for _, s := range stages {
+		first := 0
+		if !started {
+			if loc.Stage != s.Name || !matchesFile(file, loc.File) {
+				continue
+			}
+			started = true
+			if loc.Chunk != "" {
+				if _, err := findChunkByIdOrIndex(s, loc.Chunk); err != nil {
+					return nil, err
+				}
+				first = s.IndexOfChunk(loc.Chunk)
+			}
+		}
+		for i := first; i < len(s.Chunks); i++ {
+			chunks = append(chunks, runnableChunk{stage: s, index: i})
+		}
+	}
+	return chunks, nil
+}
+
+// resolveLineBreakpoints consumes the line breakpoints (--break-before,
+// --break-after, -B line) targeting the given file. Each one is resolved,
+// among the chunks that will run (see runnableChunks), to one chunk whose
+// index is handed over to its stage as a chunk breakpoint. A breakpoint
+// without file part that matches no chunk is kept for the next files.
+// It returns an error if a breakpoint restricted to this file matches no
+// chunk.
+func resolveLineBreakpoints(cfg *config.Config, file string, stages []*stage.Stage) error {
+	hasLine := false
+	for _, bp := range cfg.Breakpoints {
+		hasLine = hasLine || (bp.Line != 0 && matchesFile(file, bp.File))
+	}
+	if !hasLine {
+		return nil
+	}
+	chunks, err := runnableChunks(cfg, file, stages)
+	if err != nil {
+		return err
+	}
+	total := 0
+	for _, s := range stages {
+		total += len(s.Chunks)
+	}
+	var remaining []config.Location
+	for _, bp := range cfg.Breakpoints {
+		if bp.Line == 0 || !matchesFile(file, bp.File) {
+			remaining = append(remaining, bp)
+			continue
+		}
+		target, ok := findChunkByLine(chunks, bp.Line, bp.After)
+		if !ok {
+			if bp.File == "" {
+				remaining = append(remaining, bp)
+				continue
+			}
+			err := fmt.Errorf("no chunk found %s line %d in %s", lineDirection(bp.After), bp.Line, file)
+			if len(chunks) != total {
+				err = fmt.Errorf("%w (chunks skipped by --start-from are ignored)", err)
+			}
+			return err
+		}
+		target.stage.DebugFromChunks = append(target.stage.DebugFromChunks, strconv.Itoa(target.index))
+	}
+	cfg.Breakpoints = remaining
+	return nil
+}
+
+// findChunkByLine returns the chunk to break at for a given line of the
+// markdown file, among the given chunks in document order. A chunk whose
+// fences enclose the line is always selected. Otherwise, when after is true,
+// the first chunk opening after the line is selected, and when after is false,
+// the last chunk opening before the line.
+// It returns false when no chunk matches.
+func findChunkByLine(chunks []runnableChunk, line int, after bool) (runnableChunk, bool) {
+	var before runnableChunk
+	found := false
+	for _, rc := range chunks {
+		c := rc.stage.Chunks[rc.index]
+		if c.Line <= line && line <= c.EndLine {
+			return rc, true
+		}
+		if after && c.Line > line {
+			return rc, true
+		}
+		if !after && c.Line < line {
+			before, found = rc, true
+		}
+	}
+	return before, found
+}
+
+// lineDirection returns a human readable description of a line break mode.
+func lineDirection(after bool) string {
+	if after {
+		return "after"
+	}
+	return "before"
+}
+
 // applyBreakpoints consumes the --break-at breakpoints targeting the given
 // stage of the given file. A stage breakpoint turns the interactive mode on
 // right away, a chunk breakpoint is handed over to the stage so that it turns
@@ -138,7 +267,7 @@ func applyStartFrom(cfg *config.Config, file string, currentStage *stage.Stage) 
 func applyBreakpoints(cfg *config.Config, file string, currentStage *stage.Stage) error {
 	var remaining []config.Location
 	for _, bp := range cfg.Breakpoints {
-		if bp.Stage != currentStage.Name || !matchesFile(file, bp.File) {
+		if bp.Line != 0 || bp.Stage != currentStage.Name || !matchesFile(file, bp.File) {
 			remaining = append(remaining, bp)
 			continue
 		}

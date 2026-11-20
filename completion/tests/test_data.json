@@ -1,5 +1,5 @@
 {
-  "comment": "Comprehensive bash completion test suite - 191+ tests covering all completion scenarios",
+  "comment": "Comprehensive bash completion test suite - 212+ tests covering all completion scenarios",
   "timeout_tests": [
     {
       "name": "timeout shows all values",
@@ -1222,6 +1222,110 @@
       "comp_words": ["markdown-runner", "-B", "README.md@"],
       "assertion": "count_gt",
       "expected": 0
+    }
+  ],
+  "break_line_tests": [
+    {
+      "name": "flags list includes break-before and break-after",
+      "comp_words": ["markdown-runner", "README.md", "--break"],
+      "assertion": "contains",
+      "expected": ["--break-at", "--break-before", "--break-after"]
+    },
+    {
+      "name": "break-before value has no completion",
+      "comp_words": ["markdown-runner", "--break-before", ""],
+      "assertion": "count_eq",
+      "expected": 0
+    },
+    {
+      "name": "break-after value has no completion",
+      "comp_words": ["markdown-runner", "--break-after", ""],
+      "assertion": "count_eq",
+      "expected": 0
+    },
+    {
+      "name": "break-before value is skipped as target path",
+      "comp_words": ["markdown-runner", "--break-before", "12", "README.md", "-"],
+      "assertion": "contains",
+      "expected": ["-d", "--dry-run"]
+    },
+    {
+      "name": "break-before can be repeated and combined with other break flags",
+      "comp_words": ["markdown-runner", "--break-before", "12", "-"],
+      "assertion": "contains",
+      "expected": ["-B", "--break-at", "--break-before", "--break-after"]
+    },
+    {
+      "name": "break-before allows ignore-breakpoints",
+      "comp_words": ["markdown-runner", "--break-before", "12", "-"],
+      "assertion": "contains",
+      "expected": ["--ignore-breakpoints"]
+    },
+    {
+      "name": "break-after can be repeated and combined with other break flags",
+      "comp_words": ["markdown-runner", "--break-after", "12", "-"],
+      "assertion": "contains",
+      "expected": ["-B", "--break-at", "--break-before", "--break-after"]
+    },
+    {
+      "name": "break-after allows ignore-breakpoints",
+      "comp_words": ["markdown-runner", "--break-after", "12", "-"],
+      "assertion": "contains",
+      "expected": ["--ignore-breakpoints"]
+    },
+    {
+      "name": "break-at can be combined with line break flags",
+      "comp_words": ["markdown-runner", "-B", "setup", "-"],
+      "assertion": "contains",
+      "expected": ["--break-before", "--break-after"]
+    },
+    {
+      "name": "all break flags can be mixed and repeated",
+      "comp_words": ["markdown-runner", "-B", "102", "--break-before", "12", "--break-after", "40", "-B", "setup", "--break-after", "50", "-"],
+      "assertion": "contains",
+      "expected": ["-B", "--break-at", "--break-before", "--break-after"]
+    },
+    {
+      "name": "break-at with line break flags still excludes ignore-breakpoints",
+      "comp_words": ["markdown-runner", "--break-after", "12", "-B", "102", "-"],
+      "assertion": "excludes",
+      "expected": ["--ignore-breakpoints"]
+    },
+    {
+      "name": "ignore-breakpoints allows line break flags",
+      "comp_words": ["markdown-runner", "--ignore-breakpoints", "-"],
+      "assertion": "contains",
+      "expected": ["--break-before", "--break-after"]
+    },
+    {
+      "name": "break-after excludes view, list and help",
+      "comp_words": ["markdown-runner", "--break-after", "12", "-"],
+      "assertion": "excludes",
+      "expected": ["--view", "-l", "--list", "-h", "--help"]
+    },
+    {
+      "name": "CI mode excludes line break flags",
+      "comp_words": ["markdown-runner", "--view", "ci", "README.md", "-"],
+      "assertion": "excludes",
+      "expected": ["--break-before", "--break-after"]
+    },
+    {
+      "name": "list excludes line break flags",
+      "comp_words": ["markdown-runner", "-l", "-"],
+      "assertion": "excludes",
+      "expected": ["--break-before", "--break-after"]
+    },
+    {
+      "name": "help excludes line break flags",
+      "comp_words": ["markdown-runner", "-h", "-"],
+      "assertion": "excludes",
+      "expected": ["--break-before", "--break-after"]
+    },
+    {
+      "name": "enhanced help lists break-before",
+      "comp_words": ["markdown-runner", "-"],
+      "assertion": "any_match",
+      "expected": ["^--break-before:.*"]
     }
   ]
 }

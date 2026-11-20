@@ -111,6 +111,12 @@ for test_file in cases/*.md; do
             "! ./markdown-runner cases -f '.*'${test_file} -s main/missing" || ((FAILED_TESTS++))
         run_test "Start from with an empty stage (${test_name}) should fail" \
             "! ./markdown-runner cases -f '.*'${test_file} -s start_from@" || ((FAILED_TESTS++))
+        run_test "Start from with a line number (${test_name}) should fail" \
+            "! ./markdown-runner cases -f '.*'${test_file} -s 10" || ((FAILED_TESTS++))
+        run_test "Break after a line on a chunk skipped by start-from (${test_name}) should not run it" \
+            "./markdown-runner --view ci cases -f '.*'${test_file} -s main/second --break-after start_from@11 && ./markdown-runner --view ci cases -f '.*'${test_file} -s main/second --break-after start_from@11 2>&1 | grep -c -E 'SUCCESS.*start-from marker (init|first)' | grep -q '^0$'" || ((FAILED_TESTS++))
+        run_test "Break before a line with only skipped chunks before it (${test_name}) should fail" \
+            "! ./markdown-runner --view ci cases -f '.*'${test_file} -s main/second --break-before start_from@11" || ((FAILED_TESTS++))
     else
         run_test "Test case ${test_name}" \
             "./markdown-runner cases -f '.*'${test_file}" || ((FAILED_TESTS++))
@@ -128,6 +134,26 @@ run_test "Several breakpoints can be set" \
 
 run_test "Every breakpoint is validated, not only the last one" \
     "! ./markdown-runner --view ci -B test/1 -B test/0 cases -f '.*'cases/happy.md" || ((FAILED_TESTS++))
+
+# --- Line based breakpoints ---
+# The ci view auto-answers the interactive prompt, so these runs do not block.
+run_test "Break after a line runs to completion" \
+    "./markdown-runner --view ci --break-after 2 cases/writer.md" || ((FAILED_TESTS++))
+
+run_test "Break before a line runs to completion" \
+    "./markdown-runner --view ci --break-before 1000 cases/writer.md" || ((FAILED_TESTS++))
+
+run_test "Break-at with a line number runs to completion" \
+    "./markdown-runner --view ci -B writer@2 cases/writer.md" || ((FAILED_TESTS++))
+
+run_test "Break-before with a non numeric line should fail" \
+    "! ./markdown-runner --view ci --break-before stage cases/writer.md" || ((FAILED_TESTS++))
+
+run_test "Break-at, break-before and break-after can be combined and repeated" \
+    "./markdown-runner --view ci -B 2 -B verify_file --break-before 1000 --break-before writer@1000 --break-after 1 --break-after 2 cases/writer.md" || ((FAILED_TESTS++))
+
+run_test "Break after the last chunk of a given file should fail" \
+    "! ./markdown-runner --view ci --break-after writer.md@100000 cases/writer.md" || ((FAILED_TESTS++))
 
 # --- Test Summary ---
 print_msg "33" "\n--- Test Summary ---"
