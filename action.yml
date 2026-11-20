@@ -1,0 +1,73 @@
+name: 'Markdown Runner'
+description: 'Execute the code chunks embedded in markdown files to keep your documentation tested in CI.'
+author: 'arkmq-org'
+branding:
+  icon: 'book-open'
+  color: 'blue'
+
+inputs:
+  path:
+    description: 'Markdown file or directory to execute. Relative to working-directory. Defaults to the current directory.'
+    required: false
+    default: ''
+  recursive:
+    description: 'Search for markdown files recursively (true/false).'
+    required: false
+    default: 'false'
+  view:
+    description: "UI to use, 'ci' or 'default'. 'ci' avoids spinners in the job logs."
+    required: false
+    default: 'ci'
+  args:
+    description: 'Extra command line arguments passed verbatim to markdown-runner, split on whitespace (e.g. "--dry-run -f .*install.*").'
+    required: false
+    default: ''
+  working-directory:
+    description: 'Directory from which markdown-runner is executed.'
+    required: false
+    default: '.'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version-file: '${{ github.action_path }}/go.mod'
+        cache: false
+
+    - name: Build markdown-runner
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: |
+        bin_dir="${RUNNER_TEMP}/markdown-runner-bin"
+        mkdir -p "${bin_dir}"
+        go build -o "${bin_dir}/markdown-runner" .
+
+    - name: Run markdown-runner
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        MR_PATH: ${{ inputs.path }}
+        MR_RECURSIVE: ${{ inputs.recursive }}
+        MR_VIEW: ${{ inputs.view }}
+        MR_ARGS: ${{ inputs.args }}
+      run: |
+        cmd=("${RUNNER_TEMP}/markdown-runner-bin/markdown-runner")
+        if [ -n "${MR_VIEW}" ]; then
+          cmd+=(--view "${MR_VIEW}")
+        fi
+        case "${MR_RECURSIVE}" in
+          true) cmd+=(--recursive) ;;
+          false|'') ;;
+          *) echo "::error::input 'recursive' must be 'true' or 'false', got '${MR_RECURSIVE}'"; exit 1 ;;
+        esac
+        if [ -n "${MR_ARGS}" ]; then
+          read -r -a extra_args <<< "${MR_ARGS}"
+          cmd+=("${extra_args[@]}")
+        fi
+        if [ -n "${MR_PATH}" ]; then
+          cmd+=("${MR_PATH}")
+        fi
+        echo "Running: ${cmd[*]}"
+        "${cmd[@]}"
