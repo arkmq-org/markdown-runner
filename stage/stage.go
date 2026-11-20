@@ -18,6 +18,7 @@ type Stage struct {
 	Chunks          []*chunk.ExecutableChunk
 	Ctx             *runnercontext.Context
 	DebugFromChunks []string // IDs or indexes of the chunks to start debugging from
+	StartFromChunk  string   // ID or index of the chunk to start executing from; earlier chunks are skipped
 }
 
 // NewStage creates a new stage from a list of chunks. It assumes all chunks
@@ -76,6 +77,14 @@ func (s *Stage) Execute(stages []*Stage, tmpDirs map[string]string, terminatingE
 
 	for _, chunk := range s.Chunks {
 		chunk.Context = s.Ctx
+		// Skip the chunks preceding the one requested by --start-from
+		if s.StartFromChunk != "" {
+			if !s.matchesChunk(chunk, s.StartFromChunk) {
+				chunk.IsSkipped = true
+				continue
+			}
+			s.StartFromChunk = "" // Target reached, execute the remaining chunks normally
+		}
 		// Examine if the chunk can be executed based on previous errors
 		if terminatingError != nil && chunk.Stage != "teardown" {
 			chunk.Skip()
@@ -193,16 +202,23 @@ func (s *Stage) findChunkByIdOrIndex(identifier string) (*chunk.ExecutableChunk,
 // identified either by its ID or by its index in the stage.
 func (s *Stage) shouldStartDebuggingAtChunk(currentChunk *chunk.ExecutableChunk) bool {
 	for _, target := range s.DebugFromChunks {
-		// Check if this is the target chunk by ID
-		if currentChunk.Id != "" && currentChunk.Id == target {
+		if s.matchesChunk(currentChunk, target) {
 			return true
 		}
-		// Check if this is the target chunk by index
-		if index, err := strconv.Atoi(target); err == nil {
-			if index >= 0 && index < len(s.Chunks) && s.Chunks[index] == currentChunk {
-				return true
-			}
-		}
+	}
+	return false
+}
+
+// matchesChunk checks if currentChunk is designated by identifier, which is
+// either a chunk ID or a 0-based index within the stage.
+func (s *Stage) matchesChunk(currentChunk *chunk.ExecutableChunk, identifier string) bool {
+	// Check if this is the target chunk by ID
+	if currentChunk.Id != "" && currentChunk.Id == identifier {
+		return true
+	}
+	// Check if this is the target chunk by index
+	if index, err := strconv.Atoi(identifier); err == nil {
+		return index >= 0 && index < len(s.Chunks) && s.Chunks[index] == currentChunk
 	}
 	return false
 }

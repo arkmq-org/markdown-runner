@@ -514,6 +514,18 @@
       "expected": 0
     },
     {
+      "name": "start-from file@stage/ shows chunks",
+      "comp_words": ["markdown-runner", "-s", "README.md@setup/"],
+      "assertion": "all_match",
+      "expected": ["README.md@setup/.+"]
+    },
+    {
+      "name": "start-from long flag file@stage/ shows chunks",
+      "comp_words": ["markdown-runner", "--start-from", "README.md@setup/"],
+      "assertion": "count_gt",
+      "expected": 0
+    },
+    {
       "name": "start-from multiple flags",
       "comp_words": ["markdown-runner", "-v", "-s", ""],
       "assertion": "count_gt",

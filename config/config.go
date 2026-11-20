@@ -23,11 +23,10 @@ type Config struct {
 	NoStyling         bool
 	Quiet             bool
 	Recursive         bool
-	StartFrom         string
-	StartFromFile     string
-	StartFromStage    string
-	DebugFrom         []string     // raw values of every --break-at flag
-	Breakpoints       []Breakpoint // parsed --break-at values, consumed once reached
+	StartFrom         string     // raw value of the --start-from flag
+	StartFromLocation Location   // parsed --start-from value, cleared once reached
+	DebugFrom         []string   // raw values of every --break-at flag
+	Breakpoints       []Location // parsed --break-at values, consumed once reached
 	MinutesToTimeout  int
 	UpdateFile        bool
 	Verbose           bool
@@ -36,52 +35,52 @@ type Config struct {
 	Rootdir           string
 }
 
-// Breakpoint is a location where the runner switches to interactive mode,
-// as given by the --break-at flag: stage, stage/chunkID or file@stage/chunkID.
-type Breakpoint struct {
-	// File restricts the breakpoint to a given markdown file, empty for any file.
+// Location designates a stage or a chunk, as given by the --start-from and
+// --break-at flags: stage, stage/chunkID or file@stage/chunkID.
+type Location struct {
+	// File restricts the location to a given markdown file, empty for any file.
 	File string
-	// Stage is the name of the stage to break at.
+	// Stage is the name of the targeted stage.
 	Stage string
-	// Chunk is the ID or 0-based index of the chunk to break at, empty for
-	// the whole stage.
+	// Chunk is the ID or 0-based index of the targeted chunk, empty for the
+	// whole stage.
 	Chunk string
 }
 
-// ParseBreakpoint parses a --break-at value: stage, stage/chunkID or
-// file@stage/chunkID.
-func ParseBreakpoint(value string) (Breakpoint, error) {
-	var bp Breakpoint
-	formatErr := fmt.Errorf("invalid break-at format %q. Use 'stage', 'stage/chunkID', or 'file@stage/chunkID'", value)
-	debugPart := value
+// ParseLocation parses a --start-from or --break-at value: stage,
+// stage/chunkID or file@stage/chunkID.
+func ParseLocation(value string) (Location, error) {
+	var loc Location
+	formatErr := fmt.Errorf("invalid format %q. Use 'stage', 'stage/chunkID', or 'file@stage/chunkID'", value)
+	locationPart := value
 	if strings.Contains(value, "@") {
 		atParts := strings.Split(value, "@")
 		if len(atParts) != 2 {
-			return bp, formatErr
+			return loc, formatErr
 		}
-		bp.File = atParts[0]
-		debugPart = atParts[1]
-		if bp.File == "" {
-			return bp, formatErr
+		loc.File = atParts[0]
+		locationPart = atParts[1]
+		if loc.File == "" {
+			return loc, formatErr
 		}
 	}
-	parts := strings.Split(debugPart, "/")
+	parts := strings.Split(locationPart, "/")
 	switch len(parts) {
 	case 1:
-		bp.Stage = parts[0]
+		loc.Stage = parts[0]
 	case 2:
-		bp.Stage = parts[0]
-		bp.Chunk = parts[1]
-		if bp.Chunk == "" {
-			return bp, formatErr
+		loc.Stage = parts[0]
+		loc.Chunk = parts[1]
+		if loc.Chunk == "" {
+			return loc, formatErr
 		}
 	default:
-		return bp, formatErr
+		return loc, formatErr
 	}
-	if bp.Stage == "" {
-		return bp, formatErr
+	if loc.Stage == "" {
+		return loc, formatErr
 	}
-	return bp, nil
+	return loc, nil
 }
 
 // NewConfig creates a new Config object and parses the command-line flags.
@@ -100,7 +99,7 @@ Modes:
 
 Execution Control:
   -i, --interactive          Prompt before each chunk (yes/no/continue/quit)
-  -s, --start-from string    Start from a specific stage (stage or file@stage)
+  -s, --start-from string    Start from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID)
   -B, --break-at string      Start debugging from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID), can be repeated
   -t, --timeout int          The timeout in minutes for every executed command (default 10)
   -u, --update-files         Update the chunk output section in the markdown files
@@ -131,7 +130,7 @@ Help:
 	pflag.BoolVarP(&cfg.NoStyling, "no-styling", "", false, "Disable spinners in CLI")
 	pflag.BoolVarP(&cfg.Quiet, "quiet", "q", false, "Disable output")
 	pflag.BoolVarP(&cfg.Recursive, "recursive", "r", false, "Search for markdown files recursively")
-	pflag.StringVarP(&cfg.StartFrom, "start-from", "s", "", "Start from a specific stage (stage or file@stage)")
+	pflag.StringVarP(&cfg.StartFrom, "start-from", "s", "", "Start from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID)")
 	pflag.StringArrayVarP(&cfg.DebugFrom, "break-at", "B", nil, "Start debugging from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID), can be repeated")
 	pflag.IntVarP(&cfg.MinutesToTimeout, "timeout", "t", 10, "The timeout in minutes for every executed command")
 	pflag.BoolVarP(&cfg.UpdateFile, "update-files", "u", false, "Update the chunk output section in the markdown files")
@@ -140,26 +139,20 @@ Help:
 
 	pflag.Parse()
 
-	// Parse start-from format: stage or file@stage
+	// Parse start-from format: stage, stage/chunkID, or file@stage/chunkID
 	if cfg.StartFrom != "" {
-		// Check for file@stage format
-		if strings.Contains(cfg.StartFrom, "@") {
-			atParts := strings.Split(cfg.StartFrom, "@")
-			if len(atParts) != 2 {
-				pterm.Fatal.Println("Invalid start-from format. Use 'stage' or 'file@stage'.")
-			}
-			cfg.StartFromFile = atParts[0]
-			cfg.StartFromStage = atParts[1]
-		} else {
-			cfg.StartFromStage = cfg.StartFrom
+		loc, err := ParseLocation(cfg.StartFrom)
+		if err != nil {
+			pterm.Fatal.Println("start-from: " + err.Error())
 		}
+		cfg.StartFromLocation = loc
 	}
 
 	// Parse break-at format: stage, stage/chunkID, or file@stage/chunkID
 	for _, value := range cfg.DebugFrom {
-		bp, err := ParseBreakpoint(value)
+		bp, err := ParseLocation(value)
 		if err != nil {
-			pterm.Fatal.Println(err)
+			pterm.Fatal.Println("break-at: " + err.Error())
 		}
 		cfg.Breakpoints = append(cfg.Breakpoints, bp)
 	}

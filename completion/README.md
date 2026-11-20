@@ -6,7 +6,7 @@ This directory contains bash completion scripts for markdown-runner that provide
 
 - **Flag completion**: Complete all command-line flags (`-d`, `--dry-run`, etc.)
 - **Stage completion**: Complete stage names from your markdown files when using `-B` or `-s`
-- **Chunk completion**: Complete chunk IDs and indices when using `-B stage/` format
+- **Chunk completion**: Complete chunk IDs and indices when using `-B stage/` or `-s stage/` format
 - **File completion**: Complete `.md` files and directories for the main argument
 - **Directory traversal**: Navigate through subdirectories with Tab completion (e.g., `test/cases/`)
 - **Context-aware completion**: When targeting directories, only shows `file@` completions to avoid ambiguous stage names

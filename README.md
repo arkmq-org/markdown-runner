@@ -45,7 +45,7 @@ Modes:
 
 Execution Control:
   -i, --interactive          Prompt before each chunk (yes/no/continue/quit)
-  -s, --start-from string    Start from a specific stage (stage or file@stage)
+  -s, --start-from string    Start from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID)
   -B, --break-at string      Start debugging from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID), can be repeated
   -t, --timeout int          The timeout in minutes for every executed command (default 10)
   -u, --update-files         Update the chunk output section in the markdown files
@@ -107,6 +107,10 @@ setup  main  teardown  myfile.md@  other.md@
 # Complete file-specific stages for start-from
 markdown-runner -s myfile@<TAB><TAB>
 myfile@setup  myfile@main  myfile@teardown
+
+# Complete chunk IDs and indices for start-from
+markdown-runner -s setup/<TAB><TAB>
+setup/init  setup/0  setup/1  setup/cleanup
 ```
 
 The completion automatically discovers stages and chunks from your markdown
@@ -596,11 +600,30 @@ Processing...
 - `markdown-runner -B myfile@setup mydirectory/` - Start debugging from the "setup" stage in myfile.md only
 - `markdown-runner -B myfile@setup/init mydirectory/` - Start debugging from the "init" chunk in myfile.md only
 - `markdown-runner -B setup/init -B main/process myfile.md` - Break at the "init" chunk, answer `continue` to run until the "process" chunk
-- `markdown-runner -s myfile@setup mydirectory/` - Start execution from the "setup" stage in myfile.md only
 
 **Useful combinations:**
 - `markdown-runner -B stage2/0 --dry-run myfile.md` - See what would be executed without running it
 - `markdown-runner -B stage2/myChunk --verbose myfile.md` - Get detailed output during debugging
+
+##### Using `--start-from` flag
+
+The `--start-from` (`-s`) flag takes the same format as `--break-at`
+(`stage`, `stage/chunkID`, `stage/index`, `file@stage` or `file@stage/chunkID`),
+but only once. Every stage before the requested one is skipped and, when a
+chunk is given, so are the chunks preceding it in that stage. Execution then
+continues normally.
+
+- `markdown-runner -s setup myfile.md` - Start execution from the "setup" stage
+- `markdown-runner -s setup/1 myfile.md` - Start execution from the second chunk in setup (index 1)
+- `markdown-runner -s main/process myfile.md` - Start execution from the "process" chunk in main stage
+- `markdown-runner -s myfile@setup mydirectory/` - Start execution from the "setup" stage in myfile.md only
+- `markdown-runner -s myfile@setup/init mydirectory/` - Start execution from the "init" chunk in myfile.md only
+- `markdown-runner -s setup/1 -B main/process myfile.md` - Start from the second chunk in setup and break at the "process" chunk
+
+> [!NOTE]
+> Skipped chunks are not executed, so a chunk that `requires` one of them will
+> be skipped as well. Likewise, a `--break-at` breakpoint on a skipped chunk
+> never fires.
 
 ##### `"id":"someID"`
 
