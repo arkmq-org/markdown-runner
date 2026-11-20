@@ -44,9 +44,9 @@ Modes:
   -l, --list                 Just list the files found
 
 Execution Control:
-  -i, --interactive          Prompt to press enter between each chunk
+  -i, --interactive          Prompt before each chunk (yes/no/continue/quit)
   -s, --start-from string    Start from a specific stage (stage or file@stage)
-  -B, --break-at string      Start debugging from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID)
+  -B, --break-at string      Start debugging from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID), can be repeated
   -t, --timeout int          The timeout in minutes for every executed command (default 10)
   -u, --update-files         Update the chunk output section in the markdown files
       --ignore-breakpoints   Ignore the breakpoints
@@ -75,7 +75,7 @@ markdown-runner includes intelligent bash completion with advanced features that
 - **Flag filtering**: Excludes already-used and incompatible flags
 - **File@stage completion**: Complete file-specific stages and chunks
 - **Directory-aware**: Different behavior for files vs directories
-- **Comprehensive coverage**: 191 tests across 18 test suites ensure reliability
+- **Comprehensive coverage**: 193 tests across 18 test suites ensure reliability
 
 ```bash
 # Install completion (user-only)
@@ -508,10 +508,11 @@ This works only if:
 > will result in an error. This ensures a consistent and predictable execution
 > flow.
 
-##### `"breakpoint":"true"`
+##### `"breakpoint":true`
 
 Enters interactive mode when the chunk is started. Useful for debugging
-purposes. Better to use alongside `--verbose`
+purposes. Better to use alongside `--verbose`. Use `--ignore-breakpoints` to
+disable these breakpoints.
 
 #### Debugging and Interactive Execution
 
@@ -541,11 +542,23 @@ markdown-runner --break-at stage2/0 myfile.md
 markdown-runner --break-at myfile@stage2 mydirectory/
 ```
 
-When debugging is enabled, the runner will prompt you for each chunk:
-- `yes` - Execute this chunk and continue prompting for the next
-- `no` - Skip this chunk and continue prompting for the next  
-- `all` - Execute this chunk and all remaining chunks without prompting
-- `cancel` - Stop execution immediately
+**Set several breakpoints by repeating the flag:**
+```bash
+markdown-runner -B stage2/0 -B stage4/myChunkID myfile.md
+```
+
+When debugging is enabled, the runner will prompt you for each chunk
+(`[Yes/no/continue/quit]`, press the first letter of an answer or enter for
+`yes`), much like stepping through a program with gdb:
+- `yes` - Execute this chunk and prompt again for the next one (step)
+- `no` - Skip this chunk and prompt again for the next one
+- `continue` - Execute this chunk and the following ones without prompting
+  until the next breakpoint (`--break-at` or `"breakpoint":true`) is reached,
+  or until the end if there is none
+- `quit` - Stop execution immediately
+
+Breakpoints written in the documents (`"breakpoint":true`) can be disabled
+altogether with `--ignore-breakpoints`.
 
 The `--timeout` countdown of a command only starts once the command is actually
 started, so taking your time to answer the prompt never causes a timeout.
@@ -582,6 +595,7 @@ Processing...
 - `markdown-runner -B main/process myfile.md` - Start debugging from the "process" chunk in main stage
 - `markdown-runner -B myfile@setup mydirectory/` - Start debugging from the "setup" stage in myfile.md only
 - `markdown-runner -B myfile@setup/init mydirectory/` - Start debugging from the "init" chunk in myfile.md only
+- `markdown-runner -B setup/init -B main/process myfile.md` - Break at the "init" chunk, answer `continue` to run until the "process" chunk
 - `markdown-runner -s myfile@setup mydirectory/` - Start execution from the "setup" stage in myfile.md only
 
 **Useful combinations:**

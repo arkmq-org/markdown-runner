@@ -31,6 +31,11 @@ declare -gA FLAGS_WITH_VALUES=(
     [--view]=1
 )
 
+# Flags that can be given several times (not excluded once used)
+declare -gA REPEATABLE_FLAGS=(
+    [-B]=1 [--break-at]=1
+)
+
 # Flag incompatibilities
 # Format: "flag:incompatible1,incompatible2,..."
 declare -ga FLAG_INCOMPATIBILITIES=(
@@ -178,6 +183,7 @@ _get_excluded_flags() {
     for ((i=1; i<COMP_CWORD; i++)); do
         local arg="${COMP_WORDS[i]}"
         [[ "$arg" != -* ]] && continue
+        [[ -n "${REPEATABLE_FLAGS[$arg]}" ]] && continue
 
         excluded+=("$arg")
         [[ -n "${FLAG_EQUIV[$arg]}" ]] && excluded+=("${FLAG_EQUIV[$arg]}")
@@ -738,7 +744,7 @@ EOF
             "  -l, --list                 Just list the files found"
             ""
             "Execution Control:"
-            "  -i, --interactive          Prompt to press enter between each chunk"
+            "  -i, --interactive          Prompt before each chunk (yes/no/continue/quit)"
             "  -s, --start-from string    Start from a specific stage (stage or file@stage)"
             "  -B, --break-at string      Start debugging from a specific stage or chunk"
             "  -t, --timeout int          The timeout in minutes for every executed command"

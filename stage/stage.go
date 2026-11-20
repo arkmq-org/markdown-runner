@@ -13,11 +13,11 @@ import (
 // Stage represents a single stage in the execution pipeline, containing a list
 // of chunks to be executed.
 type Stage struct {
-	Name           string
-	IsParallel     bool // Indicates if the stage is parallel or sequential
-	Chunks         []*chunk.ExecutableChunk
-	Ctx            *runnercontext.Context
-	DebugFromChunk string // ID or index of chunk to start debugging from
+	Name            string
+	IsParallel      bool // Indicates if the stage is parallel or sequential
+	Chunks          []*chunk.ExecutableChunk
+	Ctx             *runnercontext.Context
+	DebugFromChunks []string // IDs or indexes of the chunks to start debugging from
 }
 
 // NewStage creates a new stage from a list of chunks. It assumes all chunks
@@ -88,7 +88,6 @@ func (s *Stage) Execute(stages []*Stage, tmpDirs map[string]string, terminatingE
 		// Check if we should start debugging at this specific chunk
 		if s.shouldStartDebuggingAtChunk(chunk) {
 			s.Ctx.Cfg.Interactive = true
-			s.DebugFromChunk = "" // Clear the flag so we don't keep enabling debug mode
 		}
 		// Examine if the chunk has a particular dependency to another one
 		if chunk.Requires != "" {
@@ -190,25 +189,20 @@ func (s *Stage) findChunkByIdOrIndex(identifier string) (*chunk.ExecutableChunk,
 	return nil, fmt.Errorf("chunk with ID '%s' not found in stage '%s'", identifier, s.Name)
 }
 
-// shouldStartDebuggingAtChunk checks if debugging should start at a specific chunk
+// shouldStartDebuggingAtChunk checks if debugging should start at a specific chunk,
+// identified either by its ID or by its index in the stage.
 func (s *Stage) shouldStartDebuggingAtChunk(currentChunk *chunk.ExecutableChunk) bool {
-	if s.DebugFromChunk == "" {
-		return false
-	}
-
-	// Check if this is the target chunk by ID
-	if currentChunk.Id != "" && currentChunk.Id == s.DebugFromChunk {
-		return true
-	}
-
-	// Check if this is the target chunk by index
-	if index, err := strconv.Atoi(s.DebugFromChunk); err == nil {
-		for i, chunk := range s.Chunks {
-			if chunk == currentChunk && i == index {
+	for _, target := range s.DebugFromChunks {
+		// Check if this is the target chunk by ID
+		if currentChunk.Id != "" && currentChunk.Id == target {
+			return true
+		}
+		// Check if this is the target chunk by index
+		if index, err := strconv.Atoi(target); err == nil {
+			if index >= 0 && index < len(s.Chunks) && s.Chunks[index] == currentChunk {
 				return true
 			}
 		}
 	}
-
 	return false
 }

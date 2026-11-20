@@ -273,6 +273,43 @@ func TestRunningCommand(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
+	t.Run("interactive answers drive the execution mode", func(t *testing.T) {
+		testCases := []struct {
+			answer              string
+			expectInteractive   bool
+			expectCommandExists bool
+			expectError         bool
+		}{
+			{answer: "yes", expectInteractive: true, expectCommandExists: true},
+			{answer: "no", expectInteractive: true, expectCommandExists: false},
+			{answer: "continue", expectInteractive: false, expectCommandExists: true},
+			{answer: "quit", expectInteractive: true, expectCommandExists: true, expectError: true},
+		}
+		for _, tc := range testCases {
+			t.Run(tc.answer, func(t *testing.T) {
+				cfg := &config.Config{MinutesToTimeout: 1, Interactive: true}
+				runningCmd := &RunningCommand{
+					Ctx: &runnercontext.Context{
+						Cfg:   cfg,
+						RView: view.NewView("mock"),
+					},
+					Cmd: exec.Command("echo", "hello"),
+					GetUserInput: func(string) (string, error) {
+						return tc.answer, nil
+					},
+				}
+				err := runningCmd.InitializeLogger()
+				if tc.expectError {
+					assert.Error(t, err)
+				} else {
+					assert.NoError(t, err)
+				}
+				assert.Equal(t, tc.expectInteractive, cfg.Interactive)
+				assert.Equal(t, tc.expectCommandExists, runningCmd.Cmd != nil)
+			})
+		}
+	})
+
 	t.Run("interactive should throw an error when the user enters something wrong", func(t *testing.T) {
 		ui := view.NewView("mock")
 		runningCmd := &RunningCommand{

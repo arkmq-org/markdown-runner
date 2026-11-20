@@ -95,8 +95,8 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
 </g>
 <g transform="translate(4100)">
 <text x="12" y="0" class="a" filter="url(#3)" >WARNING</text>
@@ -114,9 +114,9 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 </g>
 <g transform="translate(4920)">
 <text x="12" y="0" class="a" filter="url(#3)" >WARNING</text>
@@ -134,9 +134,9 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="0" y="150" class="e"  >▀</text>
 <text x="36" y="150" class="f"  >executing</text>
 <text x="156" y="150" class="g"  >(0s)</text>
@@ -157,9 +157,9 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="e"  >▀</text>
 <text x="36" y="150" class="f"  >executing</text>
 <text x="156" y="150" class="g"  >(0s)</text>
@@ -180,9 +180,9 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 </g>
 <g transform="translate(7380)">
 <text x="12" y="0" class="a" filter="url(#3)" >WARNING</text>
@@ -200,16 +200,16 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
 </g>
 <g transform="translate(8200)">
 <text x="12" y="0" class="a" filter="url(#3)" >WARNING</text>
@@ -227,17 +227,17 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 </g>
 <g transform="translate(9020)">
 <text x="12" y="0" class="a" filter="url(#3)" >WARNING</text>
@@ -255,17 +255,17 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="0" y="200" class="e"  >▀</text>
 <text x="36" y="200" class="f"  >executing</text>
 <text x="156" y="200" class="g"  >(0s)</text>
@@ -286,17 +286,17 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="e"  >▀</text>
 <text x="36" y="200" class="f"  >executing</text>
 <text x="156" y="200" class="g"  >(0s)</text>
@@ -317,17 +317,17 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="e"  >▄</text>
 <text x="36" y="200" class="f"  >executing</text>
 <text x="156" y="200" class="g"  >(0s)</text>
@@ -348,17 +348,17 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 </g>
 <g transform="translate(12300)">
 <text x="12" y="0" class="a" filter="url(#3)" >WARNING</text>
@@ -376,17 +376,17 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 </g>
@@ -406,23 +406,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 </g>
 <g transform="translate(13940)">
@@ -441,23 +441,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 </g>
@@ -477,23 +477,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <defs>
@@ -526,23 +526,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -555,7 +555,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 </g>
 <g transform="translate(16400)">
@@ -574,23 +574,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -603,7 +603,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -624,23 +624,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -653,7 +653,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -677,23 +677,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -706,7 +706,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -729,23 +729,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -758,7 +758,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -784,23 +784,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -813,7 +813,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -836,23 +836,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -865,7 +865,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -890,23 +890,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -919,7 +919,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -948,23 +948,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -977,7 +977,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -1002,23 +1002,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -1031,7 +1031,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -1059,23 +1059,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -1088,7 +1088,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -1119,23 +1119,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -1148,7 +1148,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -1178,23 +1178,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -1207,7 +1207,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -1240,23 +1240,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -1269,7 +1269,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -1301,23 +1301,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -1330,7 +1330,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -1368,23 +1368,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -1397,7 +1397,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -1435,23 +1435,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -1464,7 +1464,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -1502,23 +1502,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -1531,7 +1531,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -1569,23 +1569,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -1598,7 +1598,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -1636,23 +1636,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -1665,7 +1665,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -1701,23 +1701,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -1730,7 +1730,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -1769,23 +1769,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -1798,7 +1798,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -1834,23 +1834,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -1863,7 +1863,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -1901,23 +1901,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -1930,7 +1930,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -1971,23 +1971,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -2000,7 +2000,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -2040,23 +2040,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -2069,7 +2069,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -2112,23 +2112,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -2141,7 +2141,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -2183,23 +2183,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -2212,7 +2212,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -2254,23 +2254,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -2283,7 +2283,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -2330,23 +2330,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -2359,7 +2359,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -2409,23 +2409,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -2438,7 +2438,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -2485,23 +2485,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -2514,7 +2514,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -2563,23 +2563,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -2592,7 +2592,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -2644,23 +2644,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -2673,7 +2673,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -2722,23 +2722,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -2751,7 +2751,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>
@@ -2802,23 +2802,23 @@
 <text x="0" y="125" class="e"  >go</text>
 <text x="36" y="125" class="e"  >test</text>
 <text x="96" y="125" class="e"  >./...</text>
-<text x="168" y="125" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="125" class="e"  >:</text>
-<text x="420" y="125" class="h"  >yes</text>
+<text x="168" y="125" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="125" class="e"  >:</text>
+<text x="456" y="125" class="h"  >yes</text>
 <text x="12" y="150" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="150" class="h"  >go</text>
 <text x="156" y="150" class="h"  >test</text>
 <text x="216" y="150" class="h"  >./...</text>
 <text x="0" y="175" class="e"  >./test/run.sh</text>
-<text x="168" y="175" class="i"  >[Yes/no/all/cancel]</text>
-<text x="396" y="175" class="e"  >:</text>
-<text x="420" y="175" class="h"  >yes</text>
+<text x="168" y="175" class="i"  >[Yes/no/continue/quit]</text>
+<text x="432" y="175" class="e"  >:</text>
+<text x="456" y="175" class="h"  >yes</text>
 <text x="12" y="200" class="a" filter="url(#2)" >SUCCESS</text>
 <text x="120" y="200" class="h"  >./test/run.sh</text>
 <text x="0" y="225" class="e"  >echo</text>
 <text x="60" y="225" class="e"  >&#34;Hello,</text>
 <text x="156" y="225" class="e"  >World!&#34;</text>
-<text x="252" y="225" class="i"  >[Yes/no/all/cancel]</text>
+<text x="252" y="225" class="i"  >[Yes/no/continue/quit]</text>
 <text x="480" y="225" class="e"  >:</text>
 <text x="504" y="225" class="h"  >no</text>
 <text x="24" y="250" class="a" filter="url(#12)" >SKIPPED</text>
@@ -2831,7 +2831,7 @@
 <text x="444" y="275" class="h"  >on</text>
 <text x="480" y="275" class="h"  >disk</text>
 <text x="0" y="300" class="e"  >./2dd020f8-acc7-4a44-a181-6dc05477a1bd.sh</text>
-<text x="504" y="300" class="i"  >[Yes/no/all/cancel]</text>
+<text x="504" y="300" class="i"  >[Yes/no/continue/quit]</text>
 <text x="732" y="300" class="e"  >:</text>
 <text x="756" y="300" class="h" >al</text>
 <text x="0" y="325" class="h"  >l</text>

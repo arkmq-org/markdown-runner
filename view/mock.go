@@ -6,6 +6,8 @@ package view
 type MockRunnerView struct {
 	Calls    map[string][][]any
 	Spinners map[string]string
+	// PromptAnswers, when not empty, are returned in order by the interactive prompt.
+	PromptAnswers []string
 }
 
 // newMockView returns a new MockUI instance.
@@ -45,6 +47,11 @@ func (m *MockRunnerView) Info(message string) {
 
 func (m *MockRunnerView) InteractivePromptForCommand(prompt string, commandName string, isInteractive *bool) (string, error) {
 	m.logCall("InteractivePrompt", prompt, commandName, isInteractive)
+	if len(m.PromptAnswers) > 0 {
+		answer := m.PromptAnswers[0]
+		m.PromptAnswers = m.PromptAnswers[1:]
+		return answer, nil
+	}
 	if isInteractive != nil && *isInteractive {
 		return "yes", nil
 	}

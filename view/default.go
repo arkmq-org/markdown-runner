@@ -46,12 +46,9 @@ func (v *ptermView) Error(message string) {
 }
 
 func (v *ptermView) InteractivePromptForCommand(prompt string, commandName string, isInteractive *bool) (string, error) {
-	result, err := pterm.DefaultInteractiveContinue.WithDefaultText(commandName).Show()
+	result, err := pterm.DefaultInteractiveContinue.WithOptions(PromptOptions).WithDefaultText(commandName).Show()
 	if err != nil {
 		return "", err
-	}
-	if result == "all" {
-		*isInteractive = false
 	}
 	return result, nil
 }
