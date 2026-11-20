@@ -207,6 +207,35 @@ func TestStage(t *testing.T) {
 			assert.NoError(t, err)
 			assert.True(t, cfg.Interactive)
 		})
+
+		t.Run("should skip chunks preceding the start-from chunk", func(t *testing.T) {
+			for _, identifier := range []string{"second", "1"} {
+				t.Run(identifier, func(t *testing.T) {
+					cfg := &config.Config{MinutesToTimeout: 1}
+					ui := view.NewView("mock")
+					ctx := &runnercontext.Context{
+						Cfg:   cfg,
+						RView: ui,
+					}
+					chunks := []*chunk.ExecutableChunk{
+						{Id: "first", Stage: "test-stage", Content: []string{"echo 1"}, Context: ctx},
+						{Id: "second", Stage: "test-stage", Content: []string{"echo 2"}, Context: ctx},
+						{Id: "third", Stage: "test-stage", Content: []string{"echo 3"}, Context: ctx},
+					}
+					stage := NewStage(ctx, chunks)
+					stage.StartFromChunk = identifier
+					err := stage.Execute(nil, make(map[string]string), nil)
+					assert.NoError(t, err)
+					assert.True(t, chunks[0].IsSkipped)
+					assert.False(t, chunks[0].HasExecutedCorrectly())
+					assert.False(t, chunks[1].IsSkipped)
+					assert.True(t, chunks[1].HasExecutedCorrectly())
+					assert.False(t, chunks[2].IsSkipped)
+					assert.True(t, chunks[2].HasExecutedCorrectly())
+					assert.Equal(t, "", stage.StartFromChunk)
+				})
+			}
+		})
 	})
 	t.Run("continue until the next breakpoint", func(t *testing.T) {
 		newChunks := func(ctx *runnercontext.Context) []*chunk.ExecutableChunk {

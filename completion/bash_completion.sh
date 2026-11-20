@@ -542,7 +542,8 @@ _is_directory_context() {
 # Complete values for -B/--break-at and -s/--start-from flags
 # Handles multiple formats: stage, stage/chunk, file@stage, file@stage/chunk
 # Args: $1 - current word being completed
-#       $2 - true for -B/--break-at, false for -s/--start-from (currently unused)
+#       $2 - true for -B/--break-at, false for -s/--start-from (currently unused:
+#            both flags accept the same format)
 # Side effects: Sets COMPREPLY array; may disable nospace via compopt
 _complete_break_or_start() {
     local cur="$1"
@@ -712,7 +713,7 @@ _markdown_runner_completion() {
 -d|--dry-run|(dry-run)
 -l|--list|(list files)
 -i|--interactive|(interactive)
--s|--start-from|(start from stage)
+-s|--start-from|(start from stage or chunk)
 -B|--break-at|(break at stage)
 -t|--timeout|(timeout)
 -u|--update-files|(update files)
@@ -745,7 +746,7 @@ EOF
             ""
             "Execution Control:"
             "  -i, --interactive          Prompt before each chunk (yes/no/continue/quit)"
-            "  -s, --start-from string    Start from a specific stage (stage or file@stage)"
+            "  -s, --start-from string    Start from a specific stage or chunk"
             "  -B, --break-at string      Start debugging from a specific stage or chunk"
             "  -t, --timeout int          The timeout in minutes for every executed command"
             "  -u, --update-files         Update the chunk output section in the markdown files"

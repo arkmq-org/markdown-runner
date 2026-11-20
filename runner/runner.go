@@ -49,30 +49,12 @@ func RunMD(cfg *config.Config, file string) error {
 	}
 
 	for _, currentStage := range stages {
-		if cfg.StartFromStage != "" {
-			// Check if this is the right file (if file-specific start-from is requested)
-			var shouldStart bool
-			if cfg.StartFromFile != "" {
-				// File-specific start-from: only start if this is the matching file
-				// Check various forms: full path, basename, basename without extension
-				basename := path.Base(file)
-				nameWithoutExt := strings.TrimSuffix(basename, path.Ext(basename))
-				shouldStart = (file == cfg.StartFromFile ||
-					basename == cfg.StartFromFile ||
-					nameWithoutExt == cfg.StartFromFile ||
-					strings.HasSuffix(file, cfg.StartFromFile))
-			} else {
-				// General start-from: start in any file
-				shouldStart = true
-			}
-
-			if shouldStart && currentStage.Name == cfg.StartFromStage {
-				cfg.StartFromStage = "" // Clear the flag so we don't keep skipping
-				cfg.StartFromFile = ""  // Clear file as well
-			} else {
-				// Skip this stage if we haven't reached the start point yet
-				continue
-			}
+		// Handle start-from flag: skip everything before the specified stage/chunk
+		if skip, err := applyStartFrom(cfg, file, currentStage); err != nil {
+			ui.EndFile(file, err)
+			return err
+		} else if skip {
+			continue
 		}
 
 		// Handle break-at flags: start interactive mode when we reach the specified stages/chunks
@@ -122,6 +104,31 @@ func matchesFile(file string, spec string) bool {
 		strings.HasSuffix(file, spec)
 }
 
+// applyStartFrom tells whether the given stage of the given file precedes the
+// --start-from location and must therefore be skipped. Once the location is
+// reached, it is cleared so that the following stages run normally and, when a
+// chunk is given, it is handed over to the stage so that it skips the chunks
+// preceding it.
+// It returns an error if the targeted chunk doesn't exist in the stage.
+func applyStartFrom(cfg *config.Config, file string, currentStage *stage.Stage) (bool, error) {
+	loc := cfg.StartFromLocation
+	if loc.Stage == "" {
+		return false, nil
+	}
+	if loc.Stage != currentStage.Name || !matchesFile(file, loc.File) {
+		return true, nil
+	}
+	if loc.Chunk != "" {
+		// Specific chunk requested - validate it exists
+		if _, err := findChunkByIdOrIndex(currentStage, loc.Chunk); err != nil {
+			return false, err
+		}
+		currentStage.StartFromChunk = loc.Chunk
+	}
+	cfg.StartFromLocation = config.Location{}
+	return false, nil
+}
+
 // applyBreakpoints consumes the --break-at breakpoints targeting the given
 // stage of the given file. A stage breakpoint turns the interactive mode on
 // right away, a chunk breakpoint is handed over to the stage so that it turns
@@ -129,7 +136,7 @@ func matchesFile(file string, spec string) bool {
 // consumed once.
 // It returns an error if a targeted chunk doesn't exist in the stage.
 func applyBreakpoints(cfg *config.Config, file string, currentStage *stage.Stage) error {
-	var remaining []config.Breakpoint
+	var remaining []config.Location
 	for _, bp := range cfg.Breakpoints {
 		if bp.Stage != currentStage.Name || !matchesFile(file, bp.File) {
 			remaining = append(remaining, bp)

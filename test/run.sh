@@ -97,6 +97,20 @@ for test_file in cases/*.md; do
             "./markdown-runner -v cases -f '.*'${test_file} 2>&1 | grep -E '\\+ echo.*Testing set -x functionality'" || ((FAILED_TESTS++))
         run_test "Non-verbose test (${test_name}) should not show command tracing without -v" \
             "! ./markdown-runner cases -f '.*'${test_file} 2>&1 | grep -E '\\+ echo.*Testing set -x functionality'" || ((FAILED_TESTS++))
+    # The start_from test verifies that -s accepts the file@stage/chunk format
+    elif [ "${test_name}" == "start_from" ]; then
+        run_test "Test case ${test_name}" \
+            "./markdown-runner cases -f '.*'${test_file}" || ((FAILED_TESTS++))
+        run_test "Start from chunk (${test_name}) should run the requested chunk and the following ones" \
+            "./markdown-runner cases -f '.*'${test_file} -s start_from@main/second 2>&1 | grep -c -E 'SUCCESS.*start-from marker (second|end)' | grep -q '^2$'" || ((FAILED_TESTS++))
+        run_test "Start from chunk (${test_name}) should not run the preceding chunks" \
+            "./markdown-runner cases -f '.*'${test_file} -s start_from@main/second 2>&1 | grep -c -E 'SUCCESS.*start-from marker (init|first)' | grep -q '^0$'" || ((FAILED_TESTS++))
+        run_test "Start from chunk index (${test_name}) should not run the preceding chunks" \
+            "./markdown-runner cases -f '.*'${test_file} -s main/1 2>&1 | grep -c -E 'SUCCESS.*start-from marker (init|first)' | grep -q '^0$'" || ((FAILED_TESTS++))
+        run_test "Start from unknown chunk (${test_name}) should fail" \
+            "! ./markdown-runner cases -f '.*'${test_file} -s main/missing" || ((FAILED_TESTS++))
+        run_test "Start from with an empty stage (${test_name}) should fail" \
+            "! ./markdown-runner cases -f '.*'${test_file} -s start_from@" || ((FAILED_TESTS++))
     else
         run_test "Test case ${test_name}" \
             "./markdown-runner cases -f '.*'${test_file}" || ((FAILED_TESTS++))
