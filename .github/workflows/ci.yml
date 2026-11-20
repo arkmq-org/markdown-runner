@@ -37,3 +37,23 @@ jobs:
 
       - name: Try executing the README
         run: go install && markdown-runner
+
+  github-action:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Run the action on a single file
+        uses: ./
+        with:
+          path: test/cases/happy.md
+
+      - name: Run the action recursively with extra arguments
+        uses: ./
+        with:
+          working-directory: test/cases
+          path: recursive
+          recursive: 'true'
+          args: '-f .*other.md'

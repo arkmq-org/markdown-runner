@@ -28,6 +28,44 @@ To point to a specific file or directory, specify the path as an argument.
 > [!NOTE]
 > To avoid infinite loops, the above chunks are not configured to be executable.
 
+### GitHub Action
+
+The repository is also a GitHub Action, so you can test your documentation in
+GitHub CI without downloading the executable yourself. The action sets up Go
+(version from this repository's `go.mod`), builds markdown-runner from the
+referenced revision and runs it:
+
+```yaml
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: arkmq-org/markdown-runner@main
+        with:
+          path: docs
+          recursive: 'true'
+          args: '--timeout 20 -f .*tutorial.*'
+```
+
+Inputs:
+
+| Input               | Default | Description                                                             |
+|---------------------|---------|-------------------------------------------------------------------------|
+| `path`              | `''`    | Markdown file or directory to execute (current directory when empty)    |
+| `recursive`         | `false` | Search for markdown files recursively (`true` or `false`)               |
+| `view`              | `ci`    | UI to use, `ci` keeps the job logs free of spinners                     |
+| `args`              | `''`    | Extra flags passed to markdown-runner, split on whitespace (no quoting) |
+| `working-directory` | `.`     | Directory from which markdown-runner is executed                        |
+
+No releases are published yet: reference a branch (`@main`) or, for
+reproducible builds, a commit SHA. The action runs `actions/setup-go`, so the
+Go version it installs stays on the `PATH` for the following steps of the job;
+set up your own Go version afterwards if you need a different one.
+
+> [!NOTE]
+> The yaml chunk above is not executable, it is only an example.
+
 ### Available options
 
 ````bash {"stage":"help", "label": "display help"}
