@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/arkmq-org/markdown-runner/runnercontext"
 )
@@ -30,6 +31,9 @@ type RunningCommand struct {
 	// CancelFunc is the function to call to cancel the command's context,
 	// typically used for timeouts.
 	CancelFunc context.CancelFunc
+	// timeout is the maximum duration the command is allowed to run. The
+	// countdown starts when the command is started, not when it is created.
+	timeout time.Duration
 	// Stdout stores the captured standard output as a string after execution.
 	Stdout string
 	// Stderr stores the captured standard error as a string after execution.
@@ -105,11 +109,29 @@ func (command *RunningCommand) Start() error {
 	if command.Ctx.Cfg.DryRun {
 		return nil
 	}
+	command.armTimeout()
 	err := command.Cmd.Start()
 	if err != nil {
 		command.Ctx.RView.Error(fmt.Sprintf("%s: %s\n", command.CmdPrettyName, err))
 	}
 	return err
+}
+
+// armTimeout starts the countdown after which the command's context gets
+// cancelled, killing the command. It is called right before the command is
+// started so that the time spent before (e.g. waiting for the user to make a
+// decision in interactive mode) isn't accounted for. The CancelFunc is wrapped
+// so that calling it also releases the timer.
+func (command *RunningCommand) armTimeout() {
+	cancel := command.CancelFunc
+	if cancel == nil {
+		return
+	}
+	timer := time.AfterFunc(command.timeout, cancel)
+	command.CancelFunc = func() {
+		timer.Stop()
+		cancel()
+	}
 }
 
 // InitializeLogger creates and configures a logger for a command.
