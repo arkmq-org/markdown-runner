@@ -5,6 +5,8 @@ package config
 import (
 	"fmt"
 	"os"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/pterm/pterm"
@@ -26,7 +28,9 @@ type Config struct {
 	StartFrom         string     // raw value of the --start-from flag
 	StartFromLocation Location   // parsed --start-from value, cleared once reached
 	DebugFrom         []string   // raw values of every --break-at flag
-	Breakpoints       []Location // parsed --break-at values, consumed once reached
+	BreakBefore       []string   // raw values of every --break-before flag
+	BreakAfter        []string   // raw values of every --break-after flag
+	Breakpoints       []Location // parsed break flag values, consumed once reached
 	MinutesToTimeout  int
 	UpdateFile        bool
 	Verbose           bool
@@ -35,23 +39,38 @@ type Config struct {
 	Rootdir           string
 }
 
-// Location designates a stage or a chunk, as given by the --start-from and
-// --break-at flags: stage, stage/chunkID or file@stage/chunkID.
+// Location designates a stage, a chunk or a line of a markdown file, as given
+// by the --start-from flag (stage, stage/chunkID or file@stage/chunkID), the
+// --break-at flag (the same, plus line or file@line) or the --break-before and
+// --break-after flags (line or file@line).
 type Location struct {
 	// File restricts the location to a given markdown file, empty for any file.
 	File string
-	// Stage is the name of the targeted stage.
+	// Stage is the name of the targeted stage, empty for a line location.
 	Stage string
 	// Chunk is the ID or 0-based index of the targeted chunk, empty for the
 	// whole stage.
 	Chunk string
+	// Line is the 1-based markdown line targeted by a line location, 0 for a
+	// stage or chunk location.
+	Line int
+	// After selects, for a line location, the first chunk after Line instead
+	// of the last chunk before it. A chunk enclosing Line is selected either
+	// way.
+	After bool
 }
 
-// ParseLocation parses a --start-from or --break-at value: stage,
-// stage/chunkID or file@stage/chunkID.
+// lineNumberMatcher matches a value that designates a line in a markdown file.
+var lineNumberMatcher = regexp.MustCompile("^[0-9]+$")
+
+// ParseLocation parses a location: stage, stage/chunkID, file@stage/chunkID,
+// line or file@line. A line number starts at 1; a line location selects by
+// default the first chunk after the line (After is true).
+// It is the single parser shared by every location flag; ParseStartFrom and
+// ParseLineLocation restrict the accepted forms.
 func ParseLocation(value string) (Location, error) {
 	var loc Location
-	formatErr := fmt.Errorf("invalid format %q. Use 'stage', 'stage/chunkID', or 'file@stage/chunkID'", value)
+	formatErr := fmt.Errorf("invalid format %q. Use 'stage', 'stage/chunkID', 'file@stage/chunkID', 'line' or 'file@line'", value)
 	locationPart := value
 	if strings.Contains(value, "@") {
 		atParts := strings.Split(value, "@")
@@ -63,6 +82,15 @@ func ParseLocation(value string) (Location, error) {
 		if loc.File == "" {
 			return loc, formatErr
 		}
+	}
+	if lineNumberMatcher.MatchString(locationPart) {
+		line, err := strconv.Atoi(locationPart)
+		if err != nil || line < 1 {
+			return loc, formatErr
+		}
+		loc.Line = line
+		loc.After = true
+		return loc, nil
 	}
 	parts := strings.Split(locationPart, "/")
 	switch len(parts) {
@@ -83,6 +111,30 @@ func ParseLocation(value string) (Location, error) {
 	return loc, nil
 }
 
+// ParseStartFrom parses a --start-from value: stage, stage/chunkID or
+// file@stage/chunkID. Line numbers are rejected.
+func ParseStartFrom(value string) (Location, error) {
+	loc, err := ParseLocation(value)
+	if err != nil {
+		return loc, fmt.Errorf("invalid format %q. Use 'stage', 'stage/chunkID', or 'file@stage/chunkID'", value)
+	}
+	if loc.Line != 0 {
+		return Location{}, fmt.Errorf("line numbers are not supported, got %q. Use 'stage', 'stage/chunkID', or 'file@stage/chunkID'", value)
+	}
+	return loc, nil
+}
+
+// ParseLineLocation parses a --break-before (after=false) or --break-after
+// (after=true) value: line or file@line, with a line number starting at 1.
+func ParseLineLocation(value string, after bool) (Location, error) {
+	loc, err := ParseLocation(value)
+	if err != nil || loc.Line == 0 {
+		return Location{}, fmt.Errorf("invalid format %q. Use 'line' or 'file@line' with a line number starting at 1", value)
+	}
+	loc.After = after
+	return loc, nil
+}
+
 // NewConfig creates a new Config object and parses the command-line flags.
 func NewConfig() *Config {
 	cfg := &Config{}
@@ -100,7 +152,9 @@ Modes:
 Execution Control:
   -i, --interactive          Prompt before each chunk (yes/no/continue/quit)
   -s, --start-from string    Start from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID)
-  -B, --break-at string      Start debugging from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID), can be repeated
+  -B, --break-at string      Start debugging from a specific stage, chunk or line (stage, stage/chunkID, file@stage/chunkID, line or file@line), can be repeated
+      --break-before string  Start debugging from the last chunk before a line (line or file@line), can be repeated
+      --break-after string   Start debugging from the first chunk after a line (line or file@line), can be repeated
   -t, --timeout int          The timeout in minutes for every executed command (default 10)
   -u, --update-files         Update the chunk output section in the markdown files
       --ignore-breakpoints   Ignore the breakpoints
@@ -131,7 +185,9 @@ Help:
 	pflag.BoolVarP(&cfg.Quiet, "quiet", "q", false, "Disable output")
 	pflag.BoolVarP(&cfg.Recursive, "recursive", "r", false, "Search for markdown files recursively")
 	pflag.StringVarP(&cfg.StartFrom, "start-from", "s", "", "Start from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID)")
-	pflag.StringArrayVarP(&cfg.DebugFrom, "break-at", "B", nil, "Start debugging from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID), can be repeated")
+	pflag.StringArrayVarP(&cfg.DebugFrom, "break-at", "B", nil, "Start debugging from a specific stage, chunk or line (stage, stage/chunkID, file@stage/chunkID, line or file@line), can be repeated")
+	pflag.StringArrayVar(&cfg.BreakBefore, "break-before", nil, "Start debugging from the last chunk before a line (line or file@line), can be repeated")
+	pflag.StringArrayVar(&cfg.BreakAfter, "break-after", nil, "Start debugging from the first chunk after a line (line or file@line), can be repeated")
 	pflag.IntVarP(&cfg.MinutesToTimeout, "timeout", "t", 10, "The timeout in minutes for every executed command")
 	pflag.BoolVarP(&cfg.UpdateFile, "update-files", "u", false, "Update the chunk output section in the markdown files")
 	pflag.BoolVarP(&cfg.Verbose, "verbose", "v", false, "Print more logs")
@@ -141,18 +197,33 @@ Help:
 
 	// Parse start-from format: stage, stage/chunkID, or file@stage/chunkID
 	if cfg.StartFrom != "" {
-		loc, err := ParseLocation(cfg.StartFrom)
+		loc, err := ParseStartFrom(cfg.StartFrom)
 		if err != nil {
 			pterm.Fatal.Println("start-from: " + err.Error())
 		}
 		cfg.StartFromLocation = loc
 	}
 
-	// Parse break-at format: stage, stage/chunkID, or file@stage/chunkID
+	// Parse break-at format: stage, stage/chunkID, file@stage/chunkID, line or file@line
 	for _, value := range cfg.DebugFrom {
 		bp, err := ParseLocation(value)
 		if err != nil {
 			pterm.Fatal.Println("break-at: " + err.Error())
+		}
+		cfg.Breakpoints = append(cfg.Breakpoints, bp)
+	}
+	// Parse break-before and break-after format: line or file@line
+	for _, value := range cfg.BreakBefore {
+		bp, err := ParseLineLocation(value, false)
+		if err != nil {
+			pterm.Fatal.Println("break-before: " + err.Error())
+		}
+		cfg.Breakpoints = append(cfg.Breakpoints, bp)
+	}
+	for _, value := range cfg.BreakAfter {
+		bp, err := ParseLineLocation(value, true)
+		if err != nil {
+			pterm.Fatal.Println("break-after: " + err.Error())
 		}
 		cfg.Breakpoints = append(cfg.Breakpoints, bp)
 	}

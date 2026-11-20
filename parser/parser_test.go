@@ -45,6 +45,11 @@ echo "world"
 		assert.Equal(t, "test1", stages[0].Name, "Stages were not extracted correctly")
 		assert.Equal(t, "test2", stages[1].Name, "Stages were not extracted correctly")
 		assert.Equal(t, `echo "hello"`, stages[0].Chunks[0].Content[0], "Unexpected content")
+		// line numbers of the opening and closing fences (1-based)
+		assert.Equal(t, 3, stages[0].Chunks[0].Line, "Unexpected opening fence line")
+		assert.Equal(t, 5, stages[0].Chunks[0].EndLine, "Unexpected closing fence line")
+		assert.Equal(t, 7, stages[1].Chunks[0].Line, "Unexpected opening fence line")
+		assert.Equal(t, 9, stages[1].Chunks[0].EndLine, "Unexpected closing fence line")
 	})
 	t.Run("extract stages with existing output", func(t *testing.T) {
 		tmpDir, err := os.MkdirTemp("", "test")

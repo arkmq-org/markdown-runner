@@ -402,3 +402,11 @@ func TestStage(t *testing.T) {
 		})
 	})
 }
+
+func TestIndexOfChunk(t *testing.T) {
+	s := &Stage{Name: "s", Chunks: []*chunk.ExecutableChunk{{Id: "a"}, {Id: "b"}, {}}}
+	assert.Equal(t, 1, s.IndexOfChunk("b"))
+	assert.Equal(t, 2, s.IndexOfChunk("2"))
+	assert.Equal(t, -1, s.IndexOfChunk("missing"))
+	assert.Equal(t, -1, s.IndexOfChunk("3"))
+}

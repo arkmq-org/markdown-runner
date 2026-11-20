@@ -222,3 +222,15 @@ func (s *Stage) matchesChunk(currentChunk *chunk.ExecutableChunk, identifier str
 	}
 	return false
 }
+
+// IndexOfChunk returns the index in the stage of the first chunk designated by
+// identifier (a chunk ID or a 0-based index, as matched by --start-from and
+// --break-at), or -1 if no chunk matches.
+func (s *Stage) IndexOfChunk(identifier string) int {
+	for i, c := range s.Chunks {
+		if s.matchesChunk(c, identifier) {
+			return i
+		}
+	}
+	return -1
+}

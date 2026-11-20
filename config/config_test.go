@@ -78,6 +78,21 @@ func TestNewConfig(t *testing.T) {
 				breakpoints: []Location{{Stage: "stage1", Chunk: "0"}, {File: "file.md", Stage: "stage2", Chunk: "myID"}, {Stage: "stage3"}},
 				markdownDir: "/tmp",
 			},
+			{
+				name:      "combined stage and line break flags",
+				args:      []string{"cmd", "-B", "56", "-B", "stage1", "--break-before", "12", "--break-after=doc.md@34", "--break-before=7", "-B", "doc@78", "/tmp"},
+				timeout:   10,
+				debugFrom: []string{"56", "stage1", "doc@78"},
+				breakpoints: []Location{
+					{Line: 56, After: true},
+					{Stage: "stage1"},
+					{File: "doc", Line: 78, After: true},
+					{Line: 12},
+					{Line: 7},
+					{File: "doc.md", Line: 34, After: true},
+				},
+				markdownDir: "/tmp",
+			},
 		}
 
 		for _, tc := range testCases {
@@ -173,6 +188,11 @@ func TestParseLocation(t *testing.T) {
 		{value: "/chunk", isError: true},
 		{value: "stage/", isError: true},
 		{value: "@stage", isError: true},
+		{value: "102", expected: Location{Line: 102, After: true}},
+		{value: "doc@42", expected: Location{File: "doc", Line: 42, After: true}},
+		{value: "0", isError: true},
+		{value: "@42", isError: true},
+		{value: "stage/3", expected: Location{Stage: "stage", Chunk: "3"}},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.value, func(t *testing.T) {
@@ -185,4 +205,70 @@ func TestParseLocation(t *testing.T) {
 			assert.Equal(t, tc.expected, bp)
 		})
 	}
+}
+
+func TestParseLineLocation(t *testing.T) {
+	testCases := []struct {
+		name     string
+		value    string
+		after    bool
+		expected Location
+		isError  bool
+	}{
+		{name: "before line", value: "12", expected: Location{Line: 12}},
+		{name: "before file@line", value: "doc.md@12", expected: Location{File: "doc.md", Line: 12}},
+		{name: "after line", value: "7", after: true, expected: Location{Line: 7, After: true}},
+		{name: "after file@line", value: "sub/doc.md@7", after: true, expected: Location{File: "sub/doc.md", Line: 7, After: true}},
+		{name: "not a number", value: "setup", after: true, isError: true},
+		{name: "stage/chunk", value: "setup/0", isError: true},
+		{name: "negative", value: "-3", isError: true},
+		{name: "zero", value: "0", isError: true},
+		{name: "empty line", value: "doc@", isError: true},
+		{name: "empty file", value: "@3", isError: true},
+		{name: "too many @", value: "a@b@3", isError: true},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			bp, err := ParseLineLocation(tc.value, tc.after)
+			if tc.isError {
+				assert.Error(t, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expected, bp)
+		})
+	}
+}
+
+func TestParseStartFrom(t *testing.T) {
+	testCases := []struct {
+		value    string
+		expected Location
+		isError  bool
+	}{
+		{value: "stage", expected: Location{Stage: "stage"}},
+		{value: "stage/3", expected: Location{Stage: "stage", Chunk: "3"}},
+		{value: "file@stage/myID", expected: Location{File: "file", Stage: "stage", Chunk: "myID"}},
+		{value: "102", isError: true},
+		{value: "file@42", isError: true},
+		{value: "file@", isError: true},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.value, func(t *testing.T) {
+			loc, err := ParseStartFrom(tc.value)
+			if tc.isError {
+				assert.Error(t, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expected, loc)
+		})
+	}
+
+	t.Run("line numbers are rejected with a clear error", func(t *testing.T) {
+		_, err := ParseStartFrom("doc@42")
+		if assert.Error(t, err) {
+			assert.Contains(t, err.Error(), "line numbers are not supported")
+		}
+	})
 }
