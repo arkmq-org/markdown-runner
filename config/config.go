@@ -26,16 +26,62 @@ type Config struct {
 	StartFrom         string
 	StartFromFile     string
 	StartFromStage    string
-	DebugFrom         string
-	DebugFromFile     string
-	DebugFromStage    string
-	DebugFromChunk    string
+	DebugFrom         []string     // raw values of every --break-at flag
+	Breakpoints       []Breakpoint // parsed --break-at values, consumed once reached
 	MinutesToTimeout  int
 	UpdateFile        bool
 	Verbose           bool
 	View              string
 	Env               []string
 	Rootdir           string
+}
+
+// Breakpoint is a location where the runner switches to interactive mode,
+// as given by the --break-at flag: stage, stage/chunkID or file@stage/chunkID.
+type Breakpoint struct {
+	// File restricts the breakpoint to a given markdown file, empty for any file.
+	File string
+	// Stage is the name of the stage to break at.
+	Stage string
+	// Chunk is the ID or 0-based index of the chunk to break at, empty for
+	// the whole stage.
+	Chunk string
+}
+
+// ParseBreakpoint parses a --break-at value: stage, stage/chunkID or
+// file@stage/chunkID.
+func ParseBreakpoint(value string) (Breakpoint, error) {
+	var bp Breakpoint
+	formatErr := fmt.Errorf("invalid break-at format %q. Use 'stage', 'stage/chunkID', or 'file@stage/chunkID'", value)
+	debugPart := value
+	if strings.Contains(value, "@") {
+		atParts := strings.Split(value, "@")
+		if len(atParts) != 2 {
+			return bp, formatErr
+		}
+		bp.File = atParts[0]
+		debugPart = atParts[1]
+		if bp.File == "" {
+			return bp, formatErr
+		}
+	}
+	parts := strings.Split(debugPart, "/")
+	switch len(parts) {
+	case 1:
+		bp.Stage = parts[0]
+	case 2:
+		bp.Stage = parts[0]
+		bp.Chunk = parts[1]
+		if bp.Chunk == "" {
+			return bp, formatErr
+		}
+	default:
+		return bp, formatErr
+	}
+	if bp.Stage == "" {
+		return bp, formatErr
+	}
+	return bp, nil
 }
 
 // NewConfig creates a new Config object and parses the command-line flags.
@@ -53,9 +99,9 @@ Modes:
   -l, --list                 Just list the files found
 
 Execution Control:
-  -i, --interactive          Prompt to press enter between each chunk
+  -i, --interactive          Prompt before each chunk (yes/no/continue/quit)
   -s, --start-from string    Start from a specific stage (stage or file@stage)
-  -B, --break-at string      Start debugging from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID)
+  -B, --break-at string      Start debugging from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID), can be repeated
   -t, --timeout int          The timeout in minutes for every executed command (default 10)
   -u, --update-files         Update the chunk output section in the markdown files
       --ignore-breakpoints   Ignore the breakpoints
@@ -79,14 +125,14 @@ Help:
 	pflag.BoolVarP(&cfg.DryRun, "dry-run", "d", false, "Just list what would be executed without doing it")
 	pflag.BoolVarP(&cfg.Help, "help", "h", false, "Show this help message")
 	pflag.BoolVarP(&cfg.IgnoreBreakpoints, "ignore-breakpoints", "", false, "Ignore the breakpoints")
-	pflag.BoolVarP(&cfg.Interactive, "interactive", "i", false, "Prompt to press enter between each chunk")
+	pflag.BoolVarP(&cfg.Interactive, "interactive", "i", false, "Prompt before each chunk (yes/no/continue/quit)")
 	pflag.BoolVarP(&cfg.JustList, "list", "l", false, "Just list the files found")
 	pflag.StringVarP(&cfg.Filter, "filter", "f", "", "Run only the files matching the regex")
 	pflag.BoolVarP(&cfg.NoStyling, "no-styling", "", false, "Disable spinners in CLI")
 	pflag.BoolVarP(&cfg.Quiet, "quiet", "q", false, "Disable output")
 	pflag.BoolVarP(&cfg.Recursive, "recursive", "r", false, "Search for markdown files recursively")
 	pflag.StringVarP(&cfg.StartFrom, "start-from", "s", "", "Start from a specific stage (stage or file@stage)")
-	pflag.StringVarP(&cfg.DebugFrom, "break-at", "B", "", "Start debugging from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID)")
+	pflag.StringArrayVarP(&cfg.DebugFrom, "break-at", "B", nil, "Start debugging from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID), can be repeated")
 	pflag.IntVarP(&cfg.MinutesToTimeout, "timeout", "t", 10, "The timeout in minutes for every executed command")
 	pflag.BoolVarP(&cfg.UpdateFile, "update-files", "u", false, "Update the chunk output section in the markdown files")
 	pflag.BoolVarP(&cfg.Verbose, "verbose", "v", false, "Print more logs")
@@ -110,33 +156,12 @@ Help:
 	}
 
 	// Parse break-at format: stage, stage/chunkID, or file@stage/chunkID
-	if cfg.DebugFrom != "" {
-		var debugPart string
-
-		// Check for file@stage format
-		if strings.Contains(cfg.DebugFrom, "@") {
-			atParts := strings.Split(cfg.DebugFrom, "@")
-			if len(atParts) != 2 {
-				pterm.Fatal.Println("Invalid break-at format. Use 'stage', 'stage/chunkID', or 'file@stage/chunkID'.")
-			}
-			cfg.DebugFromFile = atParts[0]
-			debugPart = atParts[1]
-		} else {
-			debugPart = cfg.DebugFrom
+	for _, value := range cfg.DebugFrom {
+		bp, err := ParseBreakpoint(value)
+		if err != nil {
+			pterm.Fatal.Println(err)
 		}
-
-		// Parse stage/chunk part
-		parts := strings.Split(debugPart, "/")
-		if len(parts) == 1 {
-			// Just stage name
-			cfg.DebugFromStage = parts[0]
-		} else if len(parts) == 2 {
-			// Stage and chunk ID
-			cfg.DebugFromStage = parts[0]
-			cfg.DebugFromChunk = parts[1]
-		} else {
-			pterm.Fatal.Println("Invalid break-at format. Use 'stage', 'stage/chunkID', or 'file@stage/chunkID'.")
-		}
+		cfg.Breakpoints = append(cfg.Breakpoints, bp)
 	}
 
 	if len(pflag.Args()) > 1 {

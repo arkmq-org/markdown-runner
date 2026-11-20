@@ -254,10 +254,22 @@
       "expected": ["-i", "--interactive"]
     },
     {
-      "name": "break-at excludes itself",
+      "name": "break-at can be repeated",
       "comp_words": ["markdown-runner", "-B", "setup", "-"],
-      "assertion": "excludes",
+      "assertion": "contains",
       "expected": ["-B", "--break-at"]
+    },
+    {
+      "name": "long break-at can be repeated",
+      "comp_words": ["markdown-runner", "--break-at", "setup", "-B", "main", "-"],
+      "assertion": "contains",
+      "expected": ["-B", "--break-at"]
+    },
+    {
+      "name": "repeated break-at keeps excluding incompatible flags",
+      "comp_words": ["markdown-runner", "-B", "setup", "-B", "main", "-"],
+      "assertion": "excludes",
+      "expected": ["--ignore-breakpoints", "--view", "-l", "--list"]
     },
     {
       "name": "start-from excludes itself",

@@ -109,6 +109,12 @@ run_test "Recursive test" \
 run_test "Recursive test with file filter" \
     "./markdown-runner -r cases/recursive -f '.*other.md' 2>&1 | grep -c 'nested script' | grep -q 1" || ((FAILED_TESTS++))
 
+run_test "Several breakpoints can be set" \
+    "./markdown-runner --view ci -B test -B test/0 cases -f '.*'cases/happy.md" || ((FAILED_TESTS++))
+
+run_test "Every breakpoint is validated, not only the last one" \
+    "! ./markdown-runner --view ci -B test/1 -B test/0 cases -f '.*'cases/happy.md" || ((FAILED_TESTS++))
+
 # --- Test Summary ---
 print_msg "33" "\n--- Test Summary ---"
 if [ "${FAILED_TESTS}" -eq 0 ]; then

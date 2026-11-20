@@ -19,7 +19,8 @@ func TestNewConfig(t *testing.T) {
 			recursive         bool
 			timeout           int
 			startFrom         string
-			debugFrom         string
+			debugFrom         []string
+			breakpoints       []Breakpoint
 			markdownDir       string
 			filter            string
 			ignoreBreakpoints bool
@@ -37,7 +38,8 @@ func TestNewConfig(t *testing.T) {
 				recursive:         true,
 				timeout:           5,
 				startFrom:         "stage2",
-				debugFrom:         "stage3",
+				debugFrom:         []string{"stage3"},
+				breakpoints:       []Breakpoint{{Stage: "stage3"}},
 				markdownDir:       "/tmp",
 				filter:            "test.md",
 				ignoreBreakpoints: true,
@@ -55,7 +57,8 @@ func TestNewConfig(t *testing.T) {
 				recursive:         true,
 				timeout:           5,
 				startFrom:         "stage2",
-				debugFrom:         "",
+				debugFrom:         nil,
+				breakpoints:       nil,
 				markdownDir:       "/tmp",
 				filter:            "test.md",
 				ignoreBreakpoints: false,
@@ -63,6 +66,14 @@ func TestNewConfig(t *testing.T) {
 				justList:          true,
 				noStyling:         false,
 				quiet:             true,
+			},
+			{
+				name:        "repeated break-at flags",
+				args:        []string{"cmd", "-B", "stage1/0", "--break-at=file.md@stage2/myID", "-B", "stage3", "/tmp"},
+				timeout:     10,
+				debugFrom:   []string{"stage1/0", "file.md@stage2/myID", "stage3"},
+				breakpoints: []Breakpoint{{Stage: "stage1", Chunk: "0"}, {File: "file.md", Stage: "stage2", Chunk: "myID"}, {Stage: "stage3"}},
+				markdownDir: "/tmp",
 			},
 		}
 
@@ -84,6 +95,7 @@ func TestNewConfig(t *testing.T) {
 				assert.Equal(t, tc.timeout, cfg.MinutesToTimeout)
 				assert.Equal(t, tc.startFrom, cfg.StartFrom)
 				assert.Equal(t, tc.debugFrom, cfg.DebugFrom)
+				assert.Equal(t, tc.breakpoints, cfg.Breakpoints)
 				assert.Equal(t, tc.markdownDir, cfg.MarkdownDir)
 				assert.Equal(t, tc.filter, cfg.Filter)
 				assert.Equal(t, tc.ignoreBreakpoints, cfg.IgnoreBreakpoints)
@@ -111,7 +123,8 @@ func TestNewConfig(t *testing.T) {
 		assert.False(t, cfg.Verbose, "Expected Verbose to be false by default")
 		assert.Equal(t, 10, cfg.MinutesToTimeout, "Expected MinutesToTimeout to be 10 by default")
 		assert.Equal(t, "", cfg.StartFrom, "Expected StartFrom to be empty by default")
-		assert.Equal(t, "", cfg.DebugFrom, "Expected DebugFrom to be empty by default")
+		assert.Empty(t, cfg.DebugFrom, "Expected DebugFrom to be empty by default")
+		assert.Empty(t, cfg.Breakpoints, "Expected Breakpoints to be empty by default")
 		assert.Equal(t, "./", cfg.MarkdownDir, "Expected MarkdownDir to be './' by default")
 		assert.Equal(t, "", cfg.Filter, "Expected filter to be empty by default")
 		assert.False(t, cfg.IgnoreBreakpoints, "Expected IgnoreBreakpoints to be false by default")
@@ -121,4 +134,35 @@ func TestNewConfig(t *testing.T) {
 		assert.False(t, cfg.Quiet, "Expected Quiet to be false by default")
 		assert.False(t, cfg.Recursive, "Expected Recursive to be false by default")
 	})
+}
+
+func TestParseBreakpoint(t *testing.T) {
+	testCases := []struct {
+		value    string
+		expected Breakpoint
+		isError  bool
+	}{
+		{value: "stage", expected: Breakpoint{Stage: "stage"}},
+		{value: "stage/0", expected: Breakpoint{Stage: "stage", Chunk: "0"}},
+		{value: "stage/myID", expected: Breakpoint{Stage: "stage", Chunk: "myID"}},
+		{value: "file.md@stage", expected: Breakpoint{File: "file.md", Stage: "stage"}},
+		{value: "file@stage/myID", expected: Breakpoint{File: "file", Stage: "stage", Chunk: "myID"}},
+		{value: "a@b@c", isError: true},
+		{value: "stage/chunk/extra", isError: true},
+		{value: "file@", isError: true},
+		{value: "/chunk", isError: true},
+		{value: "stage/", isError: true},
+		{value: "@stage", isError: true},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.value, func(t *testing.T) {
+			bp, err := ParseBreakpoint(tc.value)
+			if tc.isError {
+				assert.Error(t, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expected, bp)
+		})
+	}
 }

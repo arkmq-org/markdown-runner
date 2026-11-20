@@ -63,7 +63,7 @@ func (v *CiView) StartCommand(id, text string) error {
 // InteractivePromptForCommand implements RunnerView
 func (v *CiView) InteractivePromptForCommand(prompt string, commandName string, isInteractive *bool) (string, error) {
 	*isInteractive = false
-	return "y", nil
+	return "continue", nil
 }
 
 // DryRunCommand implements RunnerView

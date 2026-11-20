@@ -5,7 +5,9 @@ import (
 	"path"
 	"testing"
 
+	"github.com/arkmq-org/markdown-runner/chunk"
 	"github.com/arkmq-org/markdown-runner/config"
+	"github.com/arkmq-org/markdown-runner/stage"
 	"github.com/pterm/pterm"
 	"github.com/stretchr/testify/assert"
 )
@@ -174,5 +176,101 @@ echo "teardown executed" > ` + outputFile + `
 
 		_, err = os.Stat(outputFile)
 		assert.NoError(t, err, "Expected teardown chunk to be executed")
+	})
+}
+
+func TestApplyBreakpoints(t *testing.T) {
+	newStage := func(name string) *stage.Stage {
+		return &stage.Stage{
+			Name: name,
+			Chunks: []*chunk.ExecutableChunk{
+				{Id: "first", Stage: name},
+				{Id: "second", Stage: name},
+			},
+		}
+	}
+
+	t.Run("a later stage breakpoint prompts again after continue", func(t *testing.T) {
+		cfg := &config.Config{Breakpoints: []config.Breakpoint{{Stage: "s1"}, {Stage: "s2"}}}
+		assert.NoError(t, applyBreakpoints(cfg, "dir/test.md", newStage("s1")))
+		assert.True(t, cfg.Interactive)
+		// the user answers "continue" during s1
+		cfg.Interactive = false
+		assert.NoError(t, applyBreakpoints(cfg, "dir/test.md", newStage("s2")))
+		assert.True(t, cfg.Interactive, "Expected the s2 breakpoint to turn prompting back on")
+		assert.Empty(t, cfg.Breakpoints)
+	})
+
+	t.Run("consumes only the breakpoints of the stage", func(t *testing.T) {
+		cfg := &config.Config{Breakpoints: []config.Breakpoint{
+			{Stage: "s1", Chunk: "0"},
+			{Stage: "s2", Chunk: "second"},
+			{Stage: "s1", Chunk: "second"},
+			{File: "other.md", Stage: "s1", Chunk: "1"},
+		}}
+		s1 := newStage("s1")
+		err := applyBreakpoints(cfg, "dir/test.md", s1)
+		assert.NoError(t, err)
+		assert.Equal(t, []string{"0", "second"}, s1.DebugFromChunks)
+		assert.False(t, cfg.Interactive)
+		assert.Equal(t, []config.Breakpoint{
+			{Stage: "s2", Chunk: "second"},
+			{File: "other.md", Stage: "s1", Chunk: "1"},
+		}, cfg.Breakpoints)
+
+		s2 := newStage("s2")
+		err = applyBreakpoints(cfg, "dir/test.md", s2)
+		assert.NoError(t, err)
+		assert.Equal(t, []string{"second"}, s2.DebugFromChunks)
+		assert.Equal(t, []config.Breakpoint{{File: "other.md", Stage: "s1", Chunk: "1"}}, cfg.Breakpoints)
+	})
+
+	t.Run("stage breakpoint turns interactive mode on", func(t *testing.T) {
+		cfg := &config.Config{Breakpoints: []config.Breakpoint{{File: "test", Stage: "s1"}}}
+		s1 := newStage("s1")
+		err := applyBreakpoints(cfg, "dir/test.md", s1)
+		assert.NoError(t, err)
+		assert.True(t, cfg.Interactive)
+		assert.Empty(t, s1.DebugFromChunks)
+		assert.Empty(t, cfg.Breakpoints)
+	})
+
+	t.Run("unknown chunk is an error", func(t *testing.T) {
+		cfg := &config.Config{Breakpoints: []config.Breakpoint{{Stage: "s1", Chunk: "0"}, {Stage: "s1", Chunk: "2"}}}
+		err := applyBreakpoints(cfg, "dir/test.md", newStage("s1"))
+		assert.Error(t, err)
+	})
+}
+
+func TestRunMDWithSeveralBreakpoints(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "test")
+	assert.NoError(t, err, "Failed to create temp dir")
+	defer os.RemoveAll(tmpDir)
+
+	mdContent := `
+` + "```" + `bash {"stage":"stage1"}
+echo "one"
+` + "```" + `
+` + "```" + `bash {"stage":"stage2"}
+echo "two"
+` + "```" + `
+`
+	mdFile := path.Join(tmpDir, "test.md")
+	err = os.WriteFile(mdFile, []byte(mdContent), 0o644)
+	assert.NoError(t, err, "Failed to write to temp file")
+
+	t.Run("every breakpoint is reached", func(t *testing.T) {
+		cfg := &config.Config{MarkdownDir: tmpDir, MinutesToTimeout: 1, View: "mock",
+			Breakpoints: []config.Breakpoint{{Stage: "stage1", Chunk: "0"}, {Stage: "stage2", Chunk: "0"}}}
+		err := RunMD(cfg, mdFile)
+		assert.NoError(t, err)
+		assert.Empty(t, cfg.Breakpoints)
+	})
+
+	t.Run("the second breakpoint is validated", func(t *testing.T) {
+		cfg := &config.Config{MarkdownDir: tmpDir, MinutesToTimeout: 1, View: "mock",
+			Breakpoints: []config.Breakpoint{{Stage: "stage1", Chunk: "0"}, {Stage: "stage2", Chunk: "5"}}}
+		err := RunMD(cfg, mdFile)
+		assert.Error(t, err)
 	})
 }

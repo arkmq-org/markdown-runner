@@ -38,6 +38,15 @@ type RunnerView interface {
 	HasLogger(id string) bool
 }
 
+// PromptOptions are the answers offered when prompting the user for a command:
+//   - yes: execute the command and prompt again for the next one
+//   - no: skip the command and prompt again for the next one
+//   - continue: execute everything without prompting until the next breakpoint, like gdb's continue
+//   - quit: abort the execution
+//
+// Each option must start with a distinct letter, it's the key to press to select it.
+var PromptOptions = []string{"yes", "no", "continue", "quit"}
+
 // NewView returns the interface chosen by the user. The kind can be "mock" "ci" of "default"
 func NewView(kind string) RunnerView {
 	switch kind {

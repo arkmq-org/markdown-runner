@@ -208,6 +208,52 @@ func TestStage(t *testing.T) {
 			assert.True(t, cfg.Interactive)
 		})
 	})
+	t.Run("continue until the next breakpoint", func(t *testing.T) {
+		newChunks := func(ctx *runnercontext.Context) []*chunk.ExecutableChunk {
+			return []*chunk.ExecutableChunk{
+				{Id: "c0", Stage: "s", Content: []string{"true"}, Context: ctx},
+				{Id: "c1", Stage: "s", Content: []string{"true"}, Context: ctx},
+				{Id: "c2", Stage: "s", Content: []string{"true"}, Context: ctx},
+				{Id: "c3", Stage: "s", Content: []string{"true"}, Context: ctx},
+			}
+		}
+		testCases := []struct {
+			name            string
+			answers         []string
+			ignore          bool
+			fromChunks      []string
+			docBreakpoints  []int
+			expectedPrompts int
+			stillStepping   bool
+		}{
+			{name: "document breakpoints, continue stops at the next one", answers: []string{"continue", "continue"}, docBreakpoints: []int{0, 2}, expectedPrompts: 2},
+			{name: "document breakpoints, yes steps through every chunk", answers: []string{"yes", "yes", "yes", "yes"}, docBreakpoints: []int{0, 2}, expectedPrompts: 4, stillStepping: true},
+			{name: "document breakpoints ignored", ignore: true, docBreakpoints: []int{0, 2}, expectedPrompts: 0},
+			{name: "break-at chunks, continue stops at the next one", answers: []string{"continue", "continue"}, fromChunks: []string{"0", "c2"}, expectedPrompts: 2},
+			{name: "mixed breakpoints, continue stops at the next one", answers: []string{"continue", "continue"}, fromChunks: []string{"c1"}, docBreakpoints: []int{3}, expectedPrompts: 2},
+		}
+		for _, tc := range testCases {
+			t.Run(tc.name, func(t *testing.T) {
+				cfg := &config.Config{MinutesToTimeout: 1, IgnoreBreakpoints: tc.ignore}
+				ui := view.NewView("mock").(*view.MockRunnerView)
+				ui.PromptAnswers = tc.answers
+				ctx := &runnercontext.Context{Cfg: cfg, RView: ui}
+				chunks := newChunks(ctx)
+				for _, i := range tc.docBreakpoints {
+					chunks[i].HasBreakpoint = true
+				}
+				s := NewStage(ctx, chunks)
+				s.DebugFromChunks = tc.fromChunks
+				err := s.Execute(nil, make(map[string]string), nil)
+				assert.NoError(t, err)
+				assert.Len(t, ui.Calls["InteractivePrompt"], tc.expectedPrompts)
+				assert.Equal(t, tc.stillStepping, cfg.Interactive)
+				for _, c := range chunks {
+					assert.True(t, c.HasExecutedCorrectly(), "chunk %s should have run", c.Id)
+				}
+			})
+		}
+	})
 	t.Run("execute with errors", func(t *testing.T) {
 		t.Run("should not execute subsequent stages on failure unless it is a teardown stage", func(t *testing.T) {
 			cfg := &config.Config{MinutesToTimeout: 1}

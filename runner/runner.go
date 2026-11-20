@@ -75,42 +75,10 @@ func RunMD(cfg *config.Config, file string) error {
 			}
 		}
 
-		// Handle break-at flag: start interactive mode when we reach the specified stage/chunk
-		if cfg.DebugFromStage != "" {
-			// Check if this is the right file (if file-specific debugging is requested)
-			var shouldDebug bool
-			if cfg.DebugFromFile != "" {
-				// File-specific debugging: only debug if this is the matching file
-				// Check various forms: full path, basename, basename without extension
-				basename := path.Base(file)
-				nameWithoutExt := strings.TrimSuffix(basename, path.Ext(basename))
-				shouldDebug = (file == cfg.DebugFromFile ||
-					basename == cfg.DebugFromFile ||
-					nameWithoutExt == cfg.DebugFromFile ||
-					strings.HasSuffix(file, cfg.DebugFromFile))
-			} else {
-				// General debugging: debug in any file
-				shouldDebug = true
-			}
-
-			if shouldDebug && currentStage.Name == cfg.DebugFromStage {
-				if cfg.DebugFromChunk != "" {
-					// Specific chunk requested - validate it exists
-					_, err := findChunkByIdOrIndex(currentStage, cfg.DebugFromChunk)
-					if err != nil {
-						ui.EndFile(file, err)
-						return err
-					}
-					// Pass the chunk ID to the stage for targeted debugging
-					currentStage.DebugFromChunk = cfg.DebugFromChunk
-				} else {
-					// Debug entire stage
-					cfg.Interactive = true
-				}
-				cfg.DebugFromStage = "" // Clear the flag so we don't keep enabling debug mode
-				cfg.DebugFromChunk = "" // Clear chunk ID as well
-				cfg.DebugFromFile = ""  // Clear file as well
-			}
+		// Handle break-at flags: start interactive mode when we reach the specified stages/chunks
+		if err := applyBreakpoints(cfg, file, currentStage); err != nil {
+			ui.EndFile(file, err)
+			return err
 		}
 
 		ui.StartStage(currentStage.Name, len(currentStage.Chunks), cfg.Verbose)
@@ -137,6 +105,49 @@ func RunMD(cfg *config.Config, file string) error {
 
 	ui.EndFile(file, terminatingError)
 	return terminatingError
+}
+
+// matchesFile reports whether the markdown file being executed matches the
+// file part of a file@stage specification. An empty specification matches any file.
+// Check various forms: full path, basename, basename without extension.
+func matchesFile(file string, spec string) bool {
+	if spec == "" {
+		return true
+	}
+	basename := path.Base(file)
+	nameWithoutExt := strings.TrimSuffix(basename, path.Ext(basename))
+	return file == spec ||
+		basename == spec ||
+		nameWithoutExt == spec ||
+		strings.HasSuffix(file, spec)
+}
+
+// applyBreakpoints consumes the --break-at breakpoints targeting the given
+// stage of the given file. A stage breakpoint turns the interactive mode on
+// right away, a chunk breakpoint is handed over to the stage so that it turns
+// the interactive mode on when reaching that chunk. Each breakpoint is
+// consumed once.
+// It returns an error if a targeted chunk doesn't exist in the stage.
+func applyBreakpoints(cfg *config.Config, file string, currentStage *stage.Stage) error {
+	var remaining []config.Breakpoint
+	for _, bp := range cfg.Breakpoints {
+		if bp.Stage != currentStage.Name || !matchesFile(file, bp.File) {
+			remaining = append(remaining, bp)
+			continue
+		}
+		if bp.Chunk == "" {
+			// Debug entire stage
+			cfg.Interactive = true
+			continue
+		}
+		// Specific chunk requested - validate it exists
+		if _, err := findChunkByIdOrIndex(currentStage, bp.Chunk); err != nil {
+			return err
+		}
+		currentStage.DebugFromChunks = append(currentStage.DebugFromChunks, bp.Chunk)
+	}
+	cfg.Breakpoints = remaining
+	return nil
 }
 
 // findChunkByIdOrIndex finds a chunk in a stage by either its ID or by index (0-based)

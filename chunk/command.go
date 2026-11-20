@@ -80,14 +80,14 @@ func (command *RunningCommand) interactivePrompt() error {
 		if err != nil {
 			return err
 		}
-		if result == "all" {
+		switch result {
+		case "continue":
+			// like gdb's continue: run without prompting until the next breakpoint
 			command.Ctx.Cfg.Interactive = false
-		}
-		if result == "no" {
+		case "no":
 			command.Cmd = nil
 			return nil
-		}
-		if result == "cancel" {
+		case "quit":
 			return errors.New("User aborted")
 		}
 	}
