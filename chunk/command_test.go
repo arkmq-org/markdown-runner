@@ -508,4 +508,121 @@ func TestRunningCommand(t *testing.T) {
 		assert.Error(t, err, "Expected the command to be killed by the timeout")
 		assert.Less(t, time.Since(begin), 5*time.Second, "Expected the command to be killed before its natural end")
 	})
+
+	t.Run("timeout names the faulty command", func(t *testing.T) {
+		useTimeoutUnit(t, 200*time.Millisecond)
+		for _, tc := range []struct {
+			name    string
+			runtime string
+			content []string
+		}{
+			{name: "classical", content: []string{"sleep 5"}},
+			// bash runs sleep as a child: the timeout has to kill it too, or it keeps the output pipes open
+			{name: "bash", runtime: "bash", content: []string{"echo started", "sleep 5"}},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				tmpDirs := make(map[string]string)
+				ui := view.NewView("mock").(*view.MockRunnerView)
+				chunk := ExecutableChunk{
+					Label:   "slow chunk",
+					Runtime: tc.runtime,
+					Content: tc.content,
+					Context: &runnercontext.Context{
+						Cfg:   &config.Config{MinutesToTimeout: 1, Env: []string{}},
+						RView: ui,
+					},
+				}
+				err := chunk.PrepareForExecution(tmpDirs)
+				assert.NoError(t, err)
+				assert.Len(t, chunk.Commands, 1)
+
+				start := time.Now()
+				err = chunk.ExecuteSequential()
+				assert.Less(t, time.Since(start), 3*time.Second, "Expected the timeout to interrupt the command")
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), "slow chunk: timed out after 200ms")
+
+				stops := ui.Calls["StopSpinner"]
+				assert.NotEmpty(t, stops)
+				last := stops[len(stops)-1]
+				assert.Equal(t, false, last[1], "Expected the command to be reported as failed")
+				assert.Contains(t, last[2], "slow chunk: timed out after 200ms")
+			})
+		}
+	})
+
+	t.Run("successful chunk with a background child outliving the deadline passes", func(t *testing.T) {
+		// Regression guard: a chunk that exits 0 while a background child (a server, a port-forward...) still holds
+		// its output pipes must keep succeeding, even when the child runs past the command's deadline.
+		useTimeoutUnit(t, 300*time.Millisecond)
+		tmpDirs := make(map[string]string)
+		ui := view.NewView("mock").(*view.MockRunnerView)
+		chunk := ExecutableChunk{
+			Runtime: "bash",
+			Content: []string{"(sleep 1; echo late) &", "echo started"},
+			Context: &runnercontext.Context{
+				Cfg:   &config.Config{MinutesToTimeout: 1, Env: []string{}},
+				RView: ui,
+			},
+		}
+		err := chunk.PrepareForExecution(tmpDirs)
+		assert.NoError(t, err)
+		start := time.Now()
+		err = chunk.ExecuteSequential()
+		assert.NoError(t, err)
+		assert.GreaterOrEqual(t, time.Since(start), time.Second, "Expected the background child to hold the output pipes past the deadline")
+		assert.True(t, chunk.HasExecutedCorrectly())
+		assert.Contains(t, chunk.Commands[0].Stdout, "started")
+	})
+
+	t.Run("failure without timeout is not reported as a timeout", func(t *testing.T) {
+		tmpDirs := make(map[string]string)
+		ui := view.NewView("mock").(*view.MockRunnerView)
+		chunk := ExecutableChunk{
+			Content: []string{"false"},
+			Context: &runnercontext.Context{
+				Cfg:   &config.Config{MinutesToTimeout: 1},
+				RView: ui,
+			},
+		}
+		err := chunk.PrepareForExecution(tmpDirs)
+		assert.NoError(t, err)
+		err = chunk.ExecuteSequential()
+		assert.Error(t, err)
+		assert.NotContains(t, err.Error(), "timed out")
+		stops := ui.Calls["StopSpinner"]
+		assert.NotEmpty(t, stops)
+		assert.NotContains(t, stops[len(stops)-1][2], "timed out")
+	})
+
+	t.Run("failure waited for after the deadline is not reported as a timeout", func(t *testing.T) {
+		useTimeoutUnit(t, 100*time.Millisecond)
+		tmpDirs := make(map[string]string)
+		ui := view.NewView("mock").(*view.MockRunnerView)
+		chunk := ExecutableChunk{
+			Content: []string{"false"},
+			Context: &runnercontext.Context{
+				Cfg:   &config.Config{MinutesToTimeout: 1},
+				RView: ui,
+			},
+		}
+		err := chunk.PrepareForExecution(tmpDirs)
+		assert.NoError(t, err)
+		command := chunk.Commands[0]
+		assert.NoError(t, command.InitializeLogger())
+		assert.NoError(t, command.Start())
+		// like a parallel chunk waited for after a slower sibling, let the deadline pass first
+		time.Sleep(300 * time.Millisecond)
+		err = command.Wait()
+		assert.Error(t, err)
+		assert.NotContains(t, err.Error(), "timed out")
+	})
+}
+
+// useTimeoutUnit makes Config.MinutesToTimeout count in the given unit for the
+// duration of the test, so timeouts can be tested without waiting for minutes.
+func useTimeoutUnit(t *testing.T, unit time.Duration) {
+	previous := timeoutUnit
+	timeoutUnit = unit
+	t.Cleanup(func() { timeoutUnit = previous })
 }

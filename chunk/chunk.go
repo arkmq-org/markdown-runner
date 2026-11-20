@@ -296,6 +296,11 @@ func (chunk *ExecutableChunk) HasExecutedCorrectly() bool {
 	return allOk
 }
 
+// timeoutUnit is the unit of Config.MinutesToTimeout. It is a variable so tests
+// can exercise timeouts without waiting for minutes; tests that change it must
+// not run in parallel (no t.Parallel).
+var timeoutUnit = time.Minute
+
 // AddCommandToExecute parses a command string, creates a new RunningCommand,
 // and adds it to the chunk's list of commands.
 //
@@ -310,10 +315,13 @@ func (chunk *ExecutableChunk) AddCommandToExecute(trimedCommand string, tmpDirs 
 	// create the cancellable context of the command, the command.CancelFunc has to get called eventually to avoid
 	// leaking memory. The timeout is not armed here: it starts only when the command is actually started (see
 	// RunningCommand.Start), so that the time spent waiting for the user in interactive mode, or waiting for the
-	// other chunks of a parallel stage to be prepared, doesn't count against it.
-	ctx, cancel := context.WithCancel(context.Background())
-	command.CancelFunc = cancel
-	command.timeout = time.Duration(chunk.Context.Cfg.MinutesToTimeout) * time.Minute
+	// other chunks of a parallel stage to be prepared, doesn't count against it. When it fires, the context is
+	// cancelled with context.DeadlineExceeded as its cause, which is how a timeout is told apart from a cancellation.
+	var cancelCause context.CancelCauseFunc
+	command.execCtx, cancelCause = context.WithCancelCause(context.Background())
+	command.cancelCause = cancelCause
+	command.CancelFunc = func() { cancelCause(context.Canceled) }
+	command.timeout = time.Duration(chunk.Context.Cfg.MinutesToTimeout) * timeoutUnit
 
 	if trimedCommand == "" {
 		return nil, errors.New("empty command string provided")
@@ -326,7 +334,7 @@ func (chunk *ExecutableChunk) AddCommandToExecute(trimedCommand string, tmpDirs 
 	}
 	executable := splited[0]
 	args := splited[1:]
-	command.Cmd = exec.CommandContext(ctx, executable, args...)
+	command.Cmd = exec.CommandContext(command.execCtx, executable, args...)
 
 	// set the runtime directory for the command
 	command.Cmd.Dir, err = chunk.GetOrCreateRuntimeDirectory(tmpDirs)
