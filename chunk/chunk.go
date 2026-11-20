@@ -56,8 +56,14 @@ type ExecutableChunk struct {
 	// BackQuotes stores the number of backquotes used in the opening code fence,
 	// which is needed to correctly parse the end of the chunk.
 	BackQuotes int
-	Context    *runnercontext.Context
-	IsSkipped  bool
+	// Line is the 1-based line number of the opening code fence in the
+	// markdown file.
+	Line int `json:"-"`
+	// EndLine is the 1-based line number of the closing code fence in the
+	// markdown file (0 if the chunk is never closed).
+	EndLine   int `json:"-"`
+	Context   *runnercontext.Context
+	IsSkipped bool
 }
 
 // Init initializes an ExecutableChunk after it has been unmarshalled from JSON.

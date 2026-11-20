@@ -140,6 +140,7 @@ func ExtractStages(ctx *runnercontext.Context, file string, markdownDir string) 
 			if err != nil {
 				return nil, fmt.Errorf("chunk initialization error in %s at line %d: %w in %s", file, lineCounter, err, params)
 			}
+			currentChunk.Line = lineCounter
 			if currentStageName != currentChunk.Stage {
 				chunkStages = append(chunkStages, []*chunk.ExecutableChunk{})
 				currentStageName = currentChunk.Stage
@@ -151,6 +152,7 @@ func ExtractStages(ctx *runnercontext.Context, file string, markdownDir string) 
 		if isInChunk && !isInFormerOutputChunk {
 			if chunkStopFend.Match(scanner.Bytes()) {
 				isInChunk = false
+				currentChunk.EndLine = lineCounter
 			} else {
 				currentChunk.Content = append(currentChunk.Content, scanner.Text())
 			}

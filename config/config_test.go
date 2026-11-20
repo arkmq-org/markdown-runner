@@ -75,6 +75,21 @@ func TestNewConfig(t *testing.T) {
 				breakpoints: []Breakpoint{{Stage: "stage1", Chunk: "0"}, {File: "file.md", Stage: "stage2", Chunk: "myID"}, {Stage: "stage3"}},
 				markdownDir: "/tmp",
 			},
+			{
+				name:      "combined stage and line break flags",
+				args:      []string{"cmd", "-B", "56", "-B", "stage1", "--break-before", "12", "--break-after=doc.md@34", "--break-before=7", "-B", "doc@78", "/tmp"},
+				timeout:   10,
+				debugFrom: []string{"56", "stage1", "doc@78"},
+				breakpoints: []Breakpoint{
+					{Line: 56, After: true},
+					{Stage: "stage1"},
+					{File: "doc", Line: 78, After: true},
+					{Line: 12},
+					{Line: 7},
+					{File: "doc.md", Line: 34, After: true},
+				},
+				markdownDir: "/tmp",
+			},
 		}
 
 		for _, tc := range testCases {
@@ -153,10 +168,48 @@ func TestParseBreakpoint(t *testing.T) {
 		{value: "/chunk", isError: true},
 		{value: "stage/", isError: true},
 		{value: "@stage", isError: true},
+		{value: "102", expected: Breakpoint{Line: 102, After: true}},
+		{value: "doc@42", expected: Breakpoint{File: "doc", Line: 42, After: true}},
+		{value: "0", isError: true},
+		{value: "@42", isError: true},
+		{value: "stage/3", expected: Breakpoint{Stage: "stage", Chunk: "3"}},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.value, func(t *testing.T) {
 			bp, err := ParseBreakpoint(tc.value)
+			if tc.isError {
+				assert.Error(t, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expected, bp)
+		})
+	}
+}
+
+func TestParseLineBreakpoint(t *testing.T) {
+	testCases := []struct {
+		name     string
+		value    string
+		after    bool
+		expected Breakpoint
+		isError  bool
+	}{
+		{name: "before line", value: "12", expected: Breakpoint{Line: 12}},
+		{name: "before file@line", value: "doc.md@12", expected: Breakpoint{File: "doc.md", Line: 12}},
+		{name: "after line", value: "7", after: true, expected: Breakpoint{Line: 7, After: true}},
+		{name: "after file@line", value: "sub/doc.md@7", after: true, expected: Breakpoint{File: "sub/doc.md", Line: 7, After: true}},
+		{name: "not a number", value: "setup", after: true, isError: true},
+		{name: "stage/chunk", value: "setup/0", isError: true},
+		{name: "negative", value: "-3", isError: true},
+		{name: "zero", value: "0", isError: true},
+		{name: "empty line", value: "doc@", isError: true},
+		{name: "empty file", value: "@3", isError: true},
+		{name: "too many @", value: "a@b@3", isError: true},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			bp, err := ParseLineBreakpoint(tc.value, tc.after)
 			if tc.isError {
 				assert.Error(t, err)
 				return
