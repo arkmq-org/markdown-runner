@@ -5,6 +5,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/arkmq-org/markdown-runner/config"
 	"github.com/arkmq-org/markdown-runner/runnercontext"
@@ -407,5 +408,67 @@ func TestRunningCommand(t *testing.T) {
 
 		// Verify ENV section was still extracted
 		assert.NotEmpty(t, chunk.Context.Cfg.Env, "Expected environment variables to be extracted")
+	})
+
+	t.Run("timeout starts only once the user made an interactive decision", func(t *testing.T) {
+		tmpDirs := make(map[string]string)
+		cfg := &config.Config{MinutesToTimeout: 1, Interactive: true}
+		chunk := ExecutableChunk{
+			Context: &runnercontext.Context{
+				Cfg:   cfg,
+				RView: view.NewView("mock"),
+			},
+		}
+		command, err := chunk.AddCommandToExecute("sleep 0.1", tmpDirs)
+		assert.NoError(t, err)
+		// shrink the timeout so the test stays fast, the user takes longer than it to decide
+		command.timeout = 300 * time.Millisecond
+		command.GetUserInput = func(string) (string, error) {
+			time.Sleep(2 * command.timeout)
+			return "yes", nil
+		}
+		err = command.Execute()
+		assert.NoError(t, err, "Expected the command not to time out while the user was deciding")
+		assert.Equal(t, 0, command.Cmd.ProcessState.ExitCode())
+	})
+
+	t.Run("timeout starts only once a parallel command is started", func(t *testing.T) {
+		tmpDirs := make(map[string]string)
+		cfg := &config.Config{MinutesToTimeout: 1}
+		ui := view.NewView("mock")
+		chunk := ExecutableChunk{
+			IsParallel: true,
+			Context: &runnercontext.Context{
+				Cfg:   cfg,
+				RView: ui,
+			},
+		}
+		command, err := chunk.AddCommandToExecute("sleep 0.1", tmpDirs)
+		assert.NoError(t, err)
+		command.timeout = 300 * time.Millisecond
+		ui.DeclareParallelMode()
+		assert.NoError(t, chunk.DeclareParallelLoggers())
+		// simulate the time spent preparing the other chunks of the stage
+		time.Sleep(2 * command.timeout)
+		assert.NoError(t, chunk.StartParallel())
+		assert.NoError(t, command.Wait(), "Expected the command not to time out before being started")
+	})
+
+	t.Run("timeout kills a started command running for too long", func(t *testing.T) {
+		tmpDirs := make(map[string]string)
+		cfg := &config.Config{MinutesToTimeout: 1}
+		chunk := ExecutableChunk{
+			Context: &runnercontext.Context{
+				Cfg:   cfg,
+				RView: view.NewView("mock"),
+			},
+		}
+		command, err := chunk.AddCommandToExecute("sleep 10", tmpDirs)
+		assert.NoError(t, err)
+		command.timeout = 100 * time.Millisecond
+		begin := time.Now()
+		err = command.Execute()
+		assert.Error(t, err, "Expected the command to be killed by the timeout")
+		assert.Less(t, time.Since(begin), 5*time.Second, "Expected the command to be killed before its natural end")
 	})
 }

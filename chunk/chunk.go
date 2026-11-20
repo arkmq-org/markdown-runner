@@ -307,10 +307,13 @@ func (chunk *ExecutableChunk) AddCommandToExecute(trimedCommand string, tmpDirs 
 	command.Ctx = chunk.Context
 	command.id = uuid.New().String()
 
-	// create the cancel background function, the command.cancelFunc has to get called eventually to avoid leaking
-	// memory
-	ctx := context.Background()
-	ctx, command.CancelFunc = context.WithTimeout(context.Background(), time.Duration(chunk.Context.Cfg.MinutesToTimeout)*time.Minute)
+	// create the cancellable context of the command, the command.CancelFunc has to get called eventually to avoid
+	// leaking memory. The timeout is not armed here: it starts only when the command is actually started (see
+	// RunningCommand.Start), so that the time spent waiting for the user in interactive mode, or waiting for the
+	// other chunks of a parallel stage to be prepared, doesn't count against it.
+	ctx, cancel := context.WithCancel(context.Background())
+	command.CancelFunc = cancel
+	command.timeout = time.Duration(chunk.Context.Cfg.MinutesToTimeout) * time.Minute
 
 	if trimedCommand == "" {
 		return nil, errors.New("empty command string provided")

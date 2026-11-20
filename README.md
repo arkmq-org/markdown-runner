@@ -547,6 +547,9 @@ When debugging is enabled, the runner will prompt you for each chunk:
 - `all` - Execute this chunk and all remaining chunks without prompting
 - `cancel` - Stop execution immediately
 
+The `--timeout` countdown of a command only starts once the command is actually
+started, so taking your time to answer the prompt never causes a timeout.
+
 **Examples:**
 
 Given a markdown file with chunks:
@@ -889,17 +892,29 @@ go run main.go \
 ```
 ```shell markdown_runner
 
-                                                                                working command
-                                                                                SUCCESS: working command
-                                                                                failing command
-                                                                                ERROR: stdout:
+
+                                                                                
+working command
+
+                                                                                
+SUCCESS: working command
+
+                                                                                
+failing command
+
+                                                                                
+ERROR: stdout:
 this has failed
 
 stderr:
 
 exit code:1
-                                                                                Successful teardown
-                                                                                SUCCESS: Successful teardown
+
+                                                                                
+Successful teardown
+
+                                                                                
+SUCCESS: Successful teardown
 exit status 1
 ```
 
