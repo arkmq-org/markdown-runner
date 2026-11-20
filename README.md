@@ -892,29 +892,17 @@ go run main.go \
 ```
 ```shell markdown_runner
 
-
-                                                                                
-working command
-
-                                                                                
-SUCCESS: working command
-
-                                                                                
-failing command
-
-                                                                                
-ERROR: stdout:
+                                                                                working command
+                                                                                SUCCESS: working command
+                                                                                failing command
+                                                                                ERROR: stdout:
 this has failed
 
 stderr:
 
 exit code:1
-
-                                                                                
-Successful teardown
-
-                                                                                
-SUCCESS: Successful teardown
+                                                                                Successful teardown
+                                                                                SUCCESS: Successful teardown
 exit status 1
 ```
 
