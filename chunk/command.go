@@ -29,7 +29,8 @@ type RunningCommand struct {
 	// CmdPrettyName is a human-readable name for the command, used for logging.
 	CmdPrettyName string
 	// CancelFunc is the function to call to cancel the command's context,
-	// typically used for timeouts.
+	// typically used for timeouts. Start re-wraps it (see armTimeout) so that
+	// calling it also stops the timeout timer; Start must be called only once.
 	CancelFunc context.CancelFunc
 	// timeout is the maximum duration the command is allowed to run. The
 	// countdown starts when the command is started, not when it is created.
@@ -112,6 +113,10 @@ func (command *RunningCommand) Start() error {
 	command.armTimeout()
 	err := command.Cmd.Start()
 	if err != nil {
+		// Wait won't be called, release the timer and the context now.
+		if command.CancelFunc != nil {
+			command.CancelFunc()
+		}
 		command.Ctx.RView.Error(fmt.Sprintf("%s: %s\n", command.CmdPrettyName, err))
 	}
 	return err
