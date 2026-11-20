@@ -46,7 +46,9 @@ Modes:
 Execution Control:
   -i, --interactive          Prompt before each chunk (yes/no/continue/quit)
   -s, --start-from string    Start from a specific stage (stage or file@stage)
-  -B, --break-at string      Start debugging from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID), can be repeated
+  -B, --break-at string      Start debugging from a specific stage, chunk or line (stage, stage/chunkID, file@stage/chunkID, line or file@line), can be repeated
+      --break-before string  Start debugging from the last chunk before a line (line or file@line), can be repeated
+      --break-after string   Start debugging from the first chunk after a line (line or file@line), can be repeated
   -t, --timeout int          The timeout in minutes for every executed command (default 10)
   -u, --update-files         Update the chunk output section in the markdown files
       --ignore-breakpoints   Ignore the breakpoints
@@ -75,7 +77,7 @@ markdown-runner includes intelligent bash completion with advanced features that
 - **Flag filtering**: Excludes already-used and incompatible flags
 - **File@stage completion**: Complete file-specific stages and chunks
 - **Directory-aware**: Different behavior for files vs directories
-- **Comprehensive coverage**: 193 tests across 18 test suites ensure reliability
+- **Comprehensive coverage**: 210 tests across 28 test suites ensure reliability
 
 ```bash
 # Install completion (user-only)
@@ -547,14 +549,61 @@ markdown-runner --break-at myfile@stage2 mydirectory/
 markdown-runner -B stage2/0 -B stage4/myChunkID myfile.md
 ```
 
+##### Using `--break-before` and `--break-after` flags
+
+Instead of looking up a stage name, you can break around a line of the
+markdown file, for instance the line your editor's cursor is on:
+
+**Debug from the last chunk before line 102:**
+```bash
+markdown-runner --break-before 102 myfile.md
+```
+
+**Debug from the first chunk after line 102:**
+```bash
+markdown-runner --break-after 102 myfile.md
+```
+
+**Debug from a line of a specific file when running a directory:**
+```bash
+markdown-runner --break-after myfile@102 mydirectory/
+```
+
+A number given to `--break-at` is a line number and behaves like
+`--break-after`: `markdown-runner -B 102 myfile.md` is the same as
+`markdown-runner --break-after 102 myfile.md`. As a consequence, a stage whose
+name is only made of digits cannot be targeted with `-B` alone, use
+`-B stage/chunk` or `--start-from` instead.
+
+Line resolution rules:
+- line numbers start at 1, as in `vi` or `grep -n`;
+- if the line falls inside a chunk (fences included), that chunk is selected
+  by both flags;
+- otherwise `--break-before` selects the last chunk ending before the line and
+  `--break-after` selects the first chunk starting after the line;
+- without a `file@` prefix, the line applies to the first executed file that
+  has a matching chunk; with a `file@` prefix, the runner fails if that file
+  has no matching chunk;
+- with `--start-from`, only the chunks of the executed stages are considered;
+- each line breakpoint selects one chunk and then behaves like a
+  `--break-at stage/chunk` breakpoint;
+- `--ignore-breakpoints` can be combined with both flags: the breakpoints
+  embedded in the file are ignored, the requested line is still honored.
+
+`--break-at`, `--break-before` and `--break-after` can all be repeated and
+combined, for instance to stop at a stage and around two lines:
+```bash
+markdown-runner -B setup --break-before 40 --break-after 102 myfile.md
+```
+
 When debugging is enabled, the runner will prompt you for each chunk
 (`[Yes/no/continue/quit]`, press the first letter of an answer or enter for
 `yes`), much like stepping through a program with gdb:
 - `yes` - Execute this chunk and prompt again for the next one (step)
 - `no` - Skip this chunk and prompt again for the next one
 - `continue` - Execute this chunk and the following ones without prompting
-  until the next breakpoint (`--break-at` or `"breakpoint":true`) is reached,
-  or until the end if there is none
+  until the next breakpoint (`--break-at`, `--break-before`, `--break-after`
+  or `"breakpoint":true`) is reached, or until the end if there is none
 - `quit` - Stop execution immediately
 
 Breakpoints written in the documents (`"breakpoint":true`) can be disabled
@@ -597,6 +646,8 @@ Processing...
 - `markdown-runner -B myfile@setup/init mydirectory/` - Start debugging from the "init" chunk in myfile.md only
 - `markdown-runner -B setup/init -B main/process myfile.md` - Break at the "init" chunk, answer `continue` to run until the "process" chunk
 - `markdown-runner -s myfile@setup mydirectory/` - Start execution from the "setup" stage in myfile.md only
+- `markdown-runner --break-before 12 myfile.md` - Start debugging from the last chunk before line 12
+- `markdown-runner -B 12 myfile.md` - Start debugging from the first chunk after line 12
 
 **Useful combinations:**
 - `markdown-runner -B stage2/0 --dry-run myfile.md` - See what would be executed without running it

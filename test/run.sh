@@ -115,6 +115,26 @@ run_test "Several breakpoints can be set" \
 run_test "Every breakpoint is validated, not only the last one" \
     "! ./markdown-runner --view ci -B test/1 -B test/0 cases -f '.*'cases/happy.md" || ((FAILED_TESTS++))
 
+# --- Line based breakpoints ---
+# The ci view auto-answers the interactive prompt, so these runs do not block.
+run_test "Break after a line runs to completion" \
+    "./markdown-runner --view ci --break-after 2 cases/writer.md" || ((FAILED_TESTS++))
+
+run_test "Break before a line runs to completion" \
+    "./markdown-runner --view ci --break-before 1000 cases/writer.md" || ((FAILED_TESTS++))
+
+run_test "Break-at with a line number runs to completion" \
+    "./markdown-runner --view ci -B writer@2 cases/writer.md" || ((FAILED_TESTS++))
+
+run_test "Break-before with a non numeric line should fail" \
+    "! ./markdown-runner --view ci --break-before stage cases/writer.md" || ((FAILED_TESTS++))
+
+run_test "Break-at, break-before and break-after can be combined and repeated" \
+    "./markdown-runner --view ci -B 2 -B verify_file --break-before 1000 --break-before writer@1000 --break-after 1 --break-after 2 cases/writer.md" || ((FAILED_TESTS++))
+
+run_test "Break after the last chunk of a given file should fail" \
+    "! ./markdown-runner --view ci --break-after writer.md@100000 cases/writer.md" || ((FAILED_TESTS++))
+
 # --- Test Summary ---
 print_msg "33" "\n--- Test Summary ---"
 if [ "${FAILED_TESTS}" -eq 0 ]; then

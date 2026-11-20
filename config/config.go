@@ -5,6 +5,8 @@ package config
 import (
 	"fmt"
 	"os"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/pterm/pterm"
@@ -27,7 +29,9 @@ type Config struct {
 	StartFromFile     string
 	StartFromStage    string
 	DebugFrom         []string     // raw values of every --break-at flag
-	Breakpoints       []Breakpoint // parsed --break-at values, consumed once reached
+	BreakBefore       []string     // raw values of every --break-before flag
+	BreakAfter        []string     // raw values of every --break-after flag
+	Breakpoints       []Breakpoint // parsed break flag values, consumed once reached
 	MinutesToTimeout  int
 	UpdateFile        bool
 	Verbose           bool
@@ -37,33 +41,94 @@ type Config struct {
 }
 
 // Breakpoint is a location where the runner switches to interactive mode,
-// as given by the --break-at flag: stage, stage/chunkID or file@stage/chunkID.
+// as given by the --break-at flag (stage, stage/chunkID, file@stage/chunkID,
+// line or file@line) or by the --break-before and --break-after flags (line
+// or file@line).
 type Breakpoint struct {
 	// File restricts the breakpoint to a given markdown file, empty for any file.
 	File string
-	// Stage is the name of the stage to break at.
+	// Stage is the name of the stage to break at, empty for a line breakpoint.
 	Stage string
 	// Chunk is the ID or 0-based index of the chunk to break at, empty for
 	// the whole stage.
 	Chunk string
+	// Line is the 1-based markdown line to break around, 0 for a stage
+	// breakpoint.
+	Line int
+	// After selects, for a line breakpoint, the first chunk after Line
+	// instead of the last chunk before it. A chunk enclosing Line is
+	// selected either way.
+	After bool
 }
 
-// ParseBreakpoint parses a --break-at value: stage, stage/chunkID or
-// file@stage/chunkID.
+// lineNumberMatcher matches a value that designates a line in a markdown file.
+var lineNumberMatcher = regexp.MustCompile("^[0-9]+$")
+
+// splitFileTarget splits the optional "file@" prefix of a break flag value.
+// It returns ok=false when the value contains more than one '@' or when the
+// file part is empty.
+func splitFileTarget(value string) (file string, rest string, ok bool) {
+	if !strings.Contains(value, "@") {
+		return "", value, true
+	}
+	parts := strings.Split(value, "@")
+	if len(parts) != 2 || parts[0] == "" {
+		return "", "", false
+	}
+	return parts[0], parts[1], true
+}
+
+// parseLine parses the line part of a line breakpoint.
+func parseLine(linePart string) (int, bool) {
+	if !lineNumberMatcher.MatchString(linePart) {
+		return 0, false
+	}
+	line, err := strconv.Atoi(linePart)
+	if err != nil || line < 1 {
+		return 0, false
+	}
+	return line, true
+}
+
+// ParseLineBreakpoint parses a --break-before (after=false) or --break-after
+// (after=true) value: line or file@line, with a line number starting at 1.
+func ParseLineBreakpoint(value string, after bool) (Breakpoint, error) {
+	flag := "break-before"
+	if after {
+		flag = "break-after"
+	}
+	formatErr := fmt.Errorf("invalid %s value %q. Use 'line' or 'file@line' with a line number starting at 1", flag, value)
+	file, linePart, ok := splitFileTarget(value)
+	if !ok {
+		return Breakpoint{}, formatErr
+	}
+	line, ok := parseLine(linePart)
+	if !ok {
+		return Breakpoint{}, formatErr
+	}
+	return Breakpoint{File: file, Line: line, After: after}, nil
+}
+
+// ParseBreakpoint parses a --break-at value: stage, stage/chunkID,
+// file@stage/chunkID, line or file@line. A line number is a line breakpoint
+// that behaves like --break-after.
 func ParseBreakpoint(value string) (Breakpoint, error) {
 	var bp Breakpoint
-	formatErr := fmt.Errorf("invalid break-at format %q. Use 'stage', 'stage/chunkID', or 'file@stage/chunkID'", value)
-	debugPart := value
-	if strings.Contains(value, "@") {
-		atParts := strings.Split(value, "@")
-		if len(atParts) != 2 {
+	formatErr := fmt.Errorf("invalid break-at format %q. Use 'stage', 'stage/chunkID', 'file@stage/chunkID', 'line' or 'file@line'", value)
+	file, debugPart, ok := splitFileTarget(value)
+	if !ok {
+		return bp, formatErr
+	}
+	bp.File = file
+	if lineNumberMatcher.MatchString(debugPart) {
+		// A line number given to break-at defaults to break-after
+		line, ok := parseLine(debugPart)
+		if !ok {
 			return bp, formatErr
 		}
-		bp.File = atParts[0]
-		debugPart = atParts[1]
-		if bp.File == "" {
-			return bp, formatErr
-		}
+		bp.Line = line
+		bp.After = true
+		return bp, nil
 	}
 	parts := strings.Split(debugPart, "/")
 	switch len(parts) {
@@ -101,7 +166,9 @@ Modes:
 Execution Control:
   -i, --interactive          Prompt before each chunk (yes/no/continue/quit)
   -s, --start-from string    Start from a specific stage (stage or file@stage)
-  -B, --break-at string      Start debugging from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID), can be repeated
+  -B, --break-at string      Start debugging from a specific stage, chunk or line (stage, stage/chunkID, file@stage/chunkID, line or file@line), can be repeated
+      --break-before string  Start debugging from the last chunk before a line (line or file@line), can be repeated
+      --break-after string   Start debugging from the first chunk after a line (line or file@line), can be repeated
   -t, --timeout int          The timeout in minutes for every executed command (default 10)
   -u, --update-files         Update the chunk output section in the markdown files
       --ignore-breakpoints   Ignore the breakpoints
@@ -132,7 +199,9 @@ Help:
 	pflag.BoolVarP(&cfg.Quiet, "quiet", "q", false, "Disable output")
 	pflag.BoolVarP(&cfg.Recursive, "recursive", "r", false, "Search for markdown files recursively")
 	pflag.StringVarP(&cfg.StartFrom, "start-from", "s", "", "Start from a specific stage (stage or file@stage)")
-	pflag.StringArrayVarP(&cfg.DebugFrom, "break-at", "B", nil, "Start debugging from a specific stage or chunk (stage, stage/chunkID, or file@stage/chunkID), can be repeated")
+	pflag.StringArrayVarP(&cfg.DebugFrom, "break-at", "B", nil, "Start debugging from a specific stage, chunk or line (stage, stage/chunkID, file@stage/chunkID, line or file@line), can be repeated")
+	pflag.StringArrayVar(&cfg.BreakBefore, "break-before", nil, "Start debugging from the last chunk before a line (line or file@line), can be repeated")
+	pflag.StringArrayVar(&cfg.BreakAfter, "break-after", nil, "Start debugging from the first chunk after a line (line or file@line), can be repeated")
 	pflag.IntVarP(&cfg.MinutesToTimeout, "timeout", "t", 10, "The timeout in minutes for every executed command")
 	pflag.BoolVarP(&cfg.UpdateFile, "update-files", "u", false, "Update the chunk output section in the markdown files")
 	pflag.BoolVarP(&cfg.Verbose, "verbose", "v", false, "Print more logs")
@@ -155,9 +224,24 @@ Help:
 		}
 	}
 
-	// Parse break-at format: stage, stage/chunkID, or file@stage/chunkID
+	// Parse break-at format: stage, stage/chunkID, file@stage/chunkID, line or file@line
 	for _, value := range cfg.DebugFrom {
 		bp, err := ParseBreakpoint(value)
+		if err != nil {
+			pterm.Fatal.Println(err)
+		}
+		cfg.Breakpoints = append(cfg.Breakpoints, bp)
+	}
+	// Parse break-before and break-after format: line or file@line
+	for _, value := range cfg.BreakBefore {
+		bp, err := ParseLineBreakpoint(value, false)
+		if err != nil {
+			pterm.Fatal.Println(err)
+		}
+		cfg.Breakpoints = append(cfg.Breakpoints, bp)
+	}
+	for _, value := range cfg.BreakAfter {
+		bp, err := ParseLineBreakpoint(value, true)
 		if err != nil {
 			pterm.Fatal.Println(err)
 		}
